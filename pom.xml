@@ -42,16 +42,6 @@
     </repository>
   </repositories>
 
-<!--  <pluginRepositories>
-    <pluginRepository>
-      <id>repository.jboss.org</id>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>-->
-
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -90,69 +80,10 @@
         </configuration>
       </plugin>
 
-      <!-- docbook documentation generation -->
-<!--      <plugin>
-        <groupId>com.agilejava.docbkx</groupId>
-        <artifactId>docbkx-maven-plugin</artifactId>
-        <version>2.0.7</version>
-        <executions>
-          &lt;!&ndash; single-page documentation &ndash;&gt;
-          <execution>
-            <id>single-page</id>
-            <goals>
-              <goal>generate-html</goal>
-              <goal>generate-pdf</goal>
-            </goals>
-            <configuration>
-              <chunkedOutput>false</chunkedOutput>
-              <htmlCustomization>src/docbkx/resources/xsl/html.xsl</htmlCustomization>
-              &lt;!&ndash;<foCustomization>src/docbkx/resources/xsl/fopdf.xsl</foCustomization>&ndash;&gt;
-            </configuration>
-            <phase>generate-sources</phase>
-          </execution>
-          &lt;!&ndash; multi-page documentation &ndash;&gt;
-          <execution>
-            <goals>
-              <goal>generate-html</goal>
-            </goals>
-            <configuration>
-              <chunkedOutput>true</chunkedOutput>
-              <htmlCustomization>src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
-            </configuration>
-            <phase>generate-sources</phase>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.docbook</groupId>
-            <artifactId>docbook-xml</artifactId>
-            <version>4.4</version>
-            <scope>runtime</scope>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <includes>book.xml</includes>
-          <htmlStylesheet>css/html.css</htmlStylesheet>
-          <xincludeSupported>true</xincludeSupported>
-          <sourceDirectory>${basedir}/src/docbkx</sourceDirectory>
-          &lt;!&ndash; use extensions &ndash;&gt;
-          <useExtensions>1</useExtensions>
-          <highlightSource>1</highlightSource>
-          <highlightDefaultLanguage />
-          &lt;!&ndash; callouts &ndash;&gt;
-          <calloutsExtension>1</calloutsExtension>
-          <entities>
-            <entity>
-              <name>version</name>
-              <value>${version}</value>
-            </entity>
-          </entities>
-        </configuration>
-      </plugin>-->
-
       <!-- javadoc generation -->
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
         <executions>
           <execution>
             <id>generate-javadoc</id>
@@ -170,8 +101,9 @@
             <version>1.3.1.GA</version>
           </docletArtifact>
           <attach>false</attach>
+          <level>public</level>
           <stylesheetfile>${basedir}/src/javadoc/stylesheet.css</stylesheetfile>
-          <javadocDirectory>${basedir}/src/javadoc</javadocDirectory>
+          <javadocDirectory>${basedir}/src/javadoc/</javadocDirectory>
           <docfilessubdirs>true</docfilessubdirs>
           <useStandardDocletOptions>true</useStandardDocletOptions>
           <outputDirectory>${project.build.directory}/api</outputDirectory>
