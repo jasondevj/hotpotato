@@ -1,0 +1,40 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.docbook.org/xml/4.5/docbookx.dtd" [
+    <!ENTITY % CustomDTD SYSTEM "../custom.dtd">
+    %CustomDTD;
+    ]>
+<chapter id="indepth">
+  <title>Hotpotato in depth</title>
+  <subtitle>Looking under the hood</subtitle>
+
+  <sect1>
+    <title>Tweaking with configuration</title>
+    <para>
+      Tweaking with the configuration parameters.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>OIO vs NIO</title>
+    <para>
+      Adapting
+      <code>HttpClient</code>
+      to your needs.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Performance guidelines</title>
+    <para>
+      Adapting
+      <code>HttpClient</code>
+      to your needs.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Summary</title>
+    <para>
+      Summary...
+    </para>
+  </sect1>
+</chapter>

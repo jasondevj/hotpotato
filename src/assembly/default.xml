@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <id>dist</id>
+  <formats>
+    <format>tar.bz2</format>
+    <format>zip</format>
+  </formats>
+  <includeSiteDirectory>false</includeSiteDirectory>
+
+  <fileSets>
+    <!-- source -->
+    <fileSet>
+      <includes>
+        <include>**/README*</include>
+        <include>**/LICENSE*</include>
+        <include>**/NOTICE*</include>
+
+        <include>**/COPYRIGHT*</include>
+        <include>**/*.txt</include>
+        <include>**/*.xml</include>
+        <include>**/license/**</include>
+        <include>**/src/main</include>
+        <include>**/src/test</include>
+        <include>**/src/functional</include>
+        <include>**/src/benchmark</include>
+      </includes>
+
+      <excludes>
+        <exclude>**/target/**</exclude>
+        <exclude>**/.*/**</exclude>
+      </excludes>
+    </fileSet>
+
+    <!-- jars -->
+    <fileSet>
+      <directory>target</directory>
+      <outputDirectory>jar</outputDirectory>
+      <includes>
+        <include>${project.build.finalName}*.jar</include>
+      </includes>
+      <excludes>
+        <exclude>${project.build.finalName}*-javadoc.jar</exclude>
+      </excludes>
+    </fileSet>
+
+    <!-- api docs -->
+    <fileSet>
+      <directory>target/api</directory>
+      <outputDirectory>doc/api</outputDirectory>
+      <includes>
+        <include>**/**</include>
+      </includes>
+    </fileSet>
+
+    <!-- xref docs -->
+    <fileSet>
+      <directory>target/xref</directory>
+      <outputDirectory>doc/xref</outputDirectory>
+      <includes>
+        <include>**/**</include>
+      </includes>
+    </fileSet>
+
+    <!-- docbook -->
+    <fileSet>
+      <directory>target/docbook/publish/en-GB</directory>
+      <outputDirectory>doc/guide</outputDirectory>
+      <includes>
+        <include>**/**</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</assembly>

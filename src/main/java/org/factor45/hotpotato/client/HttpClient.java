@@ -1,0 +1,71 @@
+package org.factor45.hotpotato.client;
+
+import org.factor45.hotpotato.request.HttpRequestFuture;
+import org.factor45.hotpotato.response.HttpResponseProcessor;
+import org.jboss.netty.handler.codec.http.HttpRequest;
+
+/**
+ * Executes {@code org.jboss.netty.handler.codec.http.HttpRequest}s.
+ *
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ */
+public interface HttpClient {
+
+    /**
+     * Initialise the instance.
+     * <p/>
+     * All clients must be initialised prior to their usage. Calling any of the {@code execute()} methods on a client
+     * prior to calling {@code init()} will result in a {@link CannotExecuteRequestException}.
+     *
+     * @return {@code true} if successfully initialised, {@code false} otherwise.
+     */
+    boolean init();
+
+    /**
+     * Terminate the instance.
+     * <p/>
+     * When a client is no longer needed, it should be properly shut down by calling {@code terminate()} in order to
+     * release resources.
+     * <p/>
+     * Terminating a client while it is still processing requests will result in all requests being finished (failing),
+     * no matter if they are in the event queue, request queue or already executing inside a connection.
+     */
+    void terminate();
+
+    /**
+     * Executes a request to a given host on port 80 with default timeout of the client.
+     *
+     * @param host      Destination host.
+     * @param port      Destination port.
+     * @param request   Request to execute.
+     * @param processor Response body processor.
+     *
+     * @return Future associated with the operation.
+     *
+     * @throws CannotExecuteRequestException Thrown when the request is invalid or the client can no longer accept
+     *                                       requests, either due to termination or full queue.
+     */
+    <T> HttpRequestFuture<T> execute(String host, int port, HttpRequest request, HttpResponseProcessor<T> processor)
+            throws CannotExecuteRequestException;
+
+    /**
+     * Version of {@code execute()} that allows manual definition of timeout.
+     *
+     * @param host      Destination host.
+     * @param port      Destination port.
+     * @param timeout   Manual timeout for the operation to complete. This timeout is related to the request execution
+     *                  time once it enters a connection, not the full lifecycle of the request. If there are many
+     *                  events in the event queue it is likely that the request will have to wait a couple of
+     *                  milliseconds before actually entering a connection.
+     * @param request   Request to execute.
+     * @param processor Response body processor.
+     *
+     * @return Future associated with the operation.
+     *
+     * @throws CannotExecuteRequestException Thrown when the request is invalid or the client can no longer accept
+     *                                       requests, either due to termination or full queue.
+     */
+    <T> HttpRequestFuture<T> execute(String host, int port, int timeout, HttpRequest request,
+                                     HttpResponseProcessor<T> processor)
+            throws CannotExecuteRequestException;
+}

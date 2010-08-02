@@ -1,0 +1,175 @@
+/* Javadoc style sheet */
+
+/* Define colors, fonts and other style attributes here to override the defaults */
+
+/* Page background color */
+body {
+    background: #FFFFFF url(resources/bkg_gradient.gif) repeat-x;
+    margin: 0 auto;
+    font-family: sans-serif;
+    font-size: 12px;
+    padding: 0 2em;
+    color: #333;
+}
+
+/* Common elements */
+
+font {
+    font-size: inherit;
+    color: inherit;
+    font-weight: inherit;
+}
+
+hr {
+    border-top: 1px solid #E6E7E8;
+    border-bottom: 0 none;
+}
+
+tt, tt *, pre, pre *, code, code * {
+    font-family: "Liberation Mono", "DejaVu Sans Mono", Consolas, Monaco, "Vera Sans Mono", "Lucida Console", "Courier New", monospace;
+}
+
+a:link {
+    color: #3b5772;
+    text-decoration: none;
+}
+
+a:visited {
+    /*color: #8d799d;*/
+    color: #3b5772;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #80a0c1;
+    text-decoration: underline;
+}
+
+/* Headings */
+h1 {
+    background: url(resources/h1_hdr.png) no-repeat;
+    border-top: 1px dotted #CCCCCC;
+    line-height: 1.2em;
+    color: #182737;
+    font-size: 2em;
+    padding: 1.5em;
+    margin-top: 0;
+    text-align: left;
+}
+
+/* Default Table elements and colors */
+
+th, table {
+    border-collapse: collapse;
+    border-color: #E6E7E8;
+}
+
+.TableHeadingColor {
+    background: #000000 url(resources/bkg_blkheader.png) repeat-x scroll left top;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: bold;
+    height: 31px;
+    text-align: left;
+    padding: 1.5em;
+}
+
+.TableHeadingColor th {
+    padding-left: 10px;
+}
+
+.TableSubHeadingColor {
+    background: #EEEEFF
+}
+
+/* Light mauve */
+.TableRowColor {
+    background: #FFFFFF;
+    border-color: #E6E7E8;
+}
+
+.TableRowColor td {
+    line-height: 175%;
+    padding-left: 10px;
+}
+
+/* Font used in left-hand frame lists */
+.FrameTitleFont {
+    font-weight: bold;
+    margin-top: 1em;
+    display: block;
+}
+
+.FrameHeadingFont {
+    font-weight: bold;
+    margin-top: 1em;
+    display: block;
+}
+
+.FrameItemFont {
+    font-size: 100%;
+}
+
+/* Navigation bar fonts and colors */
+
+.NavBarCell1 {
+    background: #ffffff url(resources/bkgheader.png) repeat-x scroll left top;
+    line-height: 2em;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.NavBarFont1 {
+    color: white;
+}
+
+.NavBarCell1 a {
+    color: white;
+}
+
+.NavBarCell1Rev {
+    background-color: #FFFFFF;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.NavBarFont1 {
+    color: #FFFFFF;
+}
+
+.NavBarFont1Rev {
+    color: #243446;
+}
+
+.NavBarCell2 {
+    background-color: #FFFFFF;
+}
+
+.NavBarCell3 {
+    background-color: #FFFFFF;
+}
+
+.note {
+    margin: 15px;
+    background-color: #eeeeff;
+    padding: 10px;
+}
+
+.note .header {
+    background: url(resources/warning_24.png) no-repeat;
+    margin: 0 0 10px;
+    padding: 2px 2px 2px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+pre.code {
+    border: 1px dotted #aaa;
+    margin: 15px;
+    padding: 10px;
+    background-color: #eee;
+}
+
+em {
+    color: #666;
+}
