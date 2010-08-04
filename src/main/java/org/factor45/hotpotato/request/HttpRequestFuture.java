@@ -1,6 +1,7 @@
 package org.factor45.hotpotato.request;
 
 import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.concurrent.TimeUnit;
 
@@ -70,6 +71,26 @@ public interface HttpRequestFuture<T> {
      * @return HTTP response.
      */
     HttpResponse getResponse();
+
+    /**
+     * Alias for {@code future.getResponse().getStatus()}.
+     *
+     * @return status of the response or {@code null} if {@link #getResponse()} would yield {@code null}.
+     */
+    HttpResponseStatus getStatus();
+    /**
+     * Handy alias for {@code future.getResponse().getStatus().getCode()}
+     *
+     * @return status code value or {@code -1} if response is {@code null} when this method is called.
+     */
+    int getResponseStatusCode();
+
+    /**
+     * Alias to check if the response code was >= 200 and <= 299.
+     *
+     * @return {@code true} if response status code was >= 200 and <= 299, {@code false} otherwise.
+     */
+    boolean isSuccessfulResponse();
 
     /**
      * Used by the {@link org.factor45.hotpotato.client.connection.HttpConnection} implementations to mark request

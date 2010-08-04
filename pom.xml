@@ -75,7 +75,7 @@
           <forkMode>never</forkMode>
           <excludes>
             <exclude>**/Abstract*</exclude>
-            <exclude>**/TestUtil*</exclude>
+            <exclude>**/*TestUtil*</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -157,6 +157,7 @@
           <stylesheet>${basedir}/src/xref/stylesheet.css</stylesheet>
           <docTitle>${project.name} Source Xref (${project.version})</docTitle>
           <windowTitle>${project.name} Source Xref (${project.version})</windowTitle>
+          <lineLength>120</lineLength>
         </configuration>
       </plugin>
 
@@ -200,6 +201,7 @@
         </dependencies>
         <configuration>
           <sourceDocumentName>master.xml</sourceDocumentName>
+          <masterTranslation>en-GB</masterTranslation>
           <sourceDirectory>${basedir}/src/docbook</sourceDirectory>
           <cssResource>
             <directory>${basedir}/src/docbook</directory>

@@ -68,7 +68,7 @@ public class SingleHostBenchmark {
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < this.repetitions; i++) {
-            futures.add(client.execute(this.host, this.port, 0, this.request, new DiscardProcessor()));
+            futures.add(client.execute(this.host, this.port, 300, this.request, new DiscardProcessor()));
             if (this.dataGenInterval > 0) {
                 try {
                     Thread.sleep(this.dataGenInterval);
@@ -166,10 +166,10 @@ public class SingleHostBenchmark {
         String host = "10.0.0.2";
         HttpVersion version = HttpVersion.HTTP_1_1;
         int port = 8080;
-        int repetitions = 1000;
+        int repetitions = 10000;
         int dataGenInterval = 0;
-        int connectionsPerHost = 100;
-        boolean useNio = false;
+        int connectionsPerHost = 10;
+        boolean useNio = true;
         int iterations = 100;
 
         HttpRequest request = new DefaultHttpRequest(version, HttpMethod.GET, "/");
@@ -207,12 +207,10 @@ public class SingleHostBenchmark {
                                stat[5] + "\t" + stat[6] + "\t" + stat[7] + "\t" + stat[8] + "\t" + stat[9]);
         }
         float averageTestTime = 0;
-        int totalRequests = 0;
         float averageThroughput = 0;
         System.out.println("Test time\tSuccessful requests\tThroughput");
         for (float[] throughput : test.getThroughputs()) {
             averageTestTime += throughput[0];
-            totalRequests += throughput[1];
             averageThroughput += throughput[2] * 1000;
             System.out.println(throughput[0] + "\t" + throughput[1] + "\t" + (throughput[2] * 1000));
         }
@@ -221,7 +219,7 @@ public class SingleHostBenchmark {
         System.out.println(iterations + " batches of " + repetitions + " " + version + " GET " +
                           (dataGenInterval == 0 ? "in burst mode" : "with data generation at a steady " +
                                                                     dataGenInterval + "ms interval") +
-                          " using " + connectionsPerHost + " connections per host and " + (useNio ? "OIO" : "NIO"));
+                          " using " + connectionsPerHost + " connections per host and " + (useNio ? "NIO" : "OIO"));
         System.out.println("- Batch averages -----------------------------------------");
         System.out.println("Average execution time p/ request: " + (averageExecution / iterations) + "ms");
         System.out.println("Average existence of each request: " + (averageExistence / iterations) + "ms");

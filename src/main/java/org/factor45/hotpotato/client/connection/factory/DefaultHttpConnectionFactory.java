@@ -3,6 +3,7 @@ package org.factor45.hotpotato.client.connection.factory;
 import org.factor45.hotpotato.client.connection.DefaultHttpConnection;
 import org.factor45.hotpotato.client.connection.HttpConnection;
 import org.factor45.hotpotato.client.connection.HttpConnectionListener;
+import org.factor45.hotpotato.client.timeout.TimeoutManager;
 
 import java.util.concurrent.Executor;
 
@@ -29,9 +30,15 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
 
     @Override
     public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                        Executor executor, boolean delegateWritesToExecutor) {
-        DefaultHttpConnection connection = new DefaultHttpConnection(id, host, port, listener, executor,
-                                                                     delegateWritesToExecutor);
+                                        TimeoutManager timeoutManager) {
+        return this.getConnection(id, host, port, listener, timeoutManager, null);
+    }
+
+    @Override
+    public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
+                                        TimeoutManager timeoutManager, Executor executor) {
+        DefaultHttpConnection connection =
+                new DefaultHttpConnection(id, host, port, listener, timeoutManager, executor);
         connection.setDisconnectIfNonKeepAliveRequest(this.disconnectIfNonKeepAliveRequest);
         return connection;
     }

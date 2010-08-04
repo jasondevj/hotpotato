@@ -14,11 +14,8 @@
         <include>**/README*</include>
         <include>**/LICENSE*</include>
         <include>**/NOTICE*</include>
-
         <include>**/COPYRIGHT*</include>
-        <include>**/*.txt</include>
-        <include>**/*.xml</include>
-        <include>**/license/**</include>
+
         <include>**/src/main</include>
         <include>**/src/test</include>
         <include>**/src/functional</include>
@@ -26,6 +23,7 @@
       </includes>
 
       <excludes>
+        <exclude>**/pom.xml</exclude>
         <exclude>**/target/**</exclude>
         <exclude>**/.*/**</exclude>
       </excludes>
@@ -63,7 +61,7 @@
 
     <!-- docbook -->
     <fileSet>
-      <directory>target/docbook/publish/en-GB</directory>
+      <directory>target/docbook/publish/en-US</directory>
       <outputDirectory>doc/guide</outputDirectory>
       <includes>
         <include>**/**</include>

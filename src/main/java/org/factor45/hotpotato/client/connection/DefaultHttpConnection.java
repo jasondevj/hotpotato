@@ -1,6 +1,7 @@
 package org.factor45.hotpotato.client.connection;
 
 import org.factor45.hotpotato.client.HttpRequestContext;
+import org.factor45.hotpotato.client.timeout.TimeoutManager;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
@@ -24,10 +25,11 @@ import java.util.concurrent.Executor;
  * If you are sure the servers you will be connecting to support pipelining correctly, you can use the {@linkplain
  * PipeliningHttpConnection pipelining version}.
  * <p/>
- * This implementation only accepts one request at a time. If {@link #execute(org.factor45.hotpotato.client.HttpRequestContext) execute()} is called
- * while {@link #isAvailable()} would return false, the request will be accepted and immediately fail with {@link
- * HttpRequestFuture#EXECUTION_REJECTED} <strong>unless</strong> the socket has been disconnected (in which case the
- * request will not fail but {@link #execute(HttpRequestContext)} will return {@code false} instead).
+ * This implementation only accepts one request at a time. If {@link
+ * #execute(org.factor45.hotpotato.client.HttpRequestContext) execute()} is called while {@link #isAvailable()} would
+ * return false, the request will be accepted and immediately fail with {@link HttpRequestFuture#EXECUTION_REJECTED}
+ * <strong>unless</strong> the socket has been disconnected (in which case the request will not fail but
+ * {@link #execute(HttpRequestContext)} will return {@code false} instead).
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
@@ -43,17 +45,16 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
     private final String host;
     private final int port;
     private final HttpConnectionListener listener;
+    private final TimeoutManager timeoutManager;
     private final Executor executor;
-    private final boolean delegateWritesToExecutor;
     private boolean disconnectIfNonKeepAliveRequest;
 
     // internal vars --------------------------------------------------------------------------------------------------
 
+    private final Object mutex;
     private Channel channel;
-    private long lastActivity;
     private volatile Throwable terminate;
     private boolean readingChunks;
-    private final Object mutex;
     private volatile boolean available;
     private HttpRequestContext currentRequest;
     private HttpResponse currentResponse;
@@ -61,15 +62,19 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
 
     // constructors ---------------------------------------------------------------------------------------------------
 
-    public DefaultHttpConnection(String id, String host, int port, HttpConnectionListener listener, Executor executor,
-                                 boolean delegateWritesToExecutor) {
+    public DefaultHttpConnection(String id, String host, int port, HttpConnectionListener listener,
+                                 TimeoutManager timeoutManager) {
+        this(id, host, port, listener, timeoutManager, null);
+    }
+
+    public DefaultHttpConnection(String id, String host, int port, HttpConnectionListener listener,
+                                 TimeoutManager timeoutManager, Executor executor) {
         this.id = id;
         this.host = host;
         this.port = port;
         this.listener = listener;
+        this.timeoutManager = timeoutManager;
         this.executor = executor;
-        this.delegateWritesToExecutor = delegateWritesToExecutor;
-        this.lastActivity = System.currentTimeMillis();
         this.mutex = new Object();
         this.disconnectIfNonKeepAliveRequest = DISCONNECT_IF_NON_KEEP_ALIVE_REQUEST;
     }
@@ -78,7 +83,6 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        this.lastActivity = System.currentTimeMillis();
         // Synch this big block, as there is a chance that it's a complete response.
         // If it's a complete response (in other words, all the data necessary to mark the request as finished is
         // present), and it's cancelled meanwhile, synch'ing this block will guarantee that the request will
@@ -136,7 +140,6 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        this.lastActivity = System.currentTimeMillis();
         synchronized (this.mutex) {
             // Just in case terminate was issued meanwhile... will hardly ever happen unless someone is intentionally
             // trying to screw up...
@@ -208,10 +211,6 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         return this.port;
     }
 
-    public long getIdleTime() {
-        return System.currentTimeMillis() - this.lastActivity;
-    }
-
     public boolean isAvailable() {
         return this.available;
     }
@@ -251,8 +250,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         // (yes, I know write() is damn fast) on write() or the connection goes down while write() is still executing
         // and by some race-condition-miracle the events trigger faster than write() executes (hooray for imperative
         // multithreading!) thus causing write to fail. That's why this block is inside a try-catch. Y'never know...
-//        this.channel.write(context.getRequest());
-        if (this.delegateWritesToExecutor) {
+        if (this.executor != null) {
             // Delegating writes to an executor results in lower throughput but also lower request/response time.
             this.executor.execute(new Runnable() {
                 @Override
@@ -267,6 +265,8 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
                 }
             });
         } else {
+            // Otherwise just execute the write in the thread that called execute() (which typically is the client's
+            // event dispatcher).
             try {
                 this.channel.write(context.getRequest());
             } catch (Exception e) {
@@ -280,7 +280,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
 
         // Launch a timeout checker.
         if (context.getTimeout() > 0) {
-            this.executor.execute(new TimeoutChecker(context));
+            this.timeoutManager.manageRequestTimeout(context);
         }
 
         return true;

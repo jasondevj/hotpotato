@@ -1,0 +1,2 @@
+- add suport for pipelining
+- add a growing (but max sized) thread pool in DefaultHttpConnection

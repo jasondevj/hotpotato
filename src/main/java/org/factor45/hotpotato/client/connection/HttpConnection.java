@@ -85,14 +85,6 @@ public interface HttpConnection extends ChannelHandler {
     int getPort();
 
     /**
-     * Returns the idle time of this connection. Idle time is the delta between now (System.currentTimeMillis()) and the
-     * last time any activity on the underlying channel occured (either writes or reads).
-     *
-     * @return Idle time, in milliseconds.
-     */
-    long getIdleTime();
-
-    /**
      * Returns whether this connection is available to process a request. Connections that execute HTTP 1.0 requests
      * will <strong>never</strong> return true after the request has been approved for processing as the socket will
      * be closed by the server.

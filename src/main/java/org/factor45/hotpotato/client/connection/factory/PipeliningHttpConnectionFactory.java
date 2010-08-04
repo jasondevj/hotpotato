@@ -2,7 +2,7 @@ package org.factor45.hotpotato.client.connection.factory;
 
 import org.factor45.hotpotato.client.connection.HttpConnection;
 import org.factor45.hotpotato.client.connection.HttpConnectionListener;
-import org.factor45.hotpotato.client.connection.PipeliningHttpConnection;
+import org.factor45.hotpotato.client.timeout.TimeoutManager;
 
 import java.util.concurrent.Executor;
 
@@ -30,14 +30,22 @@ public class PipeliningHttpConnectionFactory implements HttpConnectionFactory {
 
     // HttpConnectionFactory ------------------------------------------------------------------------------------------
 
+
     @Override
     public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                        Executor executor, boolean delegateWritesToExecutor) {
-        PipeliningHttpConnection connection = new PipeliningHttpConnection(id, host, port, listener,
-                                                                           delegateWritesToExecutor);
-        connection.setAllowPostPipelining(this.allowPostPipelining);
-        connection.setDisconnectIfNonKeepAliveRequest(this.disconnectIfNonKeepAliveRequest);
-        return connection;
+                                        TimeoutManager manager) {
+        throw new UnsupportedOperationException("not implemented");
+    }
+
+    @Override
+    public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
+                                        TimeoutManager manager, Executor executor) {
+        throw new UnsupportedOperationException("not implemented");
+//        PipeliningHttpConnection connection = new PipeliningHttpConnection(id, host, port, listener,
+//                                                                           delegateWritesToExecutor);
+//        connection.setAllowPostPipelining(this.allowPostPipelining);
+//        connection.setDisconnectIfNonKeepAliveRequest(this.disconnectIfNonKeepAliveRequest);
+//        return connection;
     }
 
     // getters & setters ----------------------------------------------------------------------------------------------

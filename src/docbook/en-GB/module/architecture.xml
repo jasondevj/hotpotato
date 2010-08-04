@@ -1,0 +1,21 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.docbook.org/xml/4.5/docbookx.dtd" [
+    <!ENTITY % CustomDTD SYSTEM "../custom.dtd">
+    %CustomDTD;
+    ]>
+<chapter>
+  <title>Architecture</title>
+
+  <sect1>
+    <title>Arch1</title>
+    <para>
+      Some text here...
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Summary</title>
+    <para>
+      In this chapter we... y'know.
+    </para>
+  </sect1>
+</chapter>

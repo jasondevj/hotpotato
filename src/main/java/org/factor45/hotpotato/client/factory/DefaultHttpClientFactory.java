@@ -9,6 +9,7 @@ import org.factor45.hotpotato.client.connection.factory.DefaultHttpConnectionFac
 import org.factor45.hotpotato.client.connection.factory.HttpConnectionFactory;
 import org.factor45.hotpotato.client.host.factory.DefaultHostContextFactory;
 import org.factor45.hotpotato.client.host.factory.HostContextFactory;
+import org.factor45.hotpotato.client.timeout.TimeoutManager;
 
 /**
  * Creates subclasses of {@link AbstractHttpClient} depending on configuration parameters.
@@ -45,6 +46,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
     private static final int MAX_EVENT_PROCESSOR_HELPER_THREADS = 50;
     private static final HostContextFactory HOST_CONTEXT_FACTORY = new DefaultHostContextFactory();
     private static final HttpConnectionFactory CONNECTION_FACTORY = new DefaultHttpConnectionFactory();
+    protected static final boolean CLEANUP_INACTIVE_HOST_CONTEXTS = true;
 
     // configuration --------------------------------------------------------------------------------------------------
 
@@ -64,6 +66,8 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
     protected int maxEventProcessorHelperThreads;
     private HostContextFactory hostContextFactory;
     private HttpConnectionFactory connectionFactory;
+    private TimeoutManager timeoutManager;
+    private boolean cleanupInactiveHostContexts;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
@@ -84,6 +88,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
         this.useNio = USE_OLD_IO;
         this.maxIoWorkerThreads = MAX_IO_WORKER_THREADS;
         this.maxEventProcessorHelperThreads = MAX_EVENT_PROCESSOR_HELPER_THREADS;
+        this.cleanupInactiveHostContexts = CLEANUP_INACTIVE_HOST_CONTEXTS;
     }
 
     // HttpClientFactory ----------------------------------------------------------------------------------------------
@@ -112,6 +117,8 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
         client.setMaxEventProcessorHelperThreads(this.maxEventProcessorHelperThreads);
         client.setHostContextFactory(this.hostContextFactory);
         client.setConnectionFactory(this.connectionFactory);
+        client.setTimeoutManager(this.timeoutManager);
+        client.setCleanupInactiveHostContexts(this.cleanupInactiveHostContexts);
         return client;
     }
 
@@ -202,10 +209,21 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
     }
 
     public void setConnectionTimeoutInMillis(int connectionTimeoutInMillis) {
-        if (connectionTimeoutInMillis <= 0) {
+        if (connectionTimeoutInMillis < 0) {
             throw new IllegalArgumentException("ConnectionTimeoutInMillis must be >= 0 (0 means infinite)");
         }
         this.connectionTimeoutInMillis = connectionTimeoutInMillis;
+    }
+
+    public int getRequestTimeoutInMillis() {
+        return requestTimeoutInMillis;
+    }
+
+    public void setRequestTimeoutInMillis(int requestTimeoutInMillis) {
+        if (requestTimeoutInMillis < 0) {
+            throw new IllegalArgumentException("RequestTimeoutInMillis must be >= 0 (0 means infinite)");
+        }
+        this.requestTimeoutInMillis = requestTimeoutInMillis;
     }
 
     public boolean isUseNio() {
@@ -252,5 +270,21 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
     public void setConnectionFactory(HttpConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
+    }
+
+    public TimeoutManager getTimeoutManager() {
+        return timeoutManager;
+    }
+
+    public void setTimeoutManager(TimeoutManager timeoutManager) {
+        this.timeoutManager = timeoutManager;
+    }
+
+    public boolean isCleanupInactiveHostContexts() {
+        return cleanupInactiveHostContexts;
+    }
+
+    public void setCleanupInactiveHostContexts(boolean cleanupInactiveHostContexts) {
+        this.cleanupInactiveHostContexts = cleanupInactiveHostContexts;
     }
 }

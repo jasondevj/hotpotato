@@ -1,6 +1,7 @@
 package org.factor45.hotpotato.request;
 
 import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.logging.InternalLogger;
 import org.jboss.netty.logging.InternalLoggerFactory;
 
@@ -110,6 +111,29 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
     @Override
     public HttpResponse getResponse() {
         return this.response;
+    }
+
+    @Override
+    public HttpResponseStatus getStatus() {
+        if (this.response == null) {
+            return null;
+        }
+        return this.response.getStatus();
+    }
+
+    @Override
+    public int getResponseStatusCode() {
+        if (this.response == null) {
+            return -1;
+        }
+
+        return this.response.getStatus().getCode();
+    }
+
+    @Override
+    public boolean isSuccessfulResponse() {
+        int code = this.getResponseStatusCode();
+        return (code >= 200) && (code <= 299);
     }
 
     @Override

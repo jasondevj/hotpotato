@@ -1,6 +1,7 @@
 package org.factor45.hotpotato.client.host;
 
-import org.factor45.hotpotato.client.connection.HttpConnection;
+import org.factor45.hotpotato.client.HostContextTestUtil;
+import org.factor45.hotpotato.client.HttpConnectionTestUtil;
 import org.factor45.hotpotato.client.HttpRequestContext;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFutures;
@@ -32,7 +33,7 @@ public class DefaultHostContextTest {
         this.hostContext = new DefaultHostContext(host, port, 2);
         this.requestContexts = new ArrayList<HttpRequestContext<Object>>(4);
         for (int i = 0; i < 4; i++) {
-            HttpRequestContext<Object> requestContext = generateDummyContext(host, port);
+            HttpRequestContext<Object> requestContext = HostContextTestUtil.generateDummyContext(host, port);
             this.requestContexts.add(requestContext);
             this.hostContext.addToQueue(requestContext);
         }
@@ -42,7 +43,7 @@ public class DefaultHostContextTest {
     public void testDrainQueueWithAvailableConnection() throws Exception {
         assertNotNull(this.hostContext.getConnectionPool());
         assertEquals(0, this.hostContext.getConnectionPool().getTotalConnections());
-        this.hostContext.getConnectionPool().connectionOpen(new AlwaysAvailableHttpConnection());
+        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
         assertEquals(1, this.hostContext.getConnectionPool().getTotalConnections());
         assertEquals(4, this.hostContext.getQueue().size());
 
@@ -64,7 +65,7 @@ public class DefaultHostContextTest {
     public void testDrainQueueWithAllConnectionsExausted() throws Exception {
         assertNotNull(this.hostContext.getConnectionPool());
         assertEquals(0, this.hostContext.getConnectionPool().getTotalConnections());
-        this.hostContext.getConnectionPool().connectionOpen(new NeverAvailableHttpConnection());
+        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.NeverAvailableHttpConnection());
         this.hostContext.getConnectionPool().connectionOpening();
         assertEquals(2, this.hostContext.getConnectionPool().getTotalConnections());
         assertEquals(4, this.hostContext.getQueue().size());
@@ -77,8 +78,8 @@ public class DefaultHostContextTest {
     public void testDrainQueueWithQueueEmpty() throws Exception {
         assertNotNull(this.hostContext.getConnectionPool());
         assertEquals(0, this.hostContext.getConnectionPool().getTotalConnections());
-        this.hostContext.getConnectionPool().connectionOpen(new AlwaysAvailableHttpConnection());
-        this.hostContext.getConnectionPool().connectionOpen(new AlwaysAvailableHttpConnection());
+        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
+        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
         assertEquals(2, this.hostContext.getConnectionPool().getTotalConnections());
         this.hostContext.drainQueue();
         this.hostContext.drainQueue();
@@ -95,61 +96,6 @@ public class DefaultHostContextTest {
         for (HttpRequestContext<Object> request : this.requestContexts) {
             assertFalse(request.getFuture().isSuccess());
             assertEquals(HttpRequestFuture.CONNECTION_LOST, request.getFuture().getCause());
-        }
-    }
-
-    // public static methods ------------------------------------------------------------------------------------------
-
-    public static HttpRequestContext<Object> generateDummyContext(String host, int port) {
-        HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
-        return new HttpRequestContext<Object>(host, port, request, new DiscardProcessor(),
-                                              HttpRequestFutures.future(true));
-    }
-
-    // public classes ------------------------------------------------------------------------------------------------
-
-    public static class AlwaysAvailableHttpConnection implements HttpConnection {
-
-        @Override
-        public void terminate() {
-        }
-
-        @Override
-        public String getId() {
-            return null;
-        }
-
-        @Override
-        public String getHost() {
-            return null;
-        }
-
-        @Override
-        public int getPort() {
-            return 0;
-        }
-
-        @Override
-        public long getIdleTime() {
-            return 0;
-        }
-
-        @Override
-        public boolean isAvailable() {
-            return true;
-        }
-
-        @Override
-        public boolean execute(HttpRequestContext context) {
-            return true;
-        }
-    }
-
-    public static class NeverAvailableHttpConnection extends AlwaysAvailableHttpConnection {
-
-        @Override
-        public boolean isAvailable() {
-            return false;
         }
     }
 }

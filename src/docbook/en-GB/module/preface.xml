@@ -1,0 +1,15 @@
+<!DOCTYPE preface PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.docbook.org/xml/4.5/docbookx.dtd" [
+    <!ENTITY % CustomDTD SYSTEM "../custom.dtd">
+    %CustomDTD;
+    ]>
+<preface id="preface">
+  <title>Preface</title>
+
+  <sect1>
+    <title>Filling a gap</title>
+    <para>
+      Any Java programmer will, at any given time, face the need to execute remote HTTP requests. Google will most
+      likely point you to the JDK's own 
+    </para>
+  </sect1>
+</preface>
