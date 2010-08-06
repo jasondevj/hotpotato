@@ -13,16 +13,19 @@ import org.factor45.hotpotato.client.timeout.TimeoutManager;
 
 /**
  * Creates subclasses of {@link AbstractHttpClient} depending on configuration parameters.
- *
+ * <p/>
  * If this factory is configured with {@linkplain #setDebug(boolean) debug} enabled, it will generate instances of
  * {@link VerboseHttpClient}.
- *
+ * <p/>
  * If this factory is configured with {@linkplain #setGatherEventHandlingStats(boolean) statistics gathering}, it will
  * generate instances of {@link StatsGatheringHttpClient} (unless {@linkplain #setDebug(boolean) debug} is enabled,
  * which takes precedence.
- *
- * If neither of {@linkplain #setDebug(boolean) debug} or {@linkplain #setGatherEventHandlingStats(boolean)
- * statistics gathering} are enabled, then it generates instances of {@link DefaultHttpClient}.
+ * <p/>
+ * If neither of {@linkplain #setDebug(boolean) debug} or {@linkplain #setGatherEventHandlingStats(boolean) statistics
+ * gathering} are enabled, then it generates instances of {@link DefaultHttpClient}.
+ * <p/>
+ * <strong>For the meaning of the configuration parameters, please take a look at {@link AbstractHttpClient}'s setter
+ * methods.</strong>
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
@@ -38,15 +41,15 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
     private static final int REQUEST_CHUNK_SIZE = 8192;
     private static final boolean AGGREGATE_CHUNKS = false;
     private static final int CONNECTION_TIMEOUT_IN_MILLIS = 2000;
-    protected static final int REQUEST_TIMEOUT_IN_MILLIS = 2000;
+    private static final int REQUEST_TIMEOUT_IN_MILLIS = 2000;
     private static final int MAX_CONNECTIONS_PER_HOST = 3;
     private static final int MAX_QUEUED_REQUESTS = Short.MAX_VALUE;
-    private static final boolean USE_OLD_IO = false;
+    private static final boolean USE_NIO = true;
     private static final int MAX_IO_WORKER_THREADS = 50;
-    private static final int MAX_EVENT_PROCESSOR_HELPER_THREADS = 50;
+    private static final int MAX_EVENT_PROCESSOR_HELPER_THREADS = 20;
     private static final HostContextFactory HOST_CONTEXT_FACTORY = new DefaultHostContextFactory();
     private static final HttpConnectionFactory CONNECTION_FACTORY = new DefaultHttpConnectionFactory();
-    protected static final boolean CLEANUP_INACTIVE_HOST_CONTEXTS = true;
+    private static final boolean CLEANUP_INACTIVE_HOST_CONTEXTS = true;
 
     // configuration --------------------------------------------------------------------------------------------------
 
@@ -85,7 +88,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
         this.maxQueuedRequests = MAX_QUEUED_REQUESTS;
         this.hostContextFactory = HOST_CONTEXT_FACTORY;
         this.connectionFactory = CONNECTION_FACTORY;
-        this.useNio = USE_OLD_IO;
+        this.useNio = USE_NIO;
         this.maxIoWorkerThreads = MAX_IO_WORKER_THREADS;
         this.maxEventProcessorHelperThreads = MAX_EVENT_PROCESSOR_HELPER_THREADS;
         this.cleanupInactiveHostContexts = CLEANUP_INACTIVE_HOST_CONTEXTS;

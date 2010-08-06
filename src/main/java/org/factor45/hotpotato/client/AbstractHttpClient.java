@@ -31,6 +31,7 @@ import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
 import org.jboss.netty.handler.codec.http.HttpClientCodec;
 import org.jboss.netty.handler.codec.http.HttpContentCompressor;
 import org.jboss.netty.handler.codec.http.HttpContentDecompressor;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.logging.InternalLogger;
@@ -90,6 +91,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * that in your code through the {@link HttpRequestFuture} API or configure the concrete instance of this class to allow
  * at most 1 connection per host - although this last option will hurt performance globally.
  *
+ * <div class="note">
+ * <div class="header">Note:</div>
+ * Calling {@linkplain #execute(String, int, HttpRequest, HttpResponseProcessor) one of the variants of {@code execute}}
+ * with the client configured with {@linkplain #setAutoInflate(boolean) auto-inflation} turned on will cause a
+ * 'ACCEPT_ENCODING' header to be added with value 'GZIP'.
+ * </div>
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public abstract class AbstractHttpClient implements HttpClient, HttpConnectionListener {
@@ -122,7 +130,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
     protected static final int MAX_QUEUED_REQUESTS = Short.MAX_VALUE;
     protected static final boolean USE_NIO = false;
     protected static final int MAX_IO_WORKER_THREADS = 50;
-    protected static final int MAX_EVENT_PROCESSOR_HELPER_THREADS = 50;
+    protected static final int MAX_EVENT_PROCESSOR_HELPER_THREADS = 20;
     protected static final boolean CLEANUP_INACTIVE_HOST_CONTEXTS = true;
 
     // configuration --------------------------------------------------------------------------------------------------
@@ -316,6 +324,11 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new CannotExecuteRequestException("Request queue is full");
         }
 
+        // Perform these checks on the caller thread's time rather than the event dispatcher's.
+        if (this.autoInflate) {
+            request.setHeader(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
+        }
+
         HttpRequestFuture<T> future = HttpRequestFutures.future(true);
         HttpRequestContext<T> context = new HttpRequestContext<T>(host, port, timeout, request, processor, future);
         if (this.terminate || !this.eventQueue.offer(new ExecuteRequestEvent(context))) {
@@ -362,7 +375,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
     // protected helpers ----------------------------------------------------------------------------------------------
 
     protected void eventHandlingLoop() {
-        for (; ;) {
+        for (;;) {
             // Manual synchronisation here because before removing an element, we first need to check whether an
             // active available connection exists to satisfy the request.
             try {
@@ -556,6 +569,15 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return useSsl;
     }
 
+    /**
+     * Whether this client should create SSL or non-SSL connections.
+     * <p/>
+     * All connections are affected by this flag.
+     * <p/>
+     * Defaults to {@code false}.
+     *
+     * @param useSsl {@code true} if all connections will have SSL support, {@code false} otherwise.
+     */
     public void setUseSsl(boolean useSsl) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
@@ -567,6 +589,13 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return requestCompressionLevel;
     }
 
+    /**
+     * Level of compression when sending requests.
+     * <p/>
+     * Defaults to 0.
+     *
+     * @param requestCompressionLevel Level of compression between 0 and 9; 0 = off and 9 = max.
+     */
     public void setRequestCompressionLevel(int requestCompressionLevel) {
         if ((requestCompressionLevel < 0) || (requestCompressionLevel > 9)) {
             throw new IllegalArgumentException("RequestCompressionLevel must be in range [0;9] (0 = none, 9 = max)");
@@ -581,6 +610,17 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return autoInflate;
     }
 
+    /**
+     * Whether responses should be auto inflated (decompressed) or not.
+     * <p/>
+     * Setting this flag to true will cause a 'Accept-Encoding' header with value 'gzip' to be added to the requests
+     * submitted.
+     * <p/>
+     * Defaults to {@code true}.
+     *
+     * @param autoInflate {@code true} if the connections should automatically decompress gzip content, {@code false}
+     *                    otherwise.
+     */
     public void setAutoInflate(boolean autoInflate) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
@@ -592,6 +632,15 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return requestChunkSize;
     }
 
+    /**
+     * Maximum size for HTTP request chunks.
+     * If the contents of the requests exceed this value, the request will be chunked and a 'Transfer-Encoding' header
+     * will be added with value 'chunked'.
+     * <p/>
+     * Defaults to 8192.
+     *
+     * @param requestChunkSize If request or response body exceeds this value
+     */
     public void setRequestChunkSize(int requestChunkSize) {
         if (requestChunkSize < 128) {
             throw new IllegalArgumentException("Minimum accepted chunk size is 128b");
@@ -606,6 +655,14 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return aggregateResponseChunks;
     }
 
+    /**
+     * If the response is transferred in chunks, whether they should be automatically grouped or not.
+     * <p/>
+     * Defaults to {@code true}.
+     *
+     * @param aggregateResponseChunks {@code true} to aggregate http response chunks automatically, {@code false}
+     *                                otherwise.
+     */
     public void setAggregateResponseChunks(boolean aggregateResponseChunks) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
@@ -617,6 +674,17 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return maxConnectionsPerHost;
     }
 
+    /**
+     * Sets the maximum number of active connections per host.
+     * <p/>
+     * This number also limits the number of connections being established so that
+     * {@code connectionsOpen + connectionsOpening <= maxConnectionsPerHost} is always true.
+     * <p/>
+     * Defaults to 3.
+     *
+     * @param maxConnectionsPerHost Maximum number of total active connections (open + opening) per host at a given
+     *                              time. Minimum value is 1.
+     */
     public void setMaxConnectionsPerHost(int maxConnectionsPerHost) {
         if (maxConnectionsPerHost < 1) {
             throw new IllegalArgumentException("MaxConnectionsPerHost must be > 1");
@@ -631,6 +699,17 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return this.maxQueuedRequests;
     }
 
+    /**
+     * Sets the maximum number of queued requests for this client.
+     * <p/>
+     * If the number of queued requests is exceeded, calling
+     * {@linkplain #execute(String, int, HttpRequest, HttpResponseProcessor) one of the variants of {@code execute()}}
+     * will throw a {@link CannotExecuteRequestException}.
+     * <p/>
+     * Defaults to {@link Short#MAX_VALUE}.
+     *
+     * @param maxQueuedRequests Maximum number of queued requests at any given moment.
+     */
     public void setMaxQueuedRequests(int maxQueuedRequests) {
         if (maxQueuedRequests < 1) {
             throw new IllegalArgumentException("MaxQueuedRequests must be > 1");
@@ -645,6 +724,13 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return connectionTimeoutInMillis;
     }
 
+    /**
+     * Sets the connection to host timeout, in milliseconds.
+     * <p/>
+     * Defaults to 2000.
+     *
+     * @param connectionTimeoutInMillis Connection to host timeout, in milliseconds.
+     */
     public void setConnectionTimeoutInMillis(int connectionTimeoutInMillis) {
         if (connectionTimeoutInMillis <= 0) {
             throw new IllegalArgumentException("ConnectionTimeoutInMillis must be >= 0 (0 means infinite)");
@@ -659,6 +745,20 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return requestTimeoutInMillis;
     }
 
+    /**
+     * Sets the default request timeout, in milliseconds.
+     * <p/>
+     * When {@link #execute(String, int, HttpRequest, HttpResponseProcessor)} is called (i.e. the variant without
+     * explicit request timeout) then this value is applied as the request timeout.
+     * <p/>
+     * Requests whose execution time exceeds (precision depends on the {@link TimeoutManager} chosen) this value will be
+     * considered failed and their {@link HttpRequestFuture} will be released with cause
+     * {@link HttpRequestFuture#TIMED_OUT}.
+     * <p/>
+     * Defaults to 2000.
+     *
+     * @param requestTimeoutInMillis Default request timeout, in milliseconds.
+     */
     public void setRequestTimeoutInMillis(int requestTimeoutInMillis) {
         if (requestTimeoutInMillis <= 0) {
             throw new IllegalArgumentException("RequestTimeoutInMillis must be >= 0 (0 means infinite)");
@@ -673,6 +773,22 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return useNio;
     }
 
+    /**
+     * Whether this client should use non-blocking IO (New I/O or NIO) or blocking IO (Plain Socket Old IO or OIO).
+     * <p/>
+     * NIO is generally better for higher throughput (scenarios with an elevated number of open connections) while OIO
+     * is always better for latency (and scenarios where a low number of connections is open).
+     * <p/>
+     * If the number of connections open is not supposed to exceed 10~20, then use OIO as it typically presents better
+     * results.
+     * <p/>
+     * Since the writes in OIO are blocking, the HTTP connections will delegate the call to
+     * {@link org.jboss.netty.channel.Channel#write(Object)} to an executor (provided by this {@link HttpClient}).
+     * <p/>
+     * Defaults to {@code true}.
+     *
+     * @param useNio {@code true} if this client should use NIO, {@code false} if it should use OIO.
+     */
     public void setUseNio(boolean useNio) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
@@ -684,6 +800,13 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return maxIoWorkerThreads;
     }
 
+    /**
+     * Maximum number of worker threads for the executor provided to Netty's {@link ChannelFactory}.
+     * <p/>
+     * Defaults to 50.
+     *
+     * @param maxIoWorkerThreads Maximum number of IO worker threads.
+     */
     public void setMaxIoWorkerThreads(int maxIoWorkerThreads) {
         if (maxIoWorkerThreads <= 1) {
             throw new IllegalArgumentException("Minimum value for maxIoWorkerThreads is 1");
@@ -698,6 +821,17 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return maxEventProcessorHelperThreads;
     }
 
+    /**
+     * Maximum number of helper threads for the event processor.
+     * <p/>
+     * There are tasks performed by the internal event processor that are blocking and/or slow and need not be executed
+     * in serial mode. Therefore the event processor delegates them to helper threads in order to keep doing what it's
+     * supposed to do: consume events from the event queue.
+     * <p/>
+     * Defaults to 20.
+     *
+     * @param maxEventProcessorHelperThreads Maximum number of IO worker threads.
+     */
     public void setMaxEventProcessorHelperThreads(int maxEventProcessorHelperThreads) {
         if (maxEventProcessorHelperThreads <= 3) {
             throw new IllegalArgumentException("Minimum value for maxEventProcessorHelperThreads is 3");
@@ -712,6 +846,15 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return hostContextFactory;
     }
 
+    /**
+     * The {@link HostContextFactory} that will be used to create new {@link HostContext} instances.
+     * <p/>
+     * Defaults to {@link DefaultHostContextFactory} if none is provided.
+     *
+     * @param hostContextFactory The {@link HostContextFactory} to be used.
+     *
+     * @see org.factor45.hotpotato.client.host.factory.HostContextFactory
+     */
     public void setHostContextFactory(HostContextFactory hostContextFactory) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
@@ -723,6 +866,15 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return connectionFactory;
     }
 
+    /**
+     * The {@link HttpConnectionFactory} that will be used to create new {@link HttpConnection}.
+     * <p/>
+     * Defaults to {@link DefaultHttpConnectionFactory} if none is provided.
+     *
+     * @param connectionFactory The {@link HttpConnectionFactory} to be used.
+     *
+     * @see org.factor45.hotpotato.client.connection.factory.HttpConnectionFactory
+     */
     public void setConnectionFactory(HttpConnectionFactory connectionFactory) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
@@ -734,6 +886,22 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return timeoutManager;
     }
 
+    /**
+     * The {@link TimeoutManager} that will be used to check request timeouts.
+     * <p/>
+     * If no instance is provided, a new instance is created upon calling {@link #init()}. This instance will be
+     * automatically terminated when {@link #terminate()} is called.
+     * <p/>
+     * If an external {@link TimeoutManager} is provided, then it must be pre-initialised (i.e. its
+     * {@link TimeoutManager#init()} must be called and return {@code true}) and it must be post-terminated (i.e. its
+     * {@link TimeoutManager#terminate()} must be called after this instance of {@link HttpClient} is disposed).
+     * <p/>
+     * Defaults to a new instance of {@link HashedWheelTimeoutManager}.
+     *
+     * @param timeoutManager The {@link TimeoutManager} instance to use.
+     *
+     * @see org.factor45.hotpotato.client.timeout.TimeoutManager
+     */
     public void setTimeoutManager(TimeoutManager timeoutManager) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
@@ -746,6 +914,24 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return cleanupInactiveHostContexts;
     }
 
+    /**
+     * Whether empty {@link HostContext}s should be immediately cleaned up.
+     * <p/>
+     * When a {@linkplain HostContext host context} has no more queued requests nor active connections nor connections
+     * opening, it is eligible for cleanup. Setting this flag to {@code true} will cause them to be instantly reaped
+     * when such conditions are met.
+     * <p/>
+     * Unless your client will be performing requests to many different host/port combinations, you should set this flag
+     * to {@code false}. While the overhead of creating/cleaning these contexts is minimal, it can be avoided in these
+     * scenarios.
+     * <p/>
+     * Defaults to {@code true}.
+     *
+     * @param cleanupInactiveHostContexts {@code true} if inactive host contexts should be cleaned up, {@code false}
+     *                                    otherwise.
+     *
+     * @see org.factor45.hotpotato.client.host.HostContext
+     */
     public void setCleanupInactiveHostContexts(boolean cleanupInactiveHostContexts) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
