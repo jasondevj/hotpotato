@@ -16,10 +16,10 @@
         <include>**/NOTICE*</include>
         <include>**/COPYRIGHT*</include>
 
-        <include>**/src/main</include>
-        <include>**/src/test</include>
-        <include>**/src/functional</include>
-        <include>**/src/benchmark</include>
+        <include>**/src/main/**</include>
+        <include>**/src/test/**</include>
+        <include>**/src/functional/**</include>
+        <include>**/src/benchmark/**</include>
       </includes>
 
       <excludes>
