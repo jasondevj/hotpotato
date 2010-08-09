@@ -9,7 +9,22 @@
     <title>Filling a gap</title>
     <para>
       Any Java programmer will, at any given time, face the need to execute remote HTTP requests. Google will most
-      likely point you to the JDK's own 
+      likely point you to <ulink url="http://hc.apache.org/httpclient-3.x/">Apache HttpClient</ulink> or some other
+      cheesy implementation based on JDK's URLConnection.
+    </para>
+    <para>
+      While these clients are fine for your trivial example and maybe even for you simple client application that just
+      need to perform a couple of requests every now and then, you'll quickly discover that they don't scale when the
+      number of requests rises above the four digit figures.
+    </para>
+    <para>
+      <ulink url="&Home;">hotpotato</ulink> is not your traditional Java HTTP client. Its purpose is not to become
+      yet-another-simple-HTTP-client but rather a performance-focused tool that is able to eat the gobs of requests you
+      throw at it to perform... And ask for more.
+    </para>
+    <para>
+      It was initially thought as a "server-side" HTTP client, kind of like a proxy to remote HTTP services that could
+      handle thousands of concurrent requests as fast as possible, consuming as little resources as possible.
     </para>
   </sect1>
 </preface>

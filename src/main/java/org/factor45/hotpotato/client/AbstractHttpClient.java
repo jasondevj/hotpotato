@@ -18,6 +18,7 @@ import org.factor45.hotpotato.client.timeout.HashedWheelTimeoutManager;
 import org.factor45.hotpotato.client.timeout.TimeoutManager;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFutures;
+import org.factor45.hotpotato.response.DiscardProcessor;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelFactory;
@@ -309,6 +310,11 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
                                             HttpResponseProcessor<T> processor)
             throws CannotExecuteRequestException {
         return this.execute(host, port, this.requestTimeoutInMillis, request, processor);
+    }
+
+    @Override
+    public HttpRequestFuture execute(String host, int port, HttpRequest request) throws CannotExecuteRequestException {
+        return this.execute(host, port, request, DiscardProcessor.getInstance());
     }
 
     @Override

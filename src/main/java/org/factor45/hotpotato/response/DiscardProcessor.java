@@ -15,6 +15,16 @@ import org.jboss.netty.handler.codec.http.HttpResponse;
  */
 public class DiscardProcessor implements HttpResponseProcessor<Object> {
 
+    // constants ------------------------------------------------------------------------------------------------------
+
+    private static final DiscardProcessor CACHE = new DiscardProcessor();
+
+    // public static methods ------------------------------------------------------------------------------------------
+
+    public static DiscardProcessor getInstance() {
+        return CACHE;
+    }
+
     // HttpResponseProcessor ------------------------------------------------------------------------------------------
 
     @Override

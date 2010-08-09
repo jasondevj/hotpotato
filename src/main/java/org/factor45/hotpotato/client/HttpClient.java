@@ -68,4 +68,19 @@ public interface HttpClient {
     <T> HttpRequestFuture<T> execute(String host, int port, int timeout, HttpRequest request,
                                      HttpResponseProcessor<T> processor)
             throws CannotExecuteRequestException;
+
+    /**
+     * Version {@code execute()} that discards the result of the operation. 
+     *
+     * @param host      Destination host.
+     * @param port      Destination port.
+     * @param request   Request to execute.
+     *
+     * @return Future associated with the operation.
+     *
+     * @throws CannotExecuteRequestException Thrown when the request is invalid or the client can no longer accept
+     *                                       requests, either due to termination or full queue.
+     */
+    HttpRequestFuture execute(String host, int port, HttpRequest request)
+            throws CannotExecuteRequestException;
 }
