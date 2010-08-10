@@ -4,7 +4,7 @@
 
   <groupId>org.factor45.hotpotato</groupId>
   <artifactId>hotpotato</artifactId>
-  <version>0.9.0</version>
+  <version>0.7.0</version>
   <packaging>jar</packaging>
 
   <name>hotpotato</name>

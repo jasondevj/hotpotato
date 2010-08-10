@@ -31,8 +31,10 @@ public class EagerDrainHostContextTest {
     public void testDrainQueueWithAvailableConnection() throws Exception {
         assertNotNull(this.hostContext.getConnectionPool());
         assertEquals(0, this.hostContext.getConnectionPool().getTotalConnections());
-        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
-        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
+        this.hostContext.getConnectionPool()
+                .connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection("id", "host", 0, null));
+        this.hostContext.getConnectionPool()
+                .connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection("id", "host", 0, null));
         assertEquals(2, this.hostContext.getConnectionPool().getTotalConnections());
         assertEquals(4, this.hostContext.getQueue().size());
 

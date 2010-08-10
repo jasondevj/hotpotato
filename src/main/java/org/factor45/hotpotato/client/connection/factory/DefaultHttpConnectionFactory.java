@@ -29,14 +29,14 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     // HttpConnectionFactory ------------------------------------------------------------------------------------------
 
     @Override
-    public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                        TimeoutManager timeoutManager) {
-        return this.getConnection(id, host, port, listener, timeoutManager, null);
+    public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                           TimeoutManager timeoutManager) {
+        return this.createConnection(id, host, port, listener, timeoutManager, null);
     }
 
     @Override
-    public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                        TimeoutManager timeoutManager, Executor executor) {
+    public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                           TimeoutManager timeoutManager, Executor executor) {
         DefaultHttpConnection connection =
                 new DefaultHttpConnection(id, host, port, listener, timeoutManager, executor);
         connection.setDisconnectIfNonKeepAliveRequest(this.disconnectIfNonKeepAliveRequest);

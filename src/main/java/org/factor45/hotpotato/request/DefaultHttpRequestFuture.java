@@ -81,6 +81,7 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
 
     private T result;
     private HttpResponse response;
+    private Object attachment;
     private boolean done;
     private List<HttpRequestFutureListener<T>> listeners;
     private Throwable cause;
@@ -257,7 +258,7 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
     }
 
     @Override
-    public synchronized void removeListener(HttpRequestFutureListener<T> listener) {
+    public void removeListener(HttpRequestFutureListener<T> listener) {
         synchronized (this) {
             if (!this.done) {
                 if (this.listeners != null) {
@@ -265,6 +266,16 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
                 }
             }
         }
+    }
+
+    @Override
+    public Object getAttachment() {
+        return attachment;
+    }
+
+    @Override
+    public void setAttachment(Object attachment) {
+        this.attachment = attachment;
     }
 
     @Override

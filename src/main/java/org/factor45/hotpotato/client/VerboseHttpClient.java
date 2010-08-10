@@ -1,5 +1,6 @@
 package org.factor45.hotpotato.client;
 
+import org.factor45.hotpotato.client.connection.factory.DefaultHttpConnectionFactory;
 import org.factor45.hotpotato.client.event.ConnectionClosedEvent;
 import org.factor45.hotpotato.client.event.ConnectionFailedEvent;
 import org.factor45.hotpotato.client.event.ConnectionOpenEvent;
@@ -9,10 +10,24 @@ import org.factor45.hotpotato.client.event.HttpClientEvent;
 import org.factor45.hotpotato.client.event.RequestCompleteEvent;
 import org.factor45.hotpotato.client.host.factory.DefaultHostContextFactory;
 import org.factor45.hotpotato.client.host.HostContext;
+import org.factor45.hotpotato.client.timeout.HashedWheelTimeoutManager;
 import org.factor45.hotpotato.request.HttpRequestFuture;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.oio.OioClientSocketChannelFactory;
+import org.jboss.netty.example.securechat.SecureChatSslContextFactory;
+import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
+import org.jboss.netty.handler.codec.http.HttpClientCodec;
+import org.jboss.netty.handler.codec.http.HttpContentCompressor;
+import org.jboss.netty.handler.codec.http.HttpContentDecompressor;
+import org.jboss.netty.handler.ssl.SslHandler;
 
+import javax.net.ssl.SSLEngine;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -33,20 +48,66 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
 
     @Override
     public boolean init() {
+        if (this.timeoutManager == null) {
+            // Consumes less resources, puts less emphasis on precision.
+            this.timeoutManager = new HashedWheelTimeoutManager();
+            //this.timeoutManager = new BasicTimeoutManager(10);
+            this.timeoutManager.init();
+            this.internalTimeoutManager = true;
+        }
+
         this.eventQueue = new LinkedBlockingQueue<HttpClientEvent>();
         if (this.hostContextFactory == null) {
             this.hostContextFactory = new DefaultHostContextFactory();
         }
-        this.executor = Executors.newCachedThreadPool();
+        if (this.connectionFactory == null) {
+            this.connectionFactory = new DefaultHttpConnectionFactory();
+        }
         this.eventConsumerLatch = new CountDownLatch(1);
-        this.channelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
-                                                                Executors.newCachedThreadPool());
+
+        // TODO instead of fixed size thread pool, use a cached thread pool with size limit (limited growth cached pool)
+        this.executor = Executors.newFixedThreadPool(this.maxEventProcessorHelperThreads);
+        Executor workerPool = Executors.newFixedThreadPool(this.maxIoWorkerThreads);
+
+        if (this.useNio) {
+            // It's only going to create 1 thread, so no harm done here.
+            Executor bossPool = Executors.newCachedThreadPool();
+            this.channelFactory = new NioClientSocketChannelFactory(bossPool, workerPool);
+        } else {
+            this.channelFactory = new OioClientSocketChannelFactory(workerPool);
+        }
+
+        this.channelGroup = new DefaultChannelGroup(this.toString());
+        // Create a pipeline without the last handler (it will be added right before connecting).
+        this.pipelineFactory = new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() throws Exception {
+                ChannelPipeline pipeline = Channels.pipeline();
+                if (useSsl) {
+                    SSLEngine engine = SecureChatSslContextFactory.getServerContext().createSSLEngine();
+                    engine.setUseClientMode(true);
+                    pipeline.addLast("ssl", new SslHandler(engine));
+                }
+
+                if (requestCompressionLevel > 0) {
+                    pipeline.addLast("deflater", new HttpContentCompressor(requestCompressionLevel));
+                }
+
+                pipeline.addLast("codec", new HttpClientCodec(4096, 8192, requestChunkSize));
+                if (autoInflate) {
+                    pipeline.addLast("inflater", new HttpContentDecompressor());
+                }
+                if (aggregateResponseChunks) {
+                    pipeline.addLast("aggregator", new HttpChunkAggregator(1048576));
+                }
+                return pipeline;
+            }
+        };
+
         this.executor.execute(new Runnable() {
             @Override
             public void run() {
-                System.err.println("[EventHandler] Started.");
                 eventHandlingLoop();
-                System.err.println("[EventHandler] Finished.");
             }
         });
         return true;

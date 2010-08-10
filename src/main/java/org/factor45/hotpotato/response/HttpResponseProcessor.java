@@ -76,7 +76,6 @@ public interface HttpResponseProcessor<T> {
      */
     void addData(ChannelBuffer content) throws Exception;
 
-
     /**
      * Append the last piece of data to the processor's buffer.
      * <p/>

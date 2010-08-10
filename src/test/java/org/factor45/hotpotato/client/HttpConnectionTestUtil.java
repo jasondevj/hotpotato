@@ -25,17 +25,17 @@ public class HttpConnectionTestUtil {
                 new ArrayList<AlwaysAvailableHttpConnection>();
 
         @Override
-        public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                            TimeoutManager manager) {
-            AlwaysAvailableHttpConnection connection = new AlwaysAvailableHttpConnection(listener);
+        public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                               TimeoutManager manager) {
+            AlwaysAvailableHttpConnection connection = new AlwaysAvailableHttpConnection(id, host, port, listener);
             this.connectionsGenerated.add(connection);
             return connection;
         }
 
         @Override
-        public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                            TimeoutManager manager, Executor executor) {
-            AlwaysAvailableHttpConnection connection = new AlwaysAvailableHttpConnection(listener);
+        public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                               TimeoutManager manager, Executor executor) {
+            AlwaysAvailableHttpConnection connection = new AlwaysAvailableHttpConnection(id, host, port, listener);
             this.connectionsGenerated.add(connection);
             return connection;
         }
@@ -51,17 +51,17 @@ public class HttpConnectionTestUtil {
                 new ArrayList<NeverAvailableHttpConnection>();
 
         @Override
-        public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                            TimeoutManager manager) {
-            NeverAvailableHttpConnection connection = new NeverAvailableHttpConnection(listener);
+        public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                               TimeoutManager manager) {
+            NeverAvailableHttpConnection connection = new NeverAvailableHttpConnection(id, host, port, listener);
             this.connectionsGenerated.add(connection);
             return connection;
         }
 
         @Override
-        public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                            TimeoutManager manager, Executor executor) {
-            NeverAvailableHttpConnection connection = new NeverAvailableHttpConnection(listener);
+        public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                               TimeoutManager manager, Executor executor) {
+            NeverAvailableHttpConnection connection = new NeverAvailableHttpConnection(id, host, port, listener);
             this.connectionsGenerated.add(connection);
             return connection;
         }
@@ -74,13 +74,16 @@ public class HttpConnectionTestUtil {
     public static class AlwaysAvailableHttpConnection extends SimpleChannelUpstreamHandler
             implements HttpConnection {
 
+        private final String id;
+        private final String host;
+        private final int port;
         private HttpConnectionListener listener;
         private int requestsExecuted = 0;
 
-        public AlwaysAvailableHttpConnection() {
-        }
-
-        public AlwaysAvailableHttpConnection(HttpConnectionListener listener) {
+        public AlwaysAvailableHttpConnection(String id, String host, int port, HttpConnectionListener listener) {
+            this.id = id;
+            this.host = host;
+            this.port = port;
             this.listener = listener;
         }
 
@@ -90,17 +93,17 @@ public class HttpConnectionTestUtil {
 
         @Override
         public String getId() {
-            return null;
+            return this.id;
         }
 
         @Override
         public String getHost() {
-            return null;
+            return this.host;
         }
 
         @Override
         public int getPort() {
-            return 0;
+            return this.port;
         }
 
         @Override
@@ -128,11 +131,8 @@ public class HttpConnectionTestUtil {
 
     public static class NeverAvailableHttpConnection extends AlwaysAvailableHttpConnection {
 
-        public NeverAvailableHttpConnection() {
-        }
-
-        public NeverAvailableHttpConnection(HttpConnectionListener listener) {
-            super(listener);
+        public NeverAvailableHttpConnection(String id, String host, int port, HttpConnectionListener listener) {
+            super(id, host, port, listener);
         }
 
         @Override

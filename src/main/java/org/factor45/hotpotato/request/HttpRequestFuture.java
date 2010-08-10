@@ -201,6 +201,20 @@ public interface HttpRequestFuture<T> {
     void removeListener(HttpRequestFutureListener<T> listener);
 
     /**
+     * Adds an attachment to this future.
+     *
+     * @param attachment Attachment to add.
+     */
+    void setAttachment(Object attachment);
+
+    /**
+     * Retrieves the attachment of this future, if any.
+     *
+     * @return The attachment of this future.
+     */
+    Object getAttachment();
+
+    /**
      * Waits for this future to be completed.
      *
      * @return This instance (allows call chaining).

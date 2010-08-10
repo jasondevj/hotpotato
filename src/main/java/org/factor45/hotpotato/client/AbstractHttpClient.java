@@ -22,9 +22,13 @@ import org.factor45.hotpotato.response.DiscardProcessor;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioClientSocketChannelFactory;
 import org.jboss.netty.example.securechat.SecureChatSslContextFactory;
@@ -43,6 +47,7 @@ import javax.net.ssl.SSLEngine;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -158,6 +163,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
     protected Executor executor;
     protected ChannelFactory channelFactory;
     protected ChannelPipelineFactory pipelineFactory;
+    protected ChannelGroup channelGroup;
     protected BlockingQueue<HttpClientEvent> eventQueue;
     protected final Map<String, HostContext> contextMap;
     protected final AtomicInteger queuedRequests;
@@ -222,6 +228,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             this.channelFactory = new OioClientSocketChannelFactory(workerPool);
         }
 
+        this.channelGroup = new DefaultChannelGroup(this.toString());
         // Create a pipeline without the last handler (it will be added right before connecting).
         this.pipelineFactory = new ChannelPipelineFactory() {
             @Override
@@ -293,6 +300,12 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             if (event.getEventType() == EventType.EXECUTE_REQUEST) {
                 ((ExecuteRequestEvent) event).getContext().getFuture().setFailure(HttpRequestFuture.SHUTTING_DOWN);
             }
+        }
+
+        try {
+            this.channelGroup.close().await(1000);
+        } catch (InterruptedException e) {
+            Thread.interrupted();
         }
 
         this.channelFactory.releaseExternalResources();
@@ -552,7 +565,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         Executor writeDelegator = this.useNio ? null : this.executor;
 
         final HttpConnection connection = this.connectionFactory
-                .getConnection(id, context.getHost(), context.getPort(), this, this.timeoutManager, writeDelegator);
+                .createConnection(id, context.getHost(), context.getPort(), this, this.timeoutManager, writeDelegator);
 
         pipeline.addLast("handler", connection);
 
@@ -564,7 +577,15 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
                 bootstrap.setOption("reuseAddress", true);
                 bootstrap.setOption("connectTimeoutMillis", connectionTimeoutInMillis);
                 bootstrap.setPipeline(pipeline);
-                bootstrap.connect(new InetSocketAddress(context.getHost(), context.getPort()));
+                bootstrap.connect(new InetSocketAddress(context.getHost(), context.getPort()))
+                        .addListener(new ChannelFutureListener() {
+                            @Override
+                            public void operationComplete(ChannelFuture future) throws Exception {
+                                if (future.isSuccess()) {
+                                    channelGroup.add(future.getChannel());
+                                }
+                            }
+                        });
             }
         });
     }
@@ -944,5 +965,18 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         }
 
         this.cleanupInactiveHostContexts = cleanupInactiveHostContexts;
+    }
+
+    public Map<String, HostContext> getContextMap() {
+        // Purely for unit testing purposes...
+        return Collections.unmodifiableMap(this.contextMap);
+    }
+
+    // low level overrides --------------------------------------------------------------------------------------------
+
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + '@' + Integer.toHexString(this.hashCode());
     }
 }

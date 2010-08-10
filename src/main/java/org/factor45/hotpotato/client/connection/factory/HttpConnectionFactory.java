@@ -3,6 +3,7 @@ package org.factor45.hotpotato.client.connection.factory;
 import org.factor45.hotpotato.client.connection.HttpConnection;
 import org.factor45.hotpotato.client.connection.HttpConnectionListener;
 import org.factor45.hotpotato.client.timeout.TimeoutManager;
+import org.jboss.netty.channel.group.ChannelGroup;
 
 import java.util.concurrent.Executor;
 
@@ -11,9 +12,9 @@ import java.util.concurrent.Executor;
  */
 public interface HttpConnectionFactory {
 
-    HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                 TimeoutManager manager);
+    HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                    TimeoutManager manager);
 
-    HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
-                                 TimeoutManager manager, Executor executor);
+    HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
+                                    TimeoutManager manager, Executor executor);
 }

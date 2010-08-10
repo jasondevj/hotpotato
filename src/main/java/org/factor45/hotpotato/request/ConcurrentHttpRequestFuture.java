@@ -33,6 +33,7 @@ public class ConcurrentHttpRequestFuture<T> implements HttpRequestFuture<T> {
     private final CountDownLatch waitLatch;
     private T result;
     private HttpResponse response;
+    private Object attachment;
     private final AtomicBoolean done;
     private final List<HttpRequestFutureListener<T>> listeners;
     private Throwable cause;
@@ -216,6 +217,16 @@ public class ConcurrentHttpRequestFuture<T> implements HttpRequestFuture<T> {
                 this.listeners.remove(listener);
             }
         }
+    }
+
+    @Override
+    public Object getAttachment() {
+        return attachment;
+    }
+
+    @Override
+    public void setAttachment(Object attachment) {
+        this.attachment = attachment;
     }
 
     @Override

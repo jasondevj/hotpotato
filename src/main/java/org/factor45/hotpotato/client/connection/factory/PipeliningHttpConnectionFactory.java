@@ -32,13 +32,13 @@ public class PipeliningHttpConnectionFactory implements HttpConnectionFactory {
 
 
     @Override
-    public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
+    public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
                                         TimeoutManager manager) {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    public HttpConnection getConnection(String id, String host, int port, HttpConnectionListener listener,
+    public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
                                         TimeoutManager manager, Executor executor) {
         throw new UnsupportedOperationException("not implemented");
 //        PipeliningHttpConnection connection = new PipeliningHttpConnection(id, host, port, listener,

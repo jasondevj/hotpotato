@@ -9,7 +9,13 @@
 <!ENTITY hotpotato  "<ulink url='&Home;'>hotpotato</ulink>">
 
 <!ENTITY HttpClient "<ulink url='&API;/client/HttpClient.html'><classname>HttpClient</classname></ulink>">
+<!ENTITY DefaultHttpClient "<ulink url='&API;/client/DefaultHttpClient.html'><classname>DefaultHttpClient</classname></ulink>">
+<!ENTITY TimeoutManager "<ulink url='&API;/client/timeout/TimeoutManager.html'><classname>TimeoutManager</classname></ulink>">
+
 <!ENTITY HttpRequestFuture "<ulink url='&API;/request/HttpRequestFuture.html'><classname>HttpRequestFuture</classname></ulink>">
+
+<!ENTITY HttpResponseProcessor "<ulink url='&API;/response/HttpResponseProcessor.html'><classname>HttpResponseProcessor</classname></ulink>">
+<!ENTITY BodyAsStringResponseProcessor "<ulink url='&API;/response/BodyAsStringResponseProcessor .html'><classname>BodyAsStringResponseProcessor</classname></ulink>">
 
 <!-- Types in the bootstrap package -->
 <!ENTITY Bootstrap                "<ulink url='&API;bootstrap/Bootstrap.html'><classname>Bootstrap</classname></ulink>">

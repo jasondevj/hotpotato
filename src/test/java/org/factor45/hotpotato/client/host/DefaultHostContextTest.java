@@ -4,12 +4,6 @@ import org.factor45.hotpotato.client.HostContextTestUtil;
 import org.factor45.hotpotato.client.HttpConnectionTestUtil;
 import org.factor45.hotpotato.client.HttpRequestContext;
 import org.factor45.hotpotato.request.HttpRequestFuture;
-import org.factor45.hotpotato.request.HttpRequestFutures;
-import org.factor45.hotpotato.response.DiscardProcessor;
-import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
-import org.jboss.netty.handler.codec.http.HttpMethod;
-import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.jboss.netty.handler.codec.http.HttpVersion;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +37,8 @@ public class DefaultHostContextTest {
     public void testDrainQueueWithAvailableConnection() throws Exception {
         assertNotNull(this.hostContext.getConnectionPool());
         assertEquals(0, this.hostContext.getConnectionPool().getTotalConnections());
-        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
+        this.hostContext.getConnectionPool()
+                .connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection("id", "host", 0, null));
         assertEquals(1, this.hostContext.getConnectionPool().getTotalConnections());
         assertEquals(4, this.hostContext.getQueue().size());
 
@@ -65,7 +60,8 @@ public class DefaultHostContextTest {
     public void testDrainQueueWithAllConnectionsExausted() throws Exception {
         assertNotNull(this.hostContext.getConnectionPool());
         assertEquals(0, this.hostContext.getConnectionPool().getTotalConnections());
-        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.NeverAvailableHttpConnection());
+        this.hostContext.getConnectionPool()
+                .connectionOpen(new HttpConnectionTestUtil.NeverAvailableHttpConnection("id", "host", 0, null));
         this.hostContext.getConnectionPool().connectionOpening();
         assertEquals(2, this.hostContext.getConnectionPool().getTotalConnections());
         assertEquals(4, this.hostContext.getQueue().size());
@@ -78,8 +74,10 @@ public class DefaultHostContextTest {
     public void testDrainQueueWithQueueEmpty() throws Exception {
         assertNotNull(this.hostContext.getConnectionPool());
         assertEquals(0, this.hostContext.getConnectionPool().getTotalConnections());
-        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
-        this.hostContext.getConnectionPool().connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection());
+        this.hostContext.getConnectionPool()
+                .connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection("id", "host", 0, null));
+        this.hostContext.getConnectionPool()
+                .connectionOpen(new HttpConnectionTestUtil.AlwaysAvailableHttpConnection("id", "host", 0, null));
         assertEquals(2, this.hostContext.getConnectionPool().getTotalConnections());
         this.hostContext.drainQueue();
         this.hostContext.drainQueue();
