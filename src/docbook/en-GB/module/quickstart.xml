@@ -43,8 +43,8 @@ if (!client.init()) {
 }
 
 // Setup the request <co id="example1.co2" />
-HttpRequest request =
-new DefaultHttpRequest(HttpVersion.HTTP_1_0, HttpMethod.GET, "/");
+HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_0,
+                                             HttpMethod.GET, "/");
 
 // Execute the request <co id="example1.co3" />
 HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request);
@@ -172,9 +172,10 @@ future.awaitUninterruptibly();
         non-blocking call, which means that this computation will take place on another thread (an internal thread of
         the &HttpClient; implementation) rather than on the thread calling <methodname>execute()</methodname>.
       </para>
-<programlisting>HttpRequestFuture&lt;String&gt; future;
+      <programlisting>HttpRequestFuture&lt;String&gt; future;
 future = client.execute("hotpotato.factor45.org", 80, request,
                         new BodyAsStringProcessor());
+
 future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
     @Override
     public void operationComplete(HttpRequestFuture future) throws Exception {
@@ -190,10 +191,24 @@ future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
   </sect1>
 
   <sect1>
-    <title>Messing around with headers and body</title>
+    <title>Adding headers and body to requests</title>
     <para>
-      Example with an HTTP post.
+      Here's a simple example of how to perform a POST with a zip file.
     </para>
+    <programlisting>// read some zip file
+byte[] fileBytes = readSomeFile("/path/to/archive.zip");
+
+// create the request and add some headers
+HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_0,
+                                             HttpMethod.POST, "/uri");
+request.setContent(ChannelBuffers.copiedBuffer(fileBytes));
+request.setHeader(HttpHeaders.Names.CONTENT_LENGTH, fileBytes.length);
+request.setHeader(HttpHeaders.Names.CONTENT_TYPE, "application/x-zip-compressed");
+
+// execute the post and transfer the data
+HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request);
+// register a listener, perform some variant of await() or just forget about it
+    </programlisting>
   </sect1>
 
   <sect1>
@@ -208,7 +223,7 @@ future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
     <para>
       The only exception is when you add an external &TimeoutManager; to a &HttpClient; instance, which you will have
       to manually initialise and terminate. Other than that, simply calling <methodname>terminate()</methodname> will
-      ensure all resources are properly released and any waiting threads will proceed. 
+      ensure all resources are properly released and any waiting threads will proceed.
     </para>
   </sect1>
 

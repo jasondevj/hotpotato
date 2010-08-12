@@ -39,11 +39,14 @@ public class Examples {
         HttpRequest request =
                 new DefaultHttpRequest(HttpVersion.HTTP_1_0, HttpMethod.GET, "/");
 
-        // Execute the request
+        // Execute the request, turning the result into a String
         HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request,
                                                   new BodyAsStringProcessor());
         future.awaitUninterruptibly();
+        // Print some details about the request
         System.out.println(future);
+
+        // If response was >= 200 and <= 299, print the body
         if (future.isSuccessfulResponse()) {
             System.out.println(future.getProcessedResult());
         }
