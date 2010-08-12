@@ -5,6 +5,8 @@ hotpotato or hptt (from the common misspelling of http) is (supposed to be) a Ja
 
 It is aimed mostly at heavily concurrent server-side usage.
 
+Project page: [http://hotpotato.factor45.org](http://hotpotato.factor45.org)
+
 Dependencies
 ------------
 
@@ -16,7 +18,8 @@ Quick & Dirty examples
 
 ### Synchronous mode
 
-This example contains all the steps to execute a request, from creation to cleanup. This is the synchronous mode, which means that the calling thread will block until the request completes.
+This example contains all the steps to execute a request, from creation to cleanup.
+This is the synchronous mode, which means that the calling thread will block until the request completes.
 
     // Create & initialise the client
     HttpClient client = new DefaultHttpClient();
@@ -48,9 +51,8 @@ In asynchronous mode, an event listener is attached to the object returned by th
 Only the relevant parts are shown here.
 
     // Execute the request
-    HttpRequestFuture<String> future =
-            client.execute("hotpotato.factor45.org", 80, request,
-                           new BodyAsStringProcessor());
+    HttpRequestFuture<String> future = client.execute("hotpotato.factor45.org", 80, request,
+                                                      new BodyAsStringProcessor());
     future.addListener(new HttpRequestFutureListener<String>() {
         @Override
         public void operationComplete(HttpRequestFuture future) throws Exception {
@@ -59,7 +61,7 @@ Only the relevant parts are shown here.
                 System.out.println(future.getProcessedResult());
             }
             client.terminate();
-    }
+        }
+    });
 
-Note that you should never perform non-CPU bound operations in the listeners.
-
+Note that you should **never** perform non-CPU bound operations in the listeners.
