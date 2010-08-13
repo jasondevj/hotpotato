@@ -338,13 +338,13 @@ div.note h2, div.note p, div.tip h2, div.tip p, div.caution h2, div.caution p, d
 
 #title a.site_href {
     display: block;
-    height: 30px;
+    height: 25px;
     float: left;
 }
 
 #title a.doc_href {
     display: block;
-    height: 30px;
+    height: 25px;
 }
 
 /* Table */

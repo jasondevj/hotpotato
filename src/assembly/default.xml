@@ -12,9 +12,11 @@
     <fileSet>
       <includes>
         <include>**/README*</include>
+        <include>**/HISTORY*</include>
         <include>**/LICENSE*</include>
         <include>**/NOTICE*</include>
         <include>**/COPYRIGHT*</include>
+        <include>**/license/LICENSE**</include>
 
         <include>**/src/main/**</include>
       </includes>

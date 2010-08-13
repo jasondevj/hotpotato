@@ -16,7 +16,7 @@ Dependencies
 License
 -------
 
-hotpotato is licensed under the [Apache License version 2.0](http://www.apache.org/licenses/LICENSE-2.0) as published by the Apache Software Foundation.
+**hotpotato** is licensed under the [Apache License version 2.0](http://www.apache.org/licenses/LICENSE-2.0) as published by the Apache Software Foundation.
 
 Quick & Dirty examples
 ----------------------
