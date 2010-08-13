@@ -1,3 +1,19 @@
+/*
+ * Copyright 2010 Bruno de Carvalho
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.factor45.hotpotato.client.connection;
 
 import org.factor45.hotpotato.client.HttpRequestContext;
@@ -56,7 +72,6 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
     // internal vars --------------------------------------------------------------------------------------------------
 
     private Channel channel;
-    private long lastActivity;
     private volatile Throwable terminate;
     private HttpRequestContext currentRequest;
     private HttpResponse currentResponse;
@@ -84,7 +99,6 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        this.lastActivity = System.currentTimeMillis();
         synchronized (this.mutex) {
             // Just in case terminate was issued meanwhile... will hardly ever happen unless someone is intentionally
             // trying to screw up...
@@ -150,10 +164,6 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
 
     public int getPort() {
         return this.port;
-    }
-
-    public long getIdleTime() {
-        return System.currentTimeMillis() - this.lastActivity;
     }
 
     public boolean isAvailable() {

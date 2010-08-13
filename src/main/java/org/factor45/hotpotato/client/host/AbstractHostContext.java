@@ -1,3 +1,19 @@
+/*
+ * Copyright 2010 Bruno de Carvalho
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.factor45.hotpotato.client.host;
 
 import org.factor45.hotpotato.client.ConnectionPool;
@@ -25,7 +41,6 @@ public abstract class AbstractHostContext implements HostContext {
     protected final int maxConnections;
     protected final ConnectionPool connectionPool;
     protected final Queue<HttpRequestContext> queue;
-    protected long lastActivity;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
@@ -39,7 +54,6 @@ public abstract class AbstractHostContext implements HostContext {
         this.maxConnections = maxConnections;
         this.connectionPool = new ConnectionPool();
         this.queue = new LinkedList<HttpRequestContext>();
-        this.lastActivity = System.currentTimeMillis();
     }
 
     // HostContext ----------------------------------------------------------------------------------------------------
@@ -66,13 +80,11 @@ public abstract class AbstractHostContext implements HostContext {
 
     @Override
     public void addToQueue(HttpRequestContext request) {
-        this.lastActivity = System.currentTimeMillis();
         this.queue.add(request);
     }
 
     @Override
     public DrainQueueResult drainQueue() {
-        this.lastActivity = System.currentTimeMillis();
         // 1. Test if there's anything to drain
         if (this.queue.isEmpty()) {
             return DrainQueueResult.QUEUE_EMPTY;
@@ -122,10 +134,5 @@ public abstract class AbstractHostContext implements HostContext {
         }
         System.err.println("cancelled " + this.queue.size() + " requests");
         this.queue.clear();
-    }
-
-    @Override
-    public long lastActivity() {
-        return this.lastActivity;
     }
 }

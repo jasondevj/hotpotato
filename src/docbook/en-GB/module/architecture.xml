@@ -2,7 +2,7 @@
     <!ENTITY % CustomDTD SYSTEM "../custom.dtd">
     %CustomDTD;
     ]>
-<chapter>
+<chapter id="architecture">
   <title>Architecture</title>
 
   <sect1>
@@ -128,7 +128,9 @@
   <sect1>
     <title>Summary</title>
     <para>
-      In this chapter we... y'know.
+      In this chapter we covered how &DefaultHttpClient; works internally and how it interacts both with the producers
+      and the other components of &hotpotato;. This should provide you with a better understanding on why some of the
+      configuration parameters affect &hotpotato;'s functioning they way they do.
     </para>
   </sect1>
 </chapter>

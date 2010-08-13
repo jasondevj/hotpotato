@@ -1,3 +1,5 @@
+/* This stylesheet is a slightly modified version of JBoss's community documentation stylesheet with the same name */
+
 /* Lists */
 
 ol li, ul li {
@@ -336,16 +338,13 @@ div.note h2, div.note p, div.tip h2, div.tip p, div.caution h2, div.caution p, d
 
 #title a.site_href {
     display: block;
-    height: 89px;
-    width: 310px;
+    height: 30px;
     float: left;
-    background: url(../images/community/logo.png) top left no-repeat;
 }
 
 #title a.doc_href {
     display: block;
-    height: 89px;
-    background: transparent url(../images/community/community_doc.png) top right no-repeat;
+    height: 30px;
 }
 
 /* Table */
@@ -501,32 +500,6 @@ span.chapter {
     color: #333;
 }
 
-/* Status */
-
-.alpha1 {
-    background: white url(../images/community/watermark-alpha1.png) top left repeat;
-}
-
-.alpha2 {
-    background: white url(../images/community/watermark-alpha2.png) top left repeat;
-}
-
-.beta1 {
-    background: white url(../images/community/watermark-beta1.png) top left repeat;
-}
-
-.beta2 {
-    background: white url(../images/community/watermark-beta2.png) top left repeat;
-}
-
-.pre-release-candidate {
-    background: white url(../images/community/watermark-pre-release-candidate.png) top left repeat;
-}
-
-.release-candidate {
-    background: white url(../images/community/watermark-release-candidate.png) top left repeat;
-}
-
 /* Index */
 
 .glossary h3, .index h3 {
@@ -565,9 +538,9 @@ span.chapter {
 
 .footnote {
     padding: .2em 1em;
-    background-color: #c8c5ac;
+    /*background-color: #c8c5ac;*/
     font-size: .9em;
-    margin: 0 0 .5em;
+    margin: 0;
     color: #222;
 }
 
@@ -605,11 +578,11 @@ sup {
 }
 
 .footnote a:link, .footnote a:visited {
-    color: #00537c;
+    color: #555;
+    text-decoration: none;
 }
 
 .footnote a:hover {
-    color: white;
 }
 
 li p:first-child {

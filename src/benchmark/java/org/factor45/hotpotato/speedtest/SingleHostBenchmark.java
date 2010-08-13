@@ -66,7 +66,7 @@ public class SingleHostBenchmark {
             return;
         }
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         for (int i = 0; i < this.repetitions; i++) {
             futures.add(client.execute(this.host, this.port, 300, this.request, new DiscardProcessor()));
             if (this.dataGenInterval > 0) {
@@ -91,8 +91,8 @@ public class SingleHostBenchmark {
                 totalExistence += future.getExistenceTime();
             }
         }
-        long total = System.currentTimeMillis() - start;
-        this.throughputs.add(new float[]{total, successfulRequests, (successfulRequests / (float) total)});
+        long total = System.nanoTime() - start;
+        this.throughputs.add(new float[]{total / 1000000, successfulRequests, (successfulRequests / (float) total)});
 
         // average execution time - average existence time
         this.existenceAndExecutionTimes.add(new float[]{(totalExecution / (float) successfulRequests),

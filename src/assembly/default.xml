@@ -17,9 +17,6 @@
         <include>**/COPYRIGHT*</include>
 
         <include>**/src/main/**</include>
-        <include>**/src/test/**</include>
-        <include>**/src/functional/**</include>
-        <include>**/src/benchmark/**</include>
       </includes>
 
       <excludes>
@@ -61,7 +58,7 @@
 
     <!-- docbook -->
     <fileSet>
-      <directory>target/docbook/publish/en-US</directory>
+      <directory>target/docbook/publish/en-GB</directory>
       <outputDirectory>doc/guide</outputDirectory>
       <includes>
         <include>**/**</include>

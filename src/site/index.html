@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>hotpotato's project page</title>
+  <link href="css/stylesheet.css" rel="stylesheet" type="text/css" media="screen" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-16430253-3']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script');
+      ga.type = 'text/javascript';
+      ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+<div id="container">
+  <h1>hotpotato's project page</h1>
+
+  <h2><a name="about">What is hotpotato?</a></h2>
+
+  <p>
+    <span class="hotpotato">hotpotato</span> - or hptt (from the common misspelling of http) - is (supposed to be) a
+    Java high performance and throughput oriented HTTP client library, based on
+    <a href="http://www.jboss.org/netty">Netty</a>.
+  </p>
+  <p>
+    It is aimed mostly at heavily concurrent server-side usage.
+  </p>
+
+  <hr />
+  <h2><a name="releases">Releases</a></h2>
+
+  <h3>Version 0.7.0</h3>
+  <p><strong>THESE LINKS HAVE NO CONTENT - IT WILL BE UPLOADED TODAY, FRIDAY 13TH</strong></p>
+  <ul>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0.jar">Binaries (jar)</a></li>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0-src.jar">Source (jar)</a></li>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0-dist.zip">Full package (zip)</a></li>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0-dist.tar.bz2">Full package (tar.bz2)</a></li>
+  </ul>
+
+  <hr />
+  <h2><a name="documentation">Documentation</a></h2>
+
+  <h3>Version 0.7.0</h3>
+  <ul>
+    <li><a href="doc/0.7.0/userguide/html/">User guide (HTML)</a></li>
+    <li><a href="doc/0.7.0/userguide/html-single/">User guide (HTML, single page)</a></li>
+    <li><a href="doc/0.7.0/pdf/userguide.pdf">User guide (PDF)</a></li>
+    <li><a href="doc/0.7.0/xref/">Source code (XREF)</a></li>
+  </ul>
+
+  <hr />
+  <h2>Performance</h2>
+  <p>Coming soon...</p>
+
+  <hr />
+  <h2><a name="repository">Repository</a></h2>
+
+  <p>
+    The project is currently hosted at <a href="http://github.com/brunodecarvalho/hotpotato">GitHub</a>.
+  </p>
+
+  <hr />
+  <h2><a name="license">License</a></h2>
+  <p>
+    <span class="hotpotato">hotpotato</span> is distributed under Apache License, Version 2.0.
+    Please see the enclosed NOTICE.txt, COPYRIGHT.txt, and LICENSE.txt for more information.
+  </p>
+
+  <hr />
+  <h2>Mailing list & other useful stuff</h2>
+  <h3>Mailing list</h3>
+  <p>
+    The project's mailing list is... still unavailable :)
+  </p>
+
+  <h3>Dependencies</h3>
+  <p>
+    <span class="hotpotato">hotpotato</span> needs only <a href="http://www.jboss.org/netty">Netty</a> and JDK 1.6.
+  </p>
+
+  <h3>Useless links</h3>
+  <ul>
+    <li><a href="http://twitter.com/hotpotatolib">follow @hotpotato at twitter</a></li>
+    <li><a href="http://twitter.com/brunodecarvalho">follow @brunodecarvalho at twitter</a></li>
+    <li><a href="http://bruno.factor45.org">Author page</a></li>
+  </ul>
+
+  <hr />
+  <h2><a name="examples">Examples</a></h2>
+  <p>
+    The following are quick & dirty examples whose sole purpose is to give you an idea of how
+    <span class="hotpotato">hotpotato</span> is used. Please refer to <a href="#documentation">documentation</a>
+    section.
+  </p>
+  <h3>Synchronous mode</h3>
+  <p>
+    When executing requests in synchronous mode, the calling thread will block (much like Apache's HttpClient).
+  </p>
+  <pre>
+// Create & initialise the client
+HttpClient client = new DefaultHttpClient();
+client.init();
+
+// Setup the request
+HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_0,
+                                             HttpMethod.GET, "/");
+
+// Execute the request, turning the result into a String
+HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request,
+                                          new BodyAsStringProcessor());
+future.awaitUninterruptibly();
+// Print some details about the request
+System.out.println(future);
+
+// If response was >= 200 and <= 299, print the body
+if (future.isSuccessfulResponse()) {
+    System.out.println(future.getProcessedResult());
+}
+
+// Cleanup
+client.terminate();
+  </pre>
+  <h3>Asynchronous mode</h3>
+  <p>
+    In asynchronous mode, the calling thread will proceed immediately after submitting the request. If any computation
+    needs to be done when the request is terminated, a listener should be added to the object returned when submitting
+    requests.
+  </p>
+  <pre>
+// Execute the request
+HttpRequestFuture&lt;String&gt; future = client.execute("hotpotato.factor45.org", 80, request,
+                                                  new BodyAsStringProcessor());
+future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
+    @Override
+    public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
+        System.out.println(future);
+        if (future.isSuccessfulResponse()) {
+            System.out.println(future.getProcessedResult());
+        }
+        client.terminate();
+    }
+});
+  </pre>
+
+  <hr />
+  <div id="footer">(c) 2010 Bruno de Carvalho</div>
+</div>
+</body>
+</html>

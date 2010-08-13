@@ -21,7 +21,7 @@ font {
 }
 
 hr {
-    border-top: 1px solid #eee;
+    border-top: 1px dotted #eee;
     border-bottom: 0 none;
 }
 

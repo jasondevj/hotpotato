@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
-public class VergadorDoServerDoDinis {
+public class PostBenchmark {
 
     // configuration --------------------------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ public class VergadorDoServerDoDinis {
 
     // constructors ---------------------------------------------------------------------------------------------------
 
-    public VergadorDoServerDoDinis(String host, int port, HttpRequest request, int requests, int dataGenInterval) {
+    public PostBenchmark(String host, int port, HttpRequest request, int requests, int dataGenInterval) {
         this.host = host;
         this.port = port;
         this.request = request;
@@ -70,7 +70,7 @@ public class VergadorDoServerDoDinis {
             return;
         }
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         for (int i = 0; i < this.requests; i++) {
             futures.add(client.execute(this.host, this.port, 0, this.request, new BodyAsStringProcessor()));
             if (this.dataGenInterval > 0) {
@@ -96,8 +96,8 @@ public class VergadorDoServerDoDinis {
                 //System.out.println(future.getProcessedResult());
             }
         }
-        long total = System.currentTimeMillis() - start;
-        this.throughputs.add(new float[]{total, successfulRequests, (successfulRequests / (float) total)});
+        long total = System.nanoTime() - start;
+        this.throughputs.add(new float[]{total / 1000000, successfulRequests, (successfulRequests / (float) total)});
 
         // average execution time - average existence time
         this.existenceAndExecutionTimes.add(new float[]{(totalExecution / (float) successfulRequests),
@@ -216,7 +216,7 @@ public class VergadorDoServerDoDinis {
         request.setContent(ChannelBuffers.copiedBuffer(fileBytes));
         request.setHeader(HttpHeaders.Names.CONTENT_LENGTH, fileBytes.length);
         request.setHeader(HttpHeaders.Names.CONTENT_TYPE, "application/x-zip-compressed");
-        VergadorDoServerDoDinis test = new VergadorDoServerDoDinis(host, port, request, repetitions, dataGenInterval);
+        PostBenchmark test = new PostBenchmark(host, port, request, repetitions, dataGenInterval);
 
         DefaultHttpClientFactory factory = new DefaultHttpClientFactory();
         factory.setGatherEventHandlingStats(true);

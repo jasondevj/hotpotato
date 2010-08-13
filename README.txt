@@ -1,7 +1,7 @@
 hotpotato
 =========
 
-hotpotato or hptt (from the common misspelling of http) is (supposed to be) a Java high-performance and throughput-oriented HTTP client library.
+**hotpotato** or **hptt** (from the common misspelling of http) is (supposed to be) a Java high-performance and throughput-oriented HTTP client library.
 
 It is aimed mostly at heavily concurrent server-side usage.
 
@@ -12,6 +12,11 @@ Dependencies
 
 * JDK 1.6
 * [Netty 3.2.1 Final](http://jboss.org/netty/downloads.html)
+
+License
+-------
+
+hotpotato is licensed under the [Apache License version 2.0](http://www.apache.org/licenses/LICENSE-2.0) as published by the Apache Software Foundation.
 
 Quick & Dirty examples
 ----------------------
@@ -65,3 +70,34 @@ Only the relevant parts are shown here.
     });
 
 Note that you should **never** perform non-CPU bound operations in the listeners.
+
+### Integration with IoC containers
+
+**hotpotato** was developed to be fully IoC compliant.
+
+Here's a simple example of how to configure a client in [Spring](http://www.springsource.org/):
+
+    <bean id="httpClient" class="org.factor45.hotpotato.client.DefaultHttpClient"
+          init-method="init" destroy-method="terminate">
+      <property ... />
+    </bean>
+
+Or using a client factory, in case you want multiple clients:
+
+    <bean id="httpClientFactory" class="org.factor45.hotpotato.client.factory.DefaultHttpClientFactory">
+      <property ... />
+    </bean>
+
+HttpClientFactories will configure each client produced exactly how they were configured - they have the same options as (or more than) the HttpClients they generate.
+Instead of having some sort of Configuration object, you configure the factory and then call getClient() in it to obtain a pre-configured client.
+
+You can also create a client for a component, based on a predefined factory:
+
+    <bean id="someBean" class="org.factor45.SomeComponent">
+      <property name="httpClient">
+        <bean factory-bean="httpClientFactory" factory-method="getClient" />
+      </property>
+      <property ... />
+    </bean>
+
+Note that you can accomplish the same effect as the factory example by simply using an abstract definition of a HttpClient bean and then using Spring inheritance.

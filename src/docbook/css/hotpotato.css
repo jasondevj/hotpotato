@@ -5,7 +5,7 @@
 @import url("codehighlight.css");
 
 body {
-    background: url(../images/community/bkg_gradient.gif) repeat-x;
+    background: url(../images/community/gradient.png) repeat-x;
     margin: 0 auto;
     font-family: 'Lucida Grande', Geneva, Verdana, Arial, sans-serif;
     font-size: 12px;
@@ -19,11 +19,13 @@ body {
 /* Links */
 
 a:link {
-    color: #0066cc;
+    color: #4075a9;
+    text-decoration: underline;
 }
 
 a:visited {
-    color: #6699cc;
+    color: #4075a9;
+    text-decoration: underline;
 }
 
 div.longdesc-link {
@@ -34,7 +36,7 @@ div.longdesc-link {
 /* Headings */
 
 h1, h2, h3, h4, h5, h6 {
-    color: #4a5d75;
+    color: #333;
     line-height: 130%;
     margin-top: 0;
     font-family: 'Lucida Grande', Geneva, Verdana, Arial, sans-serif;
@@ -42,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    background: url(../images/community/title_hdr.png) no-repeat;
+    background: url(../images/community/h1_header.png) no-repeat;
     border-top: 1px dotted #CCCCCC;
     line-height: 1.2em;
     color: #182737;
@@ -83,4 +85,38 @@ hr {
 
 sup {
     color: #999;
+}
+
+tt, tt *, pre, pre *, code, code * {
+  font-size: 100% !important;
+  font-family: "Liberation Mono", "DejaVu Sans Mono", Consolas, Monaco, "Vera Sans Mono", "Lucida Console", "Courier New", monospace !important;
+}
+
+pre a:link * {color:#0066cc !important;}
+
+pre a:visited * {color:#6699cc !important;}
+
+.programlisting, .programlistingco pre {
+  line-height: 160%;
+}
+
+.programlisting img {
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+
+span.co {
+  position: relative;
+  left: 0;
+  top: 0;
+  margin: 0 0;
+  padding: 0 0;
+  height: 17px;
+  float: right;
+}
+
+span.co * {
+  margin: 0 0;
+  padding: 0 0;
 }

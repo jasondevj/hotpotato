@@ -147,7 +147,7 @@ client.terminate();</programlisting>
       Handling the response body happens transparently. Handling the results of the whole transaction, however, will
       have to be explicitly performed by the programmer. There are two ways to wait for a request to complete:
       <itemizedlist>
-        <listitem><para>synchronously - blocking calls to<methodname>execute()</methodname></para></listitem>
+        <listitem><para>synchronously - blocking calls to <methodname>execute()</methodname></para></listitem>
         <listitem><para>asynchronously - non-blocking calls to <methodname>execute()</methodname></para></listitem>
       </itemizedlist>
     </para>

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2010 Bruno de Carvalho
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.factor45.hotpotato.request;
 
 import org.jboss.netty.handler.codec.http.HttpResponse;
@@ -110,8 +126,8 @@ public interface HttpRequestFuture<T> {
      * Returns the total time the request lived for, including time spent in queues. Basically, this is the time spent
      * between the creation of the future and its termination.
      * <p/>
-     * If the request hasn't terminated upon calling this method, the implementation returns {@code
-     * System.currentTimeMillis()- creationInstant}.
+     * If the request hasn't terminated upon calling this method, the implementation returns
+     * {@code System.nanoTime()- creationInstant / 1000000} (milliseconds).
      * <p/>
      * <strong>NOTE: </strong>existence time - execution time = time spent in queues/handling.
      * <p/>

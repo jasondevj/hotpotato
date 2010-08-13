@@ -16,25 +16,23 @@
   <sect1>
     <title>OIO vs NIO</title>
     <para>
-      Adapting
-      <code>HttpClient</code>
-      to your needs.
+      When the expected number of open connections is not high, OIO is often faster than NIO.
     </para>
   </sect1>
 
   <sect1>
     <title>Performance guidelines</title>
     <para>
-      Adapting
-      <code>HttpClient</code>
-      to your needs.
+      Understanding how to configure &hotpotato; for a specific scenario can increase the effectiveness of this library.
     </para>
   </sect1>
 
   <sect1>
     <title>Summary</title>
     <para>
-      Summary...
+      In this chapter we covered the most important details of fine-tuning &hotpotato; to achieve maximum performance
+      under different circumstances. In the next chapter, <xref linkend="architecture" />, we will look at the internals
+      of the default implementations and understand why some of these configuration tweaks behave they way they do.
     </para>
   </sect1>
 </chapter>
