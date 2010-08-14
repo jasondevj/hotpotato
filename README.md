@@ -1,8 +1,6 @@
 hotpotato
 =========
 
-**hotpotato** or **hptt** (from the common misspelling of http) is (supposed to be) a Java high-performance and throughput-oriented HTTP client library.
-
 **hotpotato** - or hptt (from the common misspelling of http) - is (supposed to be) a Java high performance and throughput oriented HTTP client library, based on Netty.
 It was developed mostly towards server-side usage, where speed and low resource usage are the key factors.
 
