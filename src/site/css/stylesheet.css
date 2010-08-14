@@ -53,11 +53,16 @@ a:hover {
   font-weight: bold;
 }
 
+.text {
+  color: #000;
+}
+
 ul {
   padding-left: 25px;
 }
 
 li {
+  margin: 5px;
   list-style: square;
   color: #4075a9;
 }

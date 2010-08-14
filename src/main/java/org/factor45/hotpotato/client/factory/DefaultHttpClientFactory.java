@@ -53,7 +53,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
     private static final boolean GATHER_EVENT_HANDLING_STATS = false;
     private static final boolean USE_SSL = false;
     private static final int REQUEST_COMPRESSION_LEVEL = 0;
-    private static final boolean AUTOMATIC_INFLATE = true;
+    private static final boolean AUTOMATIC_INFLATE = false;
     private static final int REQUEST_CHUNK_SIZE = 8192;
     private static final boolean AGGREGATE_CHUNKS = false;
     private static final int CONNECTION_TIMEOUT_IN_MILLIS = 2000;

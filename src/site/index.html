@@ -25,26 +25,48 @@
   <h1>hotpotato's project page</h1>
 
   <h2><a name="about">What is hotpotato?</a></h2>
-
   <p>
     <span class="hotpotato">hotpotato</span> - or hptt (from the common misspelling of http) - is (supposed to be) a
     Java high performance and throughput oriented HTTP client library, based on
-    <a href="http://www.jboss.org/netty">Netty</a>.
+    <a href="http://www.jboss.org/netty">Netty</a>. It was developed mostly towards server-side usage, where speed and
+    low resource usage are the key factors.
+  </p>
+
+  <h3>Built for speed</h3>
+  <p>
+    Designed for high concurrency scenarios where multiple threads can use the same instance of a client without
+    any worries for external or internal sinchronisation, <span class="hotpotato">hotpotato</span> helps you
+    reduce initialisation and/or preparation times and resource squandering. Among many small optimisations, connections are
+    reused <strong>whenever possible</strong>, which results in a severe reduction of total request execution times by
+    cutting connection establishment overhead.
+  </p>
+  <h3>Simple and familiar API</h3>
+  <p>
+    The API is extremely simple and, for anyone already familiar with Netty, comprehension will be instant.
   </p>
   <p>
-    It is aimed mostly at heavily concurrent server-side usage.
+    The semantics of <code>execute()</code> (<code>HttpClient</code> interface) may look somewhat awkward but remember
+    this library was built with server-side usage in mind, where often you end up repeating the requests to the same
+    4/5 hosts (if that many...).
+  </p>
+
+  <h4>Note:</h4>
+  <p>
+    Until this software hits version 1.0, it's considered to be in BETA stage.<br />
+    I encourage you to look & hack the code to your needs. Comments, improvements, patches, rants and praises are all
+    welcome at <a href="#links">the mailing list</a>.
   </p>
 
   <hr />
   <h2><a name="releases">Releases</a></h2>
 
   <h3>Version 0.7.0</h3>
-  <p><strong>THESE LINKS HAVE NO CONTENT - IT WILL BE UPLOADED TODAY, FRIDAY 13TH</strong></p>
+  <p><strong>Downloads will be available shortly! Check the repository <a href="#repository">meanwhile</a>.</strong></p>
   <ul>
-    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0.jar">Binaries (jar)</a></li>
-    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0-src.jar">Source (jar)</a></li>
-    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0-dist.zip">Full package (zip)</a></li>
-    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=hotpotato-0.7.0-dist.tar.bz2">Full package (tar.bz2)</a></li>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=_hotpotato-0.7.0.jar">Binaries (jar)</a></li>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=_hotpotato-0.7.0-sources.jar">Sources (jar)</a></li>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=_hotpotato-0.7.0-dist.zip">Full package (zip)</a></li>
+    <li><a href="https://www.ohloh.net/p/hotpotatolib/download?filename=_hotpotato-0.7.0-dist.tar.bz2">Full package (tar.bz2)</a></li>
   </ul>
 
   <hr />
@@ -82,6 +104,26 @@
   </p>
 
   <hr />
+  <h2><a name="roadmap">Roadmap</a></h2>
+  <ul>
+    <li><span class="text">
+      Add a wrapper class that allows an easier, <em>client-side</em>'er interaction, such as handling full URL's (i.e.
+      <code>execute("http://some.host.com/some/uri", ...)</code> rather than <code>execute("host", port, ...)</code>).
+      Also, automated redirect handling would be a nice feature for this wrapper.
+    </span></li>
+    <li><span class="text">
+      Add support for HTTP 1.1 pipelining (as defined in <a href="http://tools.ietf.org/html/rfc2616">RFC 2616</a>).
+    </span></li>
+    <li><span class="text">
+      Consider a version with <a href="http://twistedmatrix.com/documents/current/core/howto/defer.html">Deferred</a>
+      rather than futures.
+    </span></li>
+    <li><span class="text">
+      Your idea here...
+    </span></li>
+  </ul>
+
+  <hr />
   <h2><a name="license">License</a></h2>
   <p>
     <span class="hotpotato">hotpotato</span> is distributed under Apache License, Version 2.0.
@@ -89,22 +131,28 @@
   </p>
 
   <hr />
-  <h2>Mailing list & other useful stuff</h2>
+  <h2><a name="links">Mailing list & other useful stuff</a></h2>
   <h3>Mailing list</h3>
   <p>
-    The project's mailing list is... still unavailable :)
+    The project's mailing list is
+    <a href="http://groups.google.com/group/hotpotato-users">hotpotato-users@googlegroups.com</a>. At the moment there
+    is no need for multiple lists so all discussions (dev, announcements, help, ranting) go in there.
+  </p>
+  <p>
+    It requires a google account, which you can create by clicking the link.
   </p>
 
   <h3>Dependencies</h3>
   <p>
-    <span class="hotpotato">hotpotato</span> needs only <a href="http://www.jboss.org/netty">Netty</a> and JDK 1.6.
+    <span class="hotpotato">hotpotato</span> needs only <a href="http://www.jboss.org/netty">Netty</a> 3.2.1 (Final)
+    and JDK 1.6.
   </p>
 
   <h3>Useless links</h3>
   <ul>
     <li><a href="http://twitter.com/hotpotatolib">follow @hotpotato at twitter</a></li>
     <li><a href="http://twitter.com/brunodecarvalho">follow @brunodecarvalho at twitter</a></li>
-    <li><a href="http://bruno.factor45.org">Author page</a></li>
+    <li><a href="http://bruno.factor45.org/blag">the blag</a></li>
   </ul>
 
   <hr />
@@ -163,9 +211,105 @@ future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
     }
 });
   </pre>
+  <p>
+    You may need to use the full URL as URI when using HTTP 1.1.
+  </p>
+  <pre>
+request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                 "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
+request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
+future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
+  </pre>
+  <p>
+    The following is a comprehensive example of request to three distinct servers.
+  </p>
+  <pre>
+final DefaultHttpClient client = new DefaultHttpClient();
+client.setRequestTimeoutInMillis(5000);
+client.init();
+
+final CountDownLatch latch = new CountDownLatch(3);
+
+HttpRequest request;
+HttpRequestFuture&lt;String&gt; future;
+
+request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+request.addHeader(HttpHeaders.Names.HOST, "hotpotato.factor45.org");
+future = client.execute("hotpotato.factor45.org", 80, request,
+                        new BodyAsStringProcessor());
+future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
+    @Override
+    public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
+        System.out.println("\n\n");
+        System.out.println("Hotpotato request: " + future);
+        if (future.isSuccess()) {
+            System.out.println(future.getResponse());
+        }
+        if (future.isSuccessfulResponse()) {
+            System.out.println(future.getResponse());
+            System.out.println(future.getProcessedResult());
+        }
+        latch.countDown();
+    }
+});
+
+request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                 "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
+request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
+future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
+future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
+    @Override
+    public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
+        System.out.println("\n\n");
+        System.out.println("Google request: " + future);
+        if (future.isSuccess()) {
+            System.out.println(future.getResponse());
+        }
+        if (future.isSuccessfulResponse()) {
+            System.out.println(future.getResponse());
+            System.out.println(future.getProcessedResult());
+        }
+        latch.countDown();
+    }
+});
+
+// tell twitter we accept gzip and have the response sent in a zip
+client.setAutoInflate(true);
+request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                 "http://twitter.com/");
+future = client.execute("twitter.com", 80, request, new BodyAsStringProcessor());
+request.addHeader(HttpHeaders.Names.HOST, "twitter.com");
+request.addHeader(HttpHeaders.Names.USER_AGENT, "Fiddler");
+System.err.println(request);
+future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
+    @Override
+    public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
+        System.out.println("\n\n");
+        System.out.println("Twitter request: " + future);
+        if (future.isSuccess()) {
+            System.out.println(future.getResponse());
+        } else {
+            System.out.println(future.getResponse());
+            future.getCause().printStackTrace();
+        }
+        if (future.isSuccessfulResponse()) {
+            System.out.println(future.getProcessedResult());
+        }
+        latch.countDown();
+    }
+});
+
+try {
+    latch.await();
+} catch (InterruptedException e) {
+    e.printStackTrace();
+}
+
+client.terminate();
+  </pre>
 
   <hr />
-  <div id="footer">(c) 2010 Bruno de Carvalho</div>
+  <div id="footer">2010 <a href="http://bruno.factor45.org/">Bruno de Carvalho</a></div>
 </div>
 </body>
 </html>

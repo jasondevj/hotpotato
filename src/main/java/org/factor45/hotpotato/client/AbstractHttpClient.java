@@ -143,7 +143,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
 
     protected static final boolean USE_SSL = false;
     protected static final int REQUEST_COMPRESSION_LEVEL = 0;
-    protected static final boolean AUTO_INFLATE = true;
+    protected static final boolean AUTO_INFLATE = false;
     protected static final int REQUEST_CHUNK_SIZE = 8192;
     protected static final boolean AGGREGATE_RESPONSE_CHUNKS = false;
     protected static final int CONNECTION_TIMEOUT_IN_MILLIS = 2000;
@@ -351,7 +351,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
                                             HttpResponseProcessor<T> processor)
             throws CannotExecuteRequestException {
         if (this.eventQueue == null) {
-            throw new CannotExecuteRequestException(AbstractHttpClient.class.getSimpleName() + " was not initialised");
+            throw new CannotExecuteRequestException(this.getClass().getSimpleName() + " was not initialised");
         }
 
         if (this.queuedRequests.incrementAndGet() > this.maxQueuedRequests) {

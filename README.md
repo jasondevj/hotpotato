@@ -3,7 +3,9 @@ hotpotato
 
 **hotpotato** or **hptt** (from the common misspelling of http) is (supposed to be) a Java high-performance and throughput-oriented HTTP client library.
 
-It is aimed mostly at heavily concurrent server-side usage.
+**hotpotato** - or hptt (from the common misspelling of http) - is (supposed to be) a Java high performance and throughput oriented HTTP client library, based on Netty.
+It was developed mostly towards server-side usage, where speed and low resource usage are the key factors.
+
 
 Project page: [http://hotpotato.factor45.org](http://hotpotato.factor45.org)
 
@@ -70,6 +72,98 @@ Only the relevant parts are shown here.
     });
 
 Note that you should **never** perform non-CPU bound operations in the listeners.
+
+You may need to use the full URL as URI when using HTTP 1.1.
+
+    request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                     "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
+    request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
+    future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
+
+The following is a comprehensive example of request to three distinct servers.
+
+    final DefaultHttpClient client = new DefaultHttpClient();
+    client.setRequestTimeoutInMillis(5000);
+    client.init();
+
+    final CountDownLatch latch = new CountDownLatch(3);
+
+    HttpRequest request;
+    HttpRequestFuture&lt;String&gt; future;
+
+    request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+    request.addHeader(HttpHeaders.Names.HOST, "hotpotato.factor45.org");
+    future = client.execute("hotpotato.factor45.org", 80, request,
+                            new BodyAsStringProcessor());
+    future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
+        @Override
+        public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
+            System.out.println("\n\n");
+            System.out.println("Hotpotato request: " + future);
+            if (future.isSuccess()) {
+                System.out.println(future.getResponse());
+            }
+            if (future.isSuccessfulResponse()) {
+                System.out.println(future.getResponse());
+                System.out.println(future.getProcessedResult());
+            }
+            latch.countDown();
+        }
+    });
+
+    request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                     "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
+    request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
+    future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
+    future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
+        @Override
+        public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
+            System.out.println("\n\n");
+            System.out.println("Google request: " + future);
+            if (future.isSuccess()) {
+                System.out.println(future.getResponse());
+            }
+            if (future.isSuccessfulResponse()) {
+                System.out.println(future.getResponse());
+                System.out.println(future.getProcessedResult());
+            }
+            latch.countDown();
+        }
+    });
+
+    // tell twitter we accept gzip and have the response sent in a zip
+    client.setAutoInflate(true);
+    request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                     "http://twitter.com/");
+    future = client.execute("twitter.com", 80, request, new BodyAsStringProcessor());
+    request.addHeader(HttpHeaders.Names.HOST, "twitter.com");
+    request.addHeader(HttpHeaders.Names.USER_AGENT, "Fiddler");
+    System.err.println(request);
+    future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
+        @Override
+        public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
+            System.err.println("==========================");
+            System.out.println("Twitter request: " + future);
+            if (future.isSuccess()) {
+                System.out.println(future.getResponse());
+            } else {
+                System.out.println(future.getResponse());
+                future.getCause().printStackTrace();
+            }
+            if (future.isSuccessfulResponse()) {
+                System.out.println(future.getProcessedResult());
+            }
+            latch.countDown();
+        }
+    });
+
+    try {
+        latch.await();
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+
+    client.terminate();
 
 ### Integration with IoC containers
 

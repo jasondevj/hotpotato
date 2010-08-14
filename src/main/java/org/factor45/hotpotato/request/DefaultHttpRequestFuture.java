@@ -187,7 +187,7 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
     }
 
     @Override
-    public synchronized boolean isCancelled() {
+    public boolean isCancelled() {
         return cause == CANCELLED;
     }
 
@@ -248,6 +248,27 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
             }
 
             this.executionEnd = System.nanoTime();
+            this.cause = cause;
+            this.done = true;
+            if (this.waiters > 0) {
+                this.notifyAll();
+            }
+        }
+
+        this.notifyListeners();
+        return true;
+    }
+
+    @Override
+    public boolean setFailure(HttpResponse response, Throwable cause) {
+        synchronized (this) {
+            // Allow only once.
+            if (this.done) {
+                return false;
+            }
+
+            this.executionEnd = System.nanoTime();
+            this.response = response;
             this.cause = cause;
             this.done = true;
             if (this.waiters > 0) {

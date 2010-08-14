@@ -32,30 +32,48 @@ public class BodyAsStringProcessor implements HttpResponseProcessor<String> {
     // internal vars --------------------------------------------------------------------------------------------------
 
     private ChannelBuffer buffer;
-    private boolean finished;
+    private volatile boolean finished;
     private String result;
 
     // HttpResponseProcessor ------------------------------------------------------------------------------------------
 
     @Override
     public boolean willProcessResponse(HttpResponse response) {
-        long length = HttpHeaders.getContentLength(response);
-        if (length > Integer.MAX_VALUE) {
-            return false;
-        }
-
-        if (length > 0) {
-            // HTTP 1.1
-            this.buffer = ChannelBuffers.buffer((int) length);
-            return true;
-        } else if ((response.getContent() != null) && (response.getContent().readableBytes() > 0)) {
-            // HTTP 1.0
-            this.buffer = response.getContent();
-            this.result = this.buffer.toString(CharsetUtil.UTF_8);
+        // Content already present. Deal with it and bail out.
+        if ((response.getContent() != null) && (response.getContent().readableBytes() > 0)) {
+            this.result = response.getContent().toString(CharsetUtil.UTF_8);
             this.finished = true;
             return true;
         }
 
+        // No content readily available
+        long length = HttpHeaders.getContentLength(response, -1);
+        if (length > Integer.MAX_VALUE) {
+            this.finished = true;
+            return false;
+        }
+
+        if (length == 0) {
+            // No content
+            this.finished = true;
+            return false;
+        }
+
+        // If the response is chunked, then prepare the buffers for incoming data.
+        if (response.isChunked()) {
+            if (length == -1) {
+                // No content header, but there may be content... use a dynamic buffer (not so good for performance...)
+                this.buffer = ChannelBuffers.dynamicBuffer(2048);
+            } else {
+                // When content is zipped and autoInflate is set to true, the Content-Length header remains the same
+                // even though the contents are expanded. Thus using a fixed size buffer would break with
+                // ArrayIndexOutOfBoundsException
+                this.buffer = ChannelBuffers.dynamicBuffer((int) length);
+            }
+            return true;
+        }
+
+        this.finished = true;
         return false;
     }
 
@@ -71,6 +89,7 @@ public class BodyAsStringProcessor implements HttpResponseProcessor<String> {
         if (!this.finished) {
             this.buffer.writeBytes(content);
             this.result = this.buffer.toString(CharsetUtil.UTF_8);
+            this.buffer = null;
             this.finished = true;
         }
     }

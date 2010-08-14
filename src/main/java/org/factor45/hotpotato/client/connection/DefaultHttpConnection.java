@@ -316,10 +316,10 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
             } else {
                 this.currentRequest.getProcessor().addData(content);
             }
-        } catch (Exception throwable) {
+        } catch (Exception e) {
             // Unlock the future but don't signal that this connection is free just yet! There may still be contents
             // left to be consumed. Instead, set discarding flag to true.
-            this.currentRequest.getFuture().setFailure(throwable);
+            this.currentRequest.getFuture().setFailure(this.currentResponse, e);
             this.discarding = true;
         }
     }
@@ -350,24 +350,31 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
 
-        if (!this.currentRequest.getProcessor().willProcessResponse(response)) {
-            // Rather than waiting for the full content to arrive (which will be discarded), perform an early trigger
-            // on the Future, signalling request is finished. Note that currentRequestFinished() is *not* called in
-            // this method, which means that execution of other requests will not be allowed, even though the current
-            // request has been terminated. The reason for this is that all incoming data must be safely consumed (and
-            // discarded) before another request hits the network - this avoids possible response data mixing.
-            // When you *KNOW* for sure that the server supports HTTP/1.1 pipelining, then use the pipelining
-            // implementation, PipeliningHttpConnection.
+        try {
+            if (!this.currentRequest.getProcessor().willProcessResponse(response)) {
+                // Rather than waiting for the full content to arrive (which will be discarded), perform an early trigger
+                // on the Future, signalling request is finished. Note that currentRequestFinished() is *not* called in
+                // this method, which means that execution of other requests will not be allowed, even though the current
+                // request has been terminated. The reason for this is that all incoming data must be safely consumed (and
+                // discarded) before another request hits the network - this avoids possible response data mixing.
+                // When you *KNOW* for sure that the server supports HTTP/1.1 pipelining, then use the pipelining
+                // implementation, PipeliningHttpConnection.
 
-            // Even though the processor does not want to process the response, it might still return some default
-            // result, so call getProcessedResponse() on it, rather than passing null to the Future.
-            this.currentRequest.getFuture().setSuccess(this.currentRequest.getProcessor().getProcessedResponse(),
-                                                       response);
+                // Even though the processor does not want to process the response, it might still return some default
+                // result, so call getProcessedResponse() on it, rather than passing null to the Future.
+                this.currentRequest.getFuture().setSuccess(this.currentRequest.getProcessor().getProcessedResponse(),
+                                                           response);
+                this.discarding = true;
+            } else {
+                // Response processor wants to process the contents of this request.
+                this.discarding = false;
+                this.currentResponse = response;
+            }
+        } catch (Exception e) {
+            // Unlock the future but don't signal that this connection is free just yet! There may still be contents
+            // left to be consumed. Instead, set discarding flag to true.
+            this.currentRequest.getFuture().setFailure(response, e);
             this.discarding = true;
-        } else {
-            // Response processor wants to process the contents of this request.
-            this.discarding = false;
-            this.currentResponse = response;
         }
     }
 

@@ -206,6 +206,23 @@ public class ConcurrentHttpRequestFuture<T> implements HttpRequestFuture<T> {
     }
 
     @Override
+    public boolean setFailure(HttpResponse response, Throwable cause) {
+        // Get previous value and set to true
+        if (this.done.getAndSet(true)) {
+            // If previous value was already true, then bail out.
+            return false;
+        }
+
+        this.executionEnd = System.nanoTime();
+        this.response = response;
+        this.cause = cause;
+        this.waitLatch.countDown();
+
+        this.notifyListeners();
+        return true;
+    }
+
+    @Override
     public void addListener(HttpRequestFutureListener<T> listener) {
         if (this.done.get()) {
             this.notifyListener(listener);

@@ -80,8 +80,10 @@ public interface HttpResponseProcessor<T> {
      * @param response The HTTP response received.
      *
      * @return {@code true} if this processor will process the provided response, {@code false} otherwise.
+     *
+     * @throws Exception Thrown on underlying processing exception.
      */
-    boolean willProcessResponse(HttpResponse response);
+    boolean willProcessResponse(HttpResponse response) throws Exception;
 
     /**
      * Append data to the processor's buffer.

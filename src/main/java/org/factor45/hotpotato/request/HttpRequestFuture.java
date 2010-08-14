@@ -199,6 +199,20 @@ public interface HttpRequestFuture<T> {
     boolean setFailure(Throwable cause);
 
     /**
+     * Same as {@link #setFailure(Throwable)}, except it also records the state of the received response.
+     * <p/>
+     * This variant is useful to distinguish between errors executing the request itself or errors ocurred during
+     * response parsing.
+     *
+     * @param response The {@link HttpResponse} received before the error.
+     * @param cause The cause of the failure.
+     *
+     * @return {@code true} if and only if successfully marked this future as a failure. Otherwise {@code false} because
+     *         this future is already marked as either a success or a failure.
+     */
+    boolean setFailure(HttpResponse response, Throwable cause);
+
+    /**
      * Add a listener to this future.
      * <p/>
      * If the future is already complete (i.e. {@link #isDone()} returns {@code true}) then the listener is immediately

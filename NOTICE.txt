@@ -5,7 +5,7 @@ Please visit the project web site for more information:
 
   * http://hotpotato.factor45.org
 
-Copyright 2010 Bruno de Carvalho, Inc.
+Copyright 2010 Bruno de Carvalho
 
 Bruno de Carvalho licenses this product to you under the Apache License,
 version 2.0 (the "License"); you may not use this product except in compliance

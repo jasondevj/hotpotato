@@ -30,7 +30,7 @@ import org.jboss.netty.util.internal.ExecutorUtil;
 import java.util.concurrent.Executor;
 
 /**
- * Pipelining implementation of HttpConnection interface.
+ * Pipelining implementation of {@link HttpConnection} interface.
  * <p/>
  * This version accepts up N idempotent HTTP 1.1 operations. Should an error occur during the execution of the pipelined
  * requests, <strong>all</strong> the currently pipelined requests will fail - and will <strong>not</strong> be
@@ -50,7 +50,8 @@ import java.util.concurrent.Executor;
  * <p/>
  * Use this implementation when you know beforehand that you'll be performing mostly idempotent HTTP 1.1 operations.
  *
- * TODO implement Pipelining!
+ * TODO implement this -_-
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler implements HttpConnection {
