@@ -99,13 +99,14 @@ public class Examples {
         future.addListener(new HttpRequestFutureListener<String>() {
             @Override
             public void operationComplete(HttpRequestFuture<String> future) throws Exception {
-                System.out.println("\n\n");
-                System.out.println("Hotpotato request: " + future);
+                System.out.println("\nHotpotato request: " + future);
                 if (future.isSuccess()) {
                     System.out.println(future.getResponse());
+                } else {
+                    System.out.println(future.getResponse());
+                    future.getCause().printStackTrace();
                 }
                 if (future.isSuccessfulResponse()) {
-                    System.out.println(future.getResponse());
                     System.out.println(future.getProcessedResult());
                 }
                 latch.countDown();
@@ -119,32 +120,28 @@ public class Examples {
         future.addListener(new HttpRequestFutureListener<String>() {
             @Override
             public void operationComplete(HttpRequestFuture<String> future) throws Exception {
-                System.out.println("\n\n");
-                System.out.println("Google request: " + future);
+                System.out.println("\nGoogle request: " + future);
                 if (future.isSuccess()) {
                     System.out.println(future.getResponse());
+                } else {
+                    System.out.println(future.getResponse());
+                    future.getCause().printStackTrace();
                 }
                 if (future.isSuccessfulResponse()) {
-                    System.out.println(future.getResponse());
                     System.out.println(future.getProcessedResult());
                 }
                 latch.countDown();
             }
         });
 
-        // tell twitter we accept gzip and have the response sent in a zip
-        client.setAutoInflate(true);
         request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                                          "http://twitter.com/");
         future = client.execute("twitter.com", 80, request, new BodyAsStringProcessor());
         request.addHeader(HttpHeaders.Names.HOST, "twitter.com");
-        request.addHeader(HttpHeaders.Names.USER_AGENT, "Fiddler");
-        System.err.println(request);
         future.addListener(new HttpRequestFutureListener<String>() {
             @Override
             public void operationComplete(HttpRequestFuture<String> future) throws Exception {
-                System.out.println("\n\n");
-                System.out.println("Twitter request: " + future);
+                System.out.println("\nTwitter request: " + future);
                 if (future.isSuccess()) {
                     System.out.println(future.getResponse());
                 } else {

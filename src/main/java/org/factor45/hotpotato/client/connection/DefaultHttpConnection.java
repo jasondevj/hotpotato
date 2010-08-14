@@ -118,7 +118,10 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
                 HttpResponse response = (HttpResponse) e.getMessage();
                 this.receivedResponseForCurrentRequest(response);
 
-                if (response.isChunked()) {
+                // Chunked flag is set *even if chunk agreggation occurs*. When chunk aggregation occurs, the content
+                // of the message will be present and flag will still be true so all conditions must be checked!
+                if (response.isChunked() &&
+                    ((response.getContent() == null) || (response.getContent().readableBytes() == 0))) {
                     this.readingChunks = true;
                 } else {
                     ChannelBuffer content = response.getContent();
@@ -392,6 +395,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         this.available = HttpHeaders.isKeepAlive(this.currentRequest.getRequest()) &&
                          this.terminate == null &&
                          this.channel.isConnected();
+
         this.currentRequest = null;
         this.currentResponse = null;
 

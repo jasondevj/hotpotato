@@ -29,12 +29,12 @@ public class HttpRequestFutures {
     // public static methods ------------------------------------------------------------------------------------------
 
     public static <T> HttpRequestFuture<T> future() {
-        return new ConcurrentHttpRequestFuture<T>(false);
-        //return new DefaultHttpRequestFuture<T>(false);
+        //return new ConcurrentHttpRequestFuture<T>(false);
+        return new DefaultHttpRequestFuture<T>(false);
     }
 
     public static <T> HttpRequestFuture<T> future(boolean cancelable) {
-        return new ConcurrentHttpRequestFuture<T>(cancelable);
-        //return new DefaultHttpRequestFuture<T>(cancelable);
+        //return new ConcurrentHttpRequestFuture<T>(cancelable);
+        return new DefaultHttpRequestFuture<T>(cancelable);
     }
 }

@@ -89,78 +89,74 @@ The following is a comprehensive example of request to three distinct servers.
     final CountDownLatch latch = new CountDownLatch(3);
 
     HttpRequest request;
-    HttpRequestFuture&lt;String&gt; future;
+    HttpRequestFuture<String> future;
 
     request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
     request.addHeader(HttpHeaders.Names.HOST, "hotpotato.factor45.org");
-    future = client.execute("hotpotato.factor45.org", 80, request,
-                            new BodyAsStringProcessor());
-    future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
-        @Override
-        public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
-            System.out.println("\n\n");
-            System.out.println("Hotpotato request: " + future);
-            if (future.isSuccess()) {
-                System.out.println(future.getResponse());
-            }
-            if (future.isSuccessfulResponse()) {
-                System.out.println(future.getResponse());
-                System.out.println(future.getProcessedResult());
-            }
-            latch.countDown();
-        }
+    future = client.execute("hotpotato.factor45.org", 80, request, new BodyAsStringProcessor());
+    future.addListener(new HttpRequestFutureListener<String>() {
+      @Override
+      public void operationComplete(HttpRequestFuture<String> future) throws Exception {
+          System.out.println("\nHotpotato request: " + future);
+          if (future.isSuccess()) {
+              System.out.println(future.getResponse());
+          } else {
+              System.out.println(future.getResponse());
+              future.getCause().printStackTrace();
+          }
+          if (future.isSuccessfulResponse()) {
+              System.out.println(future.getProcessedResult());
+          }
+          latch.countDown();
+      }
     });
 
     request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                                     "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
+                                   "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
     request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
     future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
-    future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
-        @Override
-        public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
-            System.out.println("\n\n");
-            System.out.println("Google request: " + future);
-            if (future.isSuccess()) {
-                System.out.println(future.getResponse());
-            }
-            if (future.isSuccessfulResponse()) {
-                System.out.println(future.getResponse());
-                System.out.println(future.getProcessedResult());
-            }
-            latch.countDown();
-        }
+    future.addListener(new HttpRequestFutureListener<String>() {
+      @Override
+      public void operationComplete(HttpRequestFuture<String> future) throws Exception {
+          System.out.println("\nGoogle request: " + future);
+          if (future.isSuccess()) {
+              System.out.println(future.getResponse());
+          } else {
+              System.out.println(future.getResponse());
+              future.getCause().printStackTrace();
+          }
+          if (future.isSuccessfulResponse()) {
+              System.out.println(future.getProcessedResult());
+          }
+          latch.countDown();
+      }
     });
 
-    // tell twitter we accept gzip and have the response sent in a zip
-    client.setAutoInflate(true);
     request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                                     "http://twitter.com/");
+                                   "http://twitter.com/");
     future = client.execute("twitter.com", 80, request, new BodyAsStringProcessor());
     request.addHeader(HttpHeaders.Names.HOST, "twitter.com");
-    request.addHeader(HttpHeaders.Names.USER_AGENT, "Fiddler");
-    System.err.println(request);
-    future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
-        @Override
-        public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {
-            System.err.println("==========================");
-            System.out.println("Twitter request: " + future);
-            if (future.isSuccess()) {
-                System.out.println(future.getResponse());
-            } else {
-                System.out.println(future.getResponse());
-                future.getCause().printStackTrace();
-            }
-            if (future.isSuccessfulResponse()) {
-                System.out.println(future.getProcessedResult());
-            }
-            latch.countDown();
-        }
+    future.addListener(new HttpRequestFutureListener<String>() {
+      @Override
+      public void operationComplete(HttpRequestFuture<String> future) throws Exception {
+          System.out.println("\nTwitter request: " + future);
+          if (future.isSuccess()) {
+              System.out.println(future.getResponse());
+          } else {
+              System.out.println(future.getResponse());
+              future.getCause().printStackTrace();
+          }
+          if (future.isSuccessfulResponse()) {
+              System.out.println(future.getProcessedResult());
+          }
+          latch.countDown();
+      }
     });
 
     try {
-        latch.await();
+      latch.await();
     } catch (InterruptedException e) {
-        e.printStackTrace();
+      e.printStackTrace();
     }
 
     client.terminate();
