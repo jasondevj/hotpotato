@@ -26,6 +26,7 @@ import org.factor45.hotpotato.client.connection.factory.HttpConnectionFactory;
 import org.factor45.hotpotato.client.host.factory.DefaultHostContextFactory;
 import org.factor45.hotpotato.client.host.factory.HostContextFactory;
 import org.factor45.hotpotato.client.timeout.TimeoutManager;
+import org.factor45.hotpotato.request.factory.HttpRequestFutureFactory;
 
 /**
  * Creates subclasses of {@link AbstractHttpClient} depending on configuration parameters.
@@ -80,11 +81,12 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
     private int requestTimeoutInMillis;
     private int maxConnectionsPerHost;
     private int maxQueuedRequests;
-    protected boolean useNio;
-    protected int maxIoWorkerThreads;
-    protected int maxEventProcessorHelperThreads;
+    private boolean useNio;
+    private int maxIoWorkerThreads;
+    private int maxEventProcessorHelperThreads;
     private HostContextFactory hostContextFactory;
     private HttpConnectionFactory connectionFactory;
+    private HttpRequestFutureFactory futureFactory;
     private TimeoutManager timeoutManager;
     private boolean cleanupInactiveHostContexts;
 
@@ -289,6 +291,14 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
     public void setConnectionFactory(HttpConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
+    }
+
+    public HttpRequestFutureFactory getFutureFactory() {
+        return futureFactory;
+    }
+
+    public void setFutureFactory(HttpRequestFutureFactory futureFactory) {
+        this.futureFactory = futureFactory;
     }
 
     public TimeoutManager getTimeoutManager() {

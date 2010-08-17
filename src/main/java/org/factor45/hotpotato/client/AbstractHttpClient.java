@@ -33,7 +33,8 @@ import org.factor45.hotpotato.client.host.factory.HostContextFactory;
 import org.factor45.hotpotato.client.timeout.HashedWheelTimeoutManager;
 import org.factor45.hotpotato.client.timeout.TimeoutManager;
 import org.factor45.hotpotato.request.HttpRequestFuture;
-import org.factor45.hotpotato.request.HttpRequestFutures;
+import org.factor45.hotpotato.request.factory.DefaultHttpRequestFutureFactory;
+import org.factor45.hotpotato.request.factory.HttpRequestFutureFactory;
 import org.factor45.hotpotato.response.DiscardProcessor;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -171,6 +172,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
     protected int maxEventProcessorHelperThreads;
     protected HttpConnectionFactory connectionFactory;
     protected HostContextFactory hostContextFactory;
+    protected HttpRequestFutureFactory futureFactory;
     protected TimeoutManager timeoutManager;
     protected boolean cleanupInactiveHostContexts;
 
@@ -223,14 +225,18 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             this.internalTimeoutManager = true;
         }
 
-        this.eventQueue = new LinkedBlockingQueue<HttpClientEvent>();
         if (this.hostContextFactory == null) {
             this.hostContextFactory = new DefaultHostContextFactory();
         }
         if (this.connectionFactory == null) {
             this.connectionFactory = new DefaultHttpConnectionFactory();
         }
+        if (this.futureFactory == null) {
+            this.futureFactory = new DefaultHttpRequestFutureFactory();
+        }
+
         this.eventConsumerLatch = new CountDownLatch(1);
+        this.eventQueue = new LinkedBlockingQueue<HttpClientEvent>();
 
         // TODO instead of fixed size thread pool, use a cached thread pool with size limit (limited growth cached pool)
         this.executor = Executors.newFixedThreadPool(this.maxEventProcessorHelperThreads);
@@ -364,7 +370,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             request.setHeader(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
         }
 
-        HttpRequestFuture<T> future = HttpRequestFutures.future(true);
+        HttpRequestFuture<T> future = this.futureFactory.getFuture(true);
         HttpRequestContext<T> context = new HttpRequestContext<T>(host, port, timeout, request, processor, future);
         if (this.terminate || !this.eventQueue.offer(new ExecuteRequestEvent(context))) {
             throw new CannotExecuteRequestException("Failed to add request to queue");
@@ -897,6 +903,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      * @param hostContextFactory The {@link HostContextFactory} to be used.
      *
      * @see org.factor45.hotpotato.client.host.factory.HostContextFactory
+     * @see org.factor45.hotpotato.client.host.HostContext
      */
     public void setHostContextFactory(HostContextFactory hostContextFactory) {
         if (this.eventQueue != null) {
@@ -917,12 +924,34 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      * @param connectionFactory The {@link HttpConnectionFactory} to be used.
      *
      * @see org.factor45.hotpotato.client.connection.factory.HttpConnectionFactory
+     * @see org.factor45.hotpotato.client.connection.HttpConnection
      */
     public void setConnectionFactory(HttpConnectionFactory connectionFactory) {
         if (this.eventQueue != null) {
             throw new IllegalStateException("Cannot modify property after initialisation");
         }
         this.connectionFactory = connectionFactory;
+    }
+
+    public HttpRequestFutureFactory getFutureFactory() {
+        return futureFactory;
+    }
+
+    /**
+     * The {@link HttpRequestFutureFactory} that will be used to create new {@link HttpRequestFuture}.
+     * <p/>
+     * Defaults to {@link DefaultHttpRequestFutureFactory} if none is provided.
+     *
+     * @param futureFactory The {@link HttpRequestFutureFactory} to be used.
+     *
+     * @see org.factor45.hotpotato.request.factory.HttpRequestFutureFactory
+     * @see org.factor45.hotpotato.request.HttpRequestFuture
+     */
+    public void setFutureFactory(HttpRequestFutureFactory futureFactory) {
+        if (this.eventQueue != null) {
+            throw new IllegalStateException("Cannot modify property after initialisation");
+        }
+        this.futureFactory = futureFactory;
     }
 
     public TimeoutManager getTimeoutManager() {

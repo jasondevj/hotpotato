@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package org.factor45.hotpotato.client.factory;
+package org.factor45.hotpotato.request.factory;
 
-import org.factor45.hotpotato.client.HttpClient;
+import org.factor45.hotpotato.request.HttpRequestFuture;
 
 /**
- * Factory for {@link HttpClient} instances.
- *
- * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ * @author <a href="mailto:bruno.carvalho@wit-software.com">Bruno de Carvalho</a>
  */
-public interface HttpClientFactory {
+public interface HttpRequestFutureFactory {
 
-    /**
-     * Creates, configures and returns an uninitialised {@link HttpClient} instance.
-     * Always remember to call {@code init()} on the instance returned (and {@code terminate()} once you're done
-     * with it).
-     *
-     * @return A newly configured uninitialised {@link HttpClient}.
-     */
-    HttpClient getClient();
+    <T> HttpRequestFuture<T> getFuture();
+
+    <T> HttpRequestFuture<T> getFuture(boolean cancellable);
 }
