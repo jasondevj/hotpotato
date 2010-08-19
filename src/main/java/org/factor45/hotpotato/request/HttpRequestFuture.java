@@ -74,6 +74,8 @@ public interface HttpRequestFuture<T> {
      */
     static final Throwable TIMED_OUT = new Throwable("Request execution timed out");
 
+    static final Throwable INVALID_REDIRECT = new Throwable("Redirect without Location header");
+
     /**
      * Returns the result processed by the {@link org.factor45.hotpotato.response.HttpResponseProcessor}, if any.
      *

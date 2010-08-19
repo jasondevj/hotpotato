@@ -379,6 +379,11 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         return future;
     }
 
+    @Override
+    public boolean isHttps() {
+        return this.useSsl;
+    }
+
     // HttpConnectionListener -----------------------------------------------------------------------------------------
 
     @Override

@@ -99,4 +99,6 @@ public interface HttpClient {
      */
     HttpRequestFuture execute(String host, int port, HttpRequest request)
             throws CannotExecuteRequestException;
+
+    boolean isHttps();
 }
