@@ -43,10 +43,13 @@ public interface HttpSession {
     <T> HttpRequestFuture<T> execute(String path, HttpRequest request, HttpResponseProcessor<T> responseProcessor)
             throws CannotExecuteRequestException;
 
-    <T> HttpRequestFuture<T> execute(HostPortAndUri target, HttpRequest request, HttpResponseProcessor<T> processor)
+    <T> HttpRequestFuture<T> execute(HostPortAndUri target, HttpRequestFuture<T> initialFuture,
+                                     HttpRequest request, HttpResponseProcessor<T> processor)
         throws CannotExecuteRequestException;
 
     void addHeader(String headerName, String headerValue);
+
+    void setHeader(String headerName, String headerValue);
 
     void removeHeaders(String headerName);
 
@@ -57,4 +60,16 @@ public interface HttpSession {
     void removeHandler(ResponseCodeHandler handler);
 
     ResponseCodeHandler getHandler(int code);
+
+    void setProxy(String host, int port);
+
+    String getProxyHost();
+
+    int getProxyPort();
+
+    void setAuthCredentials(String username, String password);
+
+    String getUsername();
+
+    String getPassword();
 }

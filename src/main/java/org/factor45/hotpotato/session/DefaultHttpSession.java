@@ -21,6 +21,7 @@ import org.factor45.hotpotato.client.DefaultHttpClient;
 import org.factor45.hotpotato.client.HttpClient;
 import org.factor45.hotpotato.request.DefaultHttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFuture;
+import org.factor45.hotpotato.response.BodyAsStringProcessor;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.response.TypedDiscardProcessor;
 import org.factor45.hotpotato.session.handler.AuthorisationResponseHandler;
@@ -86,6 +87,10 @@ public class DefaultHttpSession implements HttpSession {
     // configuration --------------------------------------------------------------------------------------------------
 
     private int maxRedirects = 3;
+    private String username;
+    private String password;
+    private String proxyHost;
+    private int proxyPort;
 
     // internal vars --------------------------------------------------------------------------------------------------
 
@@ -150,8 +155,8 @@ public class DefaultHttpSession implements HttpSession {
     }
 
     @Override
-    public <T> HttpRequestFuture<T> execute(final HostPortAndUri target, final HttpRequest request,
-                                            final HttpResponseProcessor<T> responseProcessor)
+    public <T> HttpRequestFuture<T> execute(final HostPortAndUri target, final HttpRequestFuture<T> initialFuture,
+                                            final HttpRequest request, final HttpResponseProcessor<T> responseProcessor)
             throws CannotExecuteRequestException {
 
         if (target.isHttps() && (this.httpsClient == null)) {
@@ -177,12 +182,12 @@ public class DefaultHttpSession implements HttpSession {
             this.readLock.unlock();
         }
 
-        final HttpRequestFuture<T> futureWrapper = new DefaultHttpRequestFuture<T>(true);
+        final HttpRequestFuture<T> internalFuture = new DefaultHttpRequestFuture<T>(true);
         if (request.getProtocolVersion() == HttpVersion.HTTP_1_0) {
             request.setUri(target.getUri());
         } else { // HTTP 1.1
             request.setUri(target.asUrl());
-            request.setHeader(HttpHeaders.Names.HOST, target.getHost());
+            request.setHeader(HttpHeaders.Names.HOST, target.getHost() + ':' + target.getPort());
         }
 
         HttpResponseProcessor<T> processor =
@@ -197,10 +202,25 @@ public class DefaultHttpSession implements HttpSession {
             client = this.client;
         }
 
-        client.execute(target.getHost(), target.getPort(), request, processor)
-                .addListener(new HttpSessionFutureListener<T>(this, futureWrapper, target, internalRequest, processor));
+        // TODO validate proxied behaviour for HTTP 1.0
+        String host;
+        int port;
+        if (this.proxyHost != null) {
+            host = this.proxyHost;
+            port = this.proxyPort;
+        } else {
+            host = target.getHost();
+            port = target.getPort();
+        }
 
-        return futureWrapper;
+        // If there is no initial future, then its the first request.
+        // Otherwise it's a subsequent request, generated either by auth or redirects.
+        HttpRequestFuture<T> initialOrInternalFuture = initialFuture == null ? internalFuture : initialFuture;
+        client.execute(host, port, request, processor)
+                .addListener(new HttpSessionFutureListener<T>(this, initialOrInternalFuture, target,
+                                                              internalRequest, processor));
+
+        return internalFuture;
     }
 
     @Override
@@ -221,6 +241,7 @@ public class DefaultHttpSession implements HttpSession {
         }
     }
 
+    @Override
     public void setHeader(String headerName, String headerValue) {
         this.writeLock.lock();
         try {
@@ -259,8 +280,6 @@ public class DefaultHttpSession implements HttpSession {
         }
     }
 
-    // public methods -------------------------------------------------------------------------------------------------
-
     @Override
     public void addHandler(ResponseCodeHandler handler) {
         for (int i : handler.handlesResponseCodes()) {
@@ -287,6 +306,41 @@ public class DefaultHttpSession implements HttpSession {
         return this.handlers.get(code);
     }
 
+    @Override
+    public void setProxy(String host, int port) {
+        if ((port <= 0) || (port >= 65536)) {
+            throw new IllegalArgumentException("Port must be in range 1-65535");
+        }
+        this.proxyHost = host;
+        this.proxyPort = port;
+    }
+
+    @Override
+    public String getProxyHost() {
+        return this.proxyHost;
+    }
+
+    @Override
+    public int getProxyPort() {
+        return this.proxyPort;
+    }
+
+    @Override
+    public void setAuthCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
     // private helpers ------------------------------------------------------------------------------------------------
 
     private <T> HttpRequestFuture<T> internalExecute(String path, HttpRequest request,
@@ -298,7 +352,7 @@ public class DefaultHttpSession implements HttpSession {
             throw new CannotExecuteRequestException("Invalid URL provided: " + path);
         }
 
-        return this.execute(hostPortAndUri, request, processor);
+        return this.execute(hostPortAndUri, null, request, processor);
     }
 
     // getters & setters ----------------------------------------------------------------------------------------------
@@ -315,14 +369,21 @@ public class DefaultHttpSession implements HttpSession {
 
     public static void main(String[] args) {
         DefaultHttpClient httpClient = new DefaultHttpClient();
+        httpClient.setConnectionTimeoutInMillis(20000);
         if (!httpClient.init()) {
             return;
         }
-        DefaultHttpSession session = new DefaultHttpSession(httpClient);
 
-        HttpRequestFuture f = session.execute("http://google.com", HttpVersion.HTTP_1_1, HttpMethod.GET);
+        DefaultHttpSession session = new DefaultHttpSession(httpClient);
+        session.setProxy("41.190.16.17", 8080);
+
+        HttpRequestFuture f = session.execute("http://google.com", HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                              new BodyAsStringProcessor(200));
         f.awaitUninterruptibly();
         System.out.println(f);
+        if (f.isSuccessfulResponse()) {
+            System.out.println(f.getProcessedResult());
+        }
 
         httpClient.terminate();
     }

@@ -22,6 +22,13 @@ import org.factor45.hotpotato.session.HttpSession;
 import org.factor45.hotpotato.session.HttpSessionFutureListener;
 import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
 import org.factor45.hotpotato.utils.HostPortAndUri;
+import org.factor45.hotpotato.utils.digest.AuthChallenge;
+import org.factor45.hotpotato.utils.digest.AuthChallengeResponse;
+import org.factor45.hotpotato.utils.digest.DigestUtils;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.jboss.netty.util.CharsetUtil;
+
+import java.text.ParseException;
 
 /**
  * @author <a:mailto="bruno.carvalho@wit-software.com" />Bruno de Carvalho</a>
@@ -36,16 +43,50 @@ public class AuthorisationResponseHandler implements ResponseCodeHandler {
     }
 
     @Override
-    public <T> void handleResponse(HttpSession session, HttpRequestFuture<T> originalFuture,
+    public <T> void handleResponse(HttpSession session, HttpRequestFuture<T> initialFuture,
                                    HttpRequestFuture<T> future, HostPortAndUri target,
                                    RecursiveAwareHttpRequest request, HttpResponseProcessor<T> processor) {
         if (request.isFailedAuth()) {
-            originalFuture.setSuccess(future.getProcessedResult(), future.getResponse());
+            // Do not retry auth.
+            initialFuture.setSuccess(future.getProcessedResult(), future.getResponse());
             return;
         }
 
+        if (session.getUsername() == null) {
+            // "Fail" immediately, because we have no credentials
+            initialFuture.setSuccess(future.getProcessedResult(), future.getResponse());
+            return;
+        }
+
+        // Mark auth as failed
         request.failedAuth();
-        HttpRequestFuture<T> nextWrapper = session.execute(target, request, processor);
+
+        String header = future.getResponse().getHeader(HttpHeaders.Names.WWW_AUTHENTICATE);
+        AuthChallenge challenge;
+        try {
+            challenge = AuthChallenge.createFromHeader(header);
+        } catch (ParseException e) {
+            initialFuture.setFailure(future.getResponse(), e);
+            return;
+        }
+
+        String content = null;
+        if (("auth-int".equals(challenge.getQop())) && (request.getContent() != null)) {
+            content = request.getContent().toString(CharsetUtil.UTF_8);
+        }
+
+        AuthChallengeResponse response;
+        try {
+            response = DigestUtils.computeResponse(challenge, request.getMethod().toString(), content, request.getUri(),
+                                                   session.getUsername(), session.getPassword(), 1);
+        } catch (ParseException e) {
+            initialFuture.setFailure(future.getResponse(), e);
+            return;
+        }
+
+        request.addHeader(HttpHeaders.Names.AUTHORIZATION, response.buildAsString());
+
+        HttpRequestFuture<T> nextWrapper = session.execute(target, initialFuture, request, processor);
         nextWrapper.addListener(new HttpSessionFutureListener<T>(session, nextWrapper, target, request, processor));
     }
 }

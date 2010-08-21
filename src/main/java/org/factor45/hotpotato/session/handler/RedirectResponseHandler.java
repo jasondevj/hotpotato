@@ -38,19 +38,18 @@ public class RedirectResponseHandler implements ResponseCodeHandler {
     }
 
     @Override
-    public <T> void handleResponse(HttpSession session, HttpRequestFuture<T> originalFuture,
+    public <T> void handleResponse(HttpSession session, HttpRequestFuture<T> initialFuture,
                                    HttpRequestFuture<T> future, HostPortAndUri target,
                                    RecursiveAwareHttpRequest request, HttpResponseProcessor<T> processor) {
 
         if (request.getMethod().equals(HttpMethod.GET) || request.getMethod().equals(HttpMethod.HEAD)) {
             String location = future.getResponse().getHeader(HttpHeaders.Names.LOCATION);
             if (location == null) {
-                originalFuture.setFailure(future.getResponse(), HttpRequestFuture.INVALID_REDIRECT);
+                initialFuture.setFailure(future.getResponse(), HttpRequestFuture.INVALID_REDIRECT);
                 return;
             }
 
             boolean isAbsolute = location.startsWith("http");
-            HttpRequestFuture<T> nextFuture;
             HostPortAndUri path;
             if (isAbsolute) {
                 path = UrlUtils.splitUrl(location);
@@ -58,14 +57,12 @@ public class RedirectResponseHandler implements ResponseCodeHandler {
                 path = new HostPortAndUri(target);
                 path.setUri(location);
             }
-            try {
-                nextFuture = session.execute(path, request, processor);
-            } catch (CannotExecuteRequestException e) {
-                originalFuture.setFailure(e);
-                return;
-            }
 
-            nextFuture.addListener(new HttpSessionFutureListener<T>(session, originalFuture, path, request, processor));
+            try {
+                session.execute(path, initialFuture, request, processor);
+            } catch (CannotExecuteRequestException e) {
+                initialFuture.setFailure(e);
+            }
         }
     }
 }

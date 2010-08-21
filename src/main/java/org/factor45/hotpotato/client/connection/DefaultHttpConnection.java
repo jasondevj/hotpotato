@@ -353,6 +353,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
 
+        this.currentResponse = response;
         try {
             if (!this.currentRequest.getProcessor().willProcessResponse(response)) {
                 // Rather than waiting for the full content to arrive (which will be discarded), perform an early trigger
@@ -366,12 +367,11 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
                 // Even though the processor does not want to process the response, it might still return some default
                 // result, so call getProcessedResponse() on it, rather than passing null to the Future.
                 this.currentRequest.getFuture().setSuccess(this.currentRequest.getProcessor().getProcessedResponse(),
-                                                           response);
+                                                           this.currentResponse);
                 this.discarding = true;
             } else {
                 // Response processor wants to process the contents of this request.
                 this.discarding = false;
-                this.currentResponse = response;
             }
         } catch (Exception e) {
             // Unlock the future but don't signal that this connection is free just yet! There may still be contents
@@ -389,10 +389,12 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
     }
 
     private void currentRequestFinished() {
+        // Always called inside a synchronised block.
+
         HttpRequestContext context = this.currentRequest;
-        // Only signal as available if request was HTTP_1_1 (connection will be closed by the server for HTTP_1_0)
-        // and if terminate hasn't been issued AND the channel is still connected.
-        this.available = HttpHeaders.isKeepAlive(this.currentRequest.getRequest()) &&
+        // Only signal as available if the connection will be kept alive and if terminate hasn't been issued AND
+        // the channel is still connected.
+        this.available = HttpHeaders.isKeepAlive(this.currentResponse) &&
                          this.terminate == null &&
                          this.channel.isConnected();
 

@@ -22,6 +22,10 @@ import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.util.CharsetUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * {@link HttpResponseProcessor} that consumes a body and transforms it into a UTF8 string.
  *
@@ -31,14 +35,36 @@ public class BodyAsStringProcessor implements HttpResponseProcessor<String> {
 
     // internal vars --------------------------------------------------------------------------------------------------
 
+    private final List<Integer> acceptedCodes;
     private ChannelBuffer buffer;
     private volatile boolean finished;
     private String result;
+
+    // constructors ---------------------------------------------------------------------------------------------------
+
+    public BodyAsStringProcessor() {
+        this.acceptedCodes = null;
+    }
+
+    public BodyAsStringProcessor(List<Integer> acceptedCodes) {
+        this.acceptedCodes = acceptedCodes;
+    }
+
+    public BodyAsStringProcessor(int... acceptedCodes) {
+        this.acceptedCodes = new ArrayList<Integer>(acceptedCodes.length);
+        for (int acceptedCode : acceptedCodes) {
+            this.acceptedCodes.add(acceptedCode);
+        }
+    }
 
     // HttpResponseProcessor ------------------------------------------------------------------------------------------
 
     @Override
     public boolean willProcessResponse(HttpResponse response) {
+        if ((this.acceptedCodes != null) && !this.acceptedCodes.contains(response.getStatus().getCode())) {
+            return false;
+        }
+
         // Content already present. Deal with it and bail out.
         if ((response.getContent() != null) && (response.getContent().readableBytes() > 0)) {
             this.result = response.getContent().toString(CharsetUtil.UTF_8);

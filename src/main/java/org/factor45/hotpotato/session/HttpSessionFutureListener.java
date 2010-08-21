@@ -33,18 +33,18 @@ public class HttpSessionFutureListener<T> implements HttpRequestFutureListener<T
     // internal vars ----------------------------------------------------------------------------------------------
 
     private final HttpSession session;
-    private final HttpRequestFuture<T> futureWrapper;
+    private final HttpRequestFuture<T> initialFuture;
     private final HostPortAndUri target;
     private final RecursiveAwareHttpRequest request;
     private final HttpResponseProcessor<T> processor;
 
     // constructors -----------------------------------------------------------------------------------------------
 
-    public HttpSessionFutureListener(HttpSession session, HttpRequestFuture<T> futureWrapper,
+    public HttpSessionFutureListener(HttpSession session, HttpRequestFuture<T> initialFuture,
                                      HostPortAndUri target, RecursiveAwareHttpRequest request,
                                      HttpResponseProcessor<T> processor) {
         this.session = session;
-        this.futureWrapper = futureWrapper;
+        this.initialFuture = initialFuture;
         this.target = target;
         this.request = request;
         this.processor = processor;
@@ -58,20 +58,20 @@ public class HttpSessionFutureListener<T> implements HttpRequestFutureListener<T
             List<String> cookies = future.getResponse().getHeaders(HttpHeaders.Names.SET_COOKIE);
             if ((cookies != null) && !cookies.isEmpty()) {
                 for (String cookie : cookies) {
-                    session.addHeader(HttpHeaders.Names.COOKIE, cookie);
+                    this.session.addHeader(HttpHeaders.Names.COOKIE, cookie);
                 }
             }
 
-            ResponseCodeHandler handler = session.getHandler(future.getResponseStatusCode());
+            ResponseCodeHandler handler = this.session.getHandler(future.getResponseStatusCode());
             if (handler == null) {
                 // Defaults to simply setting the response and processed result
-                this.futureWrapper.setSuccess(future.getProcessedResult(), future.getResponse());
+                this.initialFuture.setSuccess(future.getProcessedResult(), future.getResponse());
             } else {
-                handler.handleResponse(session, this.futureWrapper, future, this.target,
+                handler.handleResponse(this.session, this.initialFuture, future, this.target,
                                        this.request, this.processor);
             }
         } else if (!future.isCancelled()) {
-            this.futureWrapper.setFailure(future.getCause());
+            this.initialFuture.setFailure(future.getCause());
         }
     }
 }
