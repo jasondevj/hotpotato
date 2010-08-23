@@ -184,7 +184,13 @@ public class DefaultHttpSession implements HttpSession {
 
         final HttpRequestFuture<T> internalFuture = new DefaultHttpRequestFuture<T>(true);
         if (request.getProtocolVersion() == HttpVersion.HTTP_1_0) {
-            request.setUri(target.getUri());
+            if (this.proxyHost != null) {
+                // Proxy is configured, send the full URL
+                request.setUri(target.asUrl());
+            } else {
+                // Non-proxied request, use only relative URI.
+                request.setUri(target.getUri());
+            }
         } else { // HTTP 1.1
             request.setUri(target.asUrl());
             request.setHeader(HttpHeaders.Names.HOST, target.getHost() + ':' + target.getPort());
@@ -202,7 +208,6 @@ public class DefaultHttpSession implements HttpSession {
             client = this.client;
         }
 
-        // TODO validate proxied behaviour for HTTP 1.0
         String host;
         int port;
         if (this.proxyHost != null) {
