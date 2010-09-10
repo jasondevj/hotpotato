@@ -19,7 +19,6 @@ package org.factor45.hotpotato.client.connection.factory;
 import org.factor45.hotpotato.client.connection.HttpConnection;
 import org.factor45.hotpotato.client.connection.HttpConnectionListener;
 import org.factor45.hotpotato.client.timeout.TimeoutManager;
-import org.jboss.netty.channel.group.ChannelGroup;
 
 import java.util.concurrent.Executor;
 

@@ -32,6 +32,7 @@ import org.factor45.hotpotato.client.host.factory.DefaultHostContextFactory;
 import org.factor45.hotpotato.client.host.factory.HostContextFactory;
 import org.factor45.hotpotato.client.timeout.HashedWheelTimeoutManager;
 import org.factor45.hotpotato.client.timeout.TimeoutManager;
+import org.factor45.hotpotato.logging.Logger;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.request.factory.DefaultHttpRequestFutureFactory;
 import org.factor45.hotpotato.request.factory.HttpRequestFutureFactory;
@@ -56,8 +57,6 @@ import org.jboss.netty.handler.codec.http.HttpContentDecompressor;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.ssl.SslHandler;
-import org.jboss.netty.logging.InternalLogger;
-import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.util.internal.ExecutorUtil;
 
 import javax.net.ssl.SSLEngine;
@@ -127,7 +126,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
 
     // constants ------------------------------------------------------------------------------------------------------
 
-    protected static final InternalLogger LOG = InternalLoggerFactory.getInstance(AbstractHttpClient.class);
+    protected static final Logger LOG = Logger.getLogger(AbstractHttpClient.class);
     protected static final HttpClientEvent POISON = new HttpClientEvent() {
         @Override
         public EventType getEventType() {

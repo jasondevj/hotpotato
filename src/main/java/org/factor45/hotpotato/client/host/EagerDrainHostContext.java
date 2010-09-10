@@ -16,8 +16,8 @@
 
 package org.factor45.hotpotato.client.host;
 
-import org.factor45.hotpotato.client.connection.HttpConnection;
 import org.factor45.hotpotato.client.HttpRequestContext;
+import org.factor45.hotpotato.client.connection.HttpConnection;
 
 /**
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>

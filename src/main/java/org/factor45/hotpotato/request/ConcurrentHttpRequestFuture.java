@@ -19,8 +19,6 @@ package org.factor45.hotpotato.request;
 import org.factor45.hotpotato.logging.Logger;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
-import org.jboss.netty.logging.InternalLogger;
-import org.jboss.netty.logging.InternalLoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
