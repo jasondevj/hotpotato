@@ -3,7 +3,7 @@ package org.factor45.hotpotato.client;
 import org.factor45.hotpotato.client.factory.DefaultHttpClientFactory;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.DiscardProcessor;
-import org.factor45.hotpotato.utils.DummyHttpServer;
+import org.factor45.hotpotato.util.DummyHttpServer;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;

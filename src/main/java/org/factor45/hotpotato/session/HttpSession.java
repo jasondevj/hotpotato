@@ -20,7 +20,7 @@ import org.factor45.hotpotato.client.CannotExecuteRequestException;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.session.handler.ResponseCodeHandler;
-import org.factor45.hotpotato.utils.HostPortAndUri;
+import org.factor45.hotpotato.util.HostPortAndUri;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpVersion;

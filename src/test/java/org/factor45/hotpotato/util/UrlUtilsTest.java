@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.factor45.hotpotato.utils;
+package org.factor45.hotpotato.util;
 
 import org.junit.Test;
 

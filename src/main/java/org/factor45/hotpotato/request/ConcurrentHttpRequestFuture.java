@@ -16,6 +16,7 @@
 
 package org.factor45.hotpotato.request;
 
+import org.factor45.hotpotato.logging.Logger;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.logging.InternalLogger;
@@ -38,7 +39,7 @@ public class ConcurrentHttpRequestFuture<T> implements HttpRequestFuture<T> {
 
     // constants ------------------------------------------------------------------------------------------------------
 
-    private static final InternalLogger LOG = InternalLoggerFactory.getInstance(DefaultHttpRequestFuture.class);
+    private static final Logger LOG = Logger.getLogger(ConcurrentHttpRequestFuture.class);
 
     // configuration --------------------------------------------------------------------------------------------------
 
@@ -347,7 +348,7 @@ public class ConcurrentHttpRequestFuture<T> implements HttpRequestFuture<T> {
         try {
             listener.operationComplete(this);
         } catch (Throwable t) {
-            LOG.warn("An exception was thrown by " + HttpRequestFutureListener.class.getSimpleName() + ".", t);
+            LOG.warn("An exception was thrown by an instance of {}.", t, listener.getClass().getSimpleName());
         }
     }
 

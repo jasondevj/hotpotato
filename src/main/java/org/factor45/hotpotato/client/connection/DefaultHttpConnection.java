@@ -197,6 +197,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
 
     // HttpConnection -------------------------------------------------------------------------------------------------
 
+    @Override
     public void terminate() {
         synchronized (this.mutex) {
             // Already terminated, nothing to do here.
@@ -218,22 +219,27 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         }
     }
 
+    @Override
     public String getId() {
         return this.id;
     }
 
+    @Override
     public String getHost() {
         return this.host;
     }
 
+    @Override
     public int getPort() {
         return this.port;
     }
 
+    @Override
     public boolean isAvailable() {
         return this.available;
     }
 
+    @Override
     public boolean execute(final HttpRequestContext context) {
         if (context == null) {
             throw new IllegalArgumentException("HttpRequestContext cannot be null");
@@ -356,13 +362,13 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         this.currentResponse = response;
         try {
             if (!this.currentRequest.getProcessor().willProcessResponse(response)) {
-                // Rather than waiting for the full content to arrive (which will be discarded), perform an early trigger
-                // on the Future, signalling request is finished. Note that currentRequestFinished() is *not* called in
-                // this method, which means that execution of other requests will not be allowed, even though the current
-                // request has been terminated. The reason for this is that all incoming data must be safely consumed (and
-                // discarded) before another request hits the network - this avoids possible response data mixing.
-                // When you *KNOW* for sure that the server supports HTTP/1.1 pipelining, then use the pipelining
-                // implementation, PipeliningHttpConnection.
+                // Rather than waiting for the full content to arrive (which will be discarded), perform an early
+                // trigger on the Future, signalling request is finished. Note that currentRequestFinished() is *not*
+                // called in this method, which means that execution of other requests will not be allowed, even though
+                // the current request has been terminated. The reason for this is that all incoming data must be safely
+                // consumed (and discarded) before another request hits the network - this avoids possible response data
+                // mixing. When you *KNOW* for sure that the server supports HTTP/1.1 pipelining, then use the
+                // pipelining implementation, PipeliningHttpConnection.
 
                 // Even though the processor does not want to process the response, it might still return some default
                 // result, so call getProcessedResponse() on it, rather than passing null to the Future.

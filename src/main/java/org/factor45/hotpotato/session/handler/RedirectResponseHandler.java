@@ -20,10 +20,9 @@ import org.factor45.hotpotato.client.CannotExecuteRequestException;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.session.HttpSession;
-import org.factor45.hotpotato.session.HttpSessionFutureListener;
 import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
-import org.factor45.hotpotato.utils.HostPortAndUri;
-import org.factor45.hotpotato.utils.UrlUtils;
+import org.factor45.hotpotato.util.HostPortAndUri;
+import org.factor45.hotpotato.util.UrlUtils;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 

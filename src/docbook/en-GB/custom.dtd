@@ -2,7 +2,7 @@
 <!ENTITY Home       "http://hotpotato.factor45.org/">
 <!ENTITY Downloads  "&Home;downloads.html">
 <!ENTITY Community  "&Home;community.html">
-<!ENTITY DocHome    "http://hotpotato.factor45.org/docs/0.7.0/">
+<!ENTITY DocHome    "http://hotpotato.factor45.org/docs/0.7.2/">
 <!ENTITY API        "&DocHome;api/org/factor45/hotpotato/">
 <!ENTITY NettyAPI   "&DocHome;api/org/jboss/netty/">
 <!ENTITY XRef       "&DocHome;xref/org/factor45/hotpotato/">
@@ -24,6 +24,6 @@
 <!ENTITY HttpRequestFuture "<ulink url='&API;/request/HttpRequestFuture.html'><classname>HttpRequestFuture</classname></ulink>">
 
 <!ENTITY HttpResponseProcessor "<ulink url='&API;/response/HttpResponseProcessor.html'><classname>HttpResponseProcessor</classname></ulink>">
-<!ENTITY BodyAsStringResponseProcessor "<ulink url='&API;/response/BodyAsStringResponseProcessor .html'><classname>BodyAsStringResponseProcessor</classname></ulink>">
+<!ENTITY BodyAsStringResponseProcessor "<ulink url='&API;/response/BodyAsStringResponseProcessor.html'><classname>BodyAsStringResponseProcessor</classname></ulink>">
 
 <!ENTITY HttpRequest "<ulink url='&NettyAPI;handler/codec/http/HttpRequest.html'><classname>HttpRequest</classname></ulink>">

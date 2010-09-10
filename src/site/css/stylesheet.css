@@ -14,9 +14,20 @@ body {
   margin-right: auto;
 }
 
+#lastupdate {
+  text-align: right;
+  margin: 0;
+  padding: 0;
+}
+
+#projects {
+  border-top: 1px dotted #ccc;
+  padding: 10px;
+  border-bottom: 1px dotted #ccc;
+}
+
 h1 {
   background: url("../img/h1_header.png") no-repeat center;
-  border-top: 1px dotted #ccc;
   line-height: 1.2em;
   font-size: 2em;
   padding: 1.5em;
@@ -46,6 +57,13 @@ a:visited {
 a:hover {
   color: #4075a9;
   text-decoration: underline;
+}
+
+.subtitle {
+  margin-top: -50px;
+  margin-left: 50px;
+  font-size: 1em;
+  color: #4075a9;
 }
 
 .hotpotato {

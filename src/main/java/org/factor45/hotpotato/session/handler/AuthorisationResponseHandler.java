@@ -21,10 +21,10 @@ import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.session.HttpSession;
 import org.factor45.hotpotato.session.HttpSessionFutureListener;
 import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
-import org.factor45.hotpotato.utils.HostPortAndUri;
-import org.factor45.hotpotato.utils.digest.AuthChallenge;
-import org.factor45.hotpotato.utils.digest.AuthChallengeResponse;
-import org.factor45.hotpotato.utils.digest.DigestUtils;
+import org.factor45.hotpotato.util.HostPortAndUri;
+import org.factor45.hotpotato.util.digest.AuthChallenge;
+import org.factor45.hotpotato.util.digest.AuthChallengeResponse;
+import org.factor45.hotpotato.util.digest.DigestUtils;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.util.CharsetUtil;
 

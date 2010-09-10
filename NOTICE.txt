@@ -32,4 +32,10 @@ can be obtained at:
   * HOMEPAGE:
     * http://www.jboss.org/netty/
 
+This product depends on 'SLF4J', a Simple Logging Facade for Java, which
+can be obtained at:
 
+  * LICENSE:
+    * license/LICENSE.slf4j.txt (MIT license)
+  * HOMEPAGE:
+    * http://www.slf4j.org/

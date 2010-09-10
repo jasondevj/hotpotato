@@ -11,7 +11,8 @@ Dependencies
 ------------
 
 * JDK 1.6
-* [Netty 3.2.1 Final](http://jboss.org/netty/downloads.html)
+* [SLF4J 1.6](http://www.slf4j.org/download.html)
+* [Netty 3.2](http://jboss.org/netty/downloads.html)
 
 License
 -------

@@ -20,7 +20,7 @@ import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFutureListener;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.session.handler.ResponseCodeHandler;
-import org.factor45.hotpotato.utils.HostPortAndUri;
+import org.factor45.hotpotato.util.HostPortAndUri;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 
 import java.util.List;

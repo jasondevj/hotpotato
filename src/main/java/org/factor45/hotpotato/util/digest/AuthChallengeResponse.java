@@ -24,7 +24,7 @@
  * carvalho 2009/06/03
  */
 
-package org.factor45.hotpotato.utils.digest;
+package org.factor45.hotpotato.util.digest;
 
 import java.text.ParseException;
 import java.util.Collections;

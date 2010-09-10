@@ -30,28 +30,29 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Http11PipeliningTestClient {
 
-    // configuration --------------------------------------------------------------------------------------------------
+    // configuration ---------------------------------------------------------
 
     private String host;
     private int port;
 
-    // internal vars --------------------------------------------------------------------------------------------------
+    // internal vars ---------------------------------------------------------
 
     private ChannelFactory factory;
     private ClientHandler handler;
 
-    // constructors ---------------------------------------------------------------------------------------------------
+    // constructors ----------------------------------------------------------
 
     public Http11PipeliningTestClient(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
-    // public methods -------------------------------------------------------------------------------------------------
+    // public methods --------------------------------------------------------
 
     public boolean init() {
-        this.factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
-                                                         Executors.newCachedThreadPool());
+        this.factory = new NioClientSocketChannelFactory(
+                Executors.newCachedThreadPool(),
+                Executors.newCachedThreadPool());
         this.handler = new ClientHandler();
         ClientBootstrap bootstrap = new ClientBootstrap(this.factory);
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -64,7 +65,8 @@ public class Http11PipeliningTestClient {
             }
         });
 
-        ChannelFuture future = bootstrap.connect(new InetSocketAddress(this.host, this.port));
+        ChannelFuture future = bootstrap
+                .connect(new InetSocketAddress(this.host, this.port));
         return future.awaitUninterruptibly().isSuccess();
     }
 
@@ -92,39 +94,42 @@ public class Http11PipeliningTestClient {
         }
     }
 
-    // private classes ------------------------------------------------------------------------------------------------
+    // private classes -------------------------------------------------------
 
     private final class ClientHandler extends SimpleChannelUpstreamHandler {
 
-        // internal vars ----------------------------------------------------------------------------------------------
+        // internal vars -----------------------------------------------------
 
         private Channel channel;
         private final AtomicInteger uriGenerator;
         private AtomicInteger lastReceived;
 
-        // constructors -----------------------------------------------------------------------------------------------
+        // constructors ------------------------------------------------------
 
         private ClientHandler() {
             this.uriGenerator = new AtomicInteger();
         }
 
-        // SimpleChannelUpstreamHandler -------------------------------------------------------------------------------
+        // SimpleChannelUpstreamHandler --------------------------------------
 
         @Override
-        public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        public void channelConnected(ChannelHandlerContext ctx,
+                                     ChannelStateEvent e) throws Exception {
             System.out.println("Channel to server open: " + e.getChannel());
             this.channel = e.getChannel();
         }
 
         @Override
-        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
+                throws Exception {
             HttpResponse response = (HttpResponse) e.getMessage();
             String body = response.getContent().toString(CharsetUtil.UTF_8);
             int number = Integer.parseInt(body.substring(1));
 
             if (this.lastReceived != null) {
                 if (number <= this.lastReceived.getAndIncrement()) {
-                    System.err.println(">> OUT OF ORDER! Expecting " + (this.lastReceived.get() - 1) +
+                    System.err.println(">> OUT OF ORDER! Expecting " +
+                                       (this.lastReceived.get() - 1) +
                                        " but got " + number);
                     this.lastReceived.set(number);
                 } else {
@@ -136,7 +141,7 @@ public class Http11PipeliningTestClient {
             }
         }
 
-        // public methods ---------------------------------------------------------------------------------------------
+        // public methods ----------------------------------------------------
 
         public void sendRequest() {
             if ((this.channel == null) || !this.channel.isConnected()) {
@@ -145,12 +150,18 @@ public class Http11PipeliningTestClient {
             }
 
             String uri = "/" + this.uriGenerator.incrementAndGet();
-            final HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri);
-            this.channel.write(request).addListener(new ChannelFutureListener() {
+            final HttpRequest request =
+                    new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                           HttpMethod.GET, uri);
+            ChannelFuture future = this.channel.write(request);
+            future.addListener(new ChannelFutureListener() {
+
                 @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
+                public void operationComplete(ChannelFuture future)
+                        throws Exception {
                     if (future.isSuccess()) {
-                        System.out.println("<< " + request.getMethod() + " " + request.getUri());
+                        System.out.println("<< " + request.getMethod() +
+                                           " " + request.getUri());
                     }
                 }
             });
@@ -163,10 +174,11 @@ public class Http11PipeliningTestClient {
         }
     }
 
-    // main -----------------------------------------------------------------------------------------------------------
+    // main ------------------------------------------------------------------
 
     public static void main(String[] args) throws Exception {
-        final Http11PipeliningTestClient client = new Http11PipeliningTestClient("localhost", 8080);
+        final Http11PipeliningTestClient client =
+                new Http11PipeliningTestClient("localhost", 8080);
         if (!client.init()) {
             System.err.println("Failed to initialise client.");
             return;

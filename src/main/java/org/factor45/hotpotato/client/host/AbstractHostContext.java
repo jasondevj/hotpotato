@@ -132,7 +132,6 @@ public abstract class AbstractHostContext implements HostContext {
         for (HttpRequestContext context : this.queue) {
             context.getFuture().setFailure(cause);
         }
-        System.err.println("cancelled " + this.queue.size() + " requests");
         this.queue.clear();
     }
 }

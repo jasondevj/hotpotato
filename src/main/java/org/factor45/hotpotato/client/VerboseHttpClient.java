@@ -27,6 +27,7 @@ import org.factor45.hotpotato.client.event.RequestCompleteEvent;
 import org.factor45.hotpotato.client.host.factory.DefaultHostContextFactory;
 import org.factor45.hotpotato.client.host.HostContext;
 import org.factor45.hotpotato.client.timeout.HashedWheelTimeoutManager;
+import org.factor45.hotpotato.logging.Logger;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -52,6 +53,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class VerboseHttpClient extends AbstractHttpClient implements EventProcessorStatsProvider {
 
+    // constants ------------------------------------------------------------------------------------------------------
+
+    private static final Logger LOG = Logger.getLogger(VerboseHttpClient.class);
+
     // internal vars --------------------------------------------------------------------------------------------------
 
     protected long totalTime = 0;
@@ -61,6 +66,8 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
     protected long connectionClosedTime = 0;
     protected long connectionFailedTime = 0;
     protected int events = 0;
+
+    // AbstractHttpClient ---------------------------------------------------------------------------------------------
 
     @Override
     public boolean init() {
@@ -135,7 +142,7 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
             // Manual synchronisation here because before removing an element, we first need to check whether an
             // active available connection exists to satisfy the request.
             try {
-                System.err.println("---------------------------------------------------------------");
+                LOG.trace("---------------------------------------------------------------");
                 HttpClientEvent event = eventQueue.take();
                 if (event == POISON) {
                     this.eventConsumerLatch.countDown();
@@ -144,13 +151,13 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
                 this.events++;
                 long start = System.nanoTime();
 
-                System.err.println("[EHL] Handling event: " + event);
-                System.err.println("[EHL] Event queue ---");
+                LOG.trace("[EHL] Handling event: {}.", event);
+                LOG.trace("[EHL] Event queue ---");
                 int i = 0;
                 for (HttpClientEvent e : this.eventQueue) {
-                    System.err.println("      " + (++i) + ". " + e);
+                    LOG.trace("      {}. {}", (++i), e);
                 }
-                System.err.println("[EHL] ---------------\n");
+                LOG.trace("[EHL] ---------------\n");
 
                 switch (event.getEventType()) {
                     case EXECUTE_REQUEST:
@@ -196,8 +203,7 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
         context.getConnectionPool().connectionFailed();
         if ((context.getConnectionPool().hasConnectionFailures() &&
              context.getConnectionPool().getTotalConnections() == 0)) {
-            System.err.println("[EHL-hCF] Last of connection attempts for " + id + " failed; " +
-                               "cancelling all queued requests.");
+            LOG.trace("[EHL-hCF] Last of connection attempts for {} failed; cancelling all queued requests.", id);
             // Connection failures occured and there are no more connections active or establishing, so its time to
             // fail all queued requests.
             context.failAllRequests(HttpRequestFuture.CANNOT_CONNECT);
@@ -207,7 +213,7 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
     @Override
     protected void drainQueueAndProcessResult(HostContext context) {
         HostContext.DrainQueueResult result = context.drainQueue();
-        System.err.println("[EHL-dQAPR] drainQueue() result was " + result);
+        LOG.trace("[EHL-dQAPR] drainQueue() result was {}.", result);
         switch (result) {
             case OPEN_CONNECTION:
                 this.openConnection(context);
@@ -221,7 +227,7 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
 
     @Override
     protected void openConnection(HostContext context) {
-        System.err.println("[EHL-OC] Opening connection to " + this.hostId(context));
+        LOG.trace("[EHL-OC] Opening connection to {}.", this.hostId(context));
         super.openConnection(context);
     }
 

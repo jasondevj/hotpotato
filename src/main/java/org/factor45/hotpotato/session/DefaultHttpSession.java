@@ -27,8 +27,8 @@ import org.factor45.hotpotato.response.TypedDiscardProcessor;
 import org.factor45.hotpotato.session.handler.AuthorisationResponseHandler;
 import org.factor45.hotpotato.session.handler.RedirectResponseHandler;
 import org.factor45.hotpotato.session.handler.ResponseCodeHandler;
-import org.factor45.hotpotato.utils.HostPortAndUri;
-import org.factor45.hotpotato.utils.UrlUtils;
+import org.factor45.hotpotato.util.HostPortAndUri;
+import org.factor45.hotpotato.util.UrlUtils;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
@@ -198,8 +198,6 @@ public class DefaultHttpSession implements HttpSession {
 
         HttpResponseProcessor<T> processor =
                 (responseProcessor == null ? new TypedDiscardProcessor<T>() : responseProcessor);
-
-        System.err.println("-> " + request);
 
         HttpClient client;
         if (target.isHttps()) {

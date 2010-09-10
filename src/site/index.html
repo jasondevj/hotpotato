@@ -22,9 +22,12 @@
 </head>
 <body>
 <div id="container">
+  <div id="projects">hotpotato | <a href="http://efflux.factor45.org/">efflux</a></div>
   <h1>hotpotato's project page</h1>
+  <h2 class="subtitle">a high performance Java HTTP client</h2>
 
-  <h2><a name="about">What is hotpotato?</a></h2>
+  <div id="lastupdate">30/08/2010</div>
+  <h2><a name="about"></a>What is hotpotato?</h2>
   <p>
     <span class="hotpotato">hotpotato</span> - or hptt (from the common misspelling of http) - is (supposed to be) a
     Java high performance and throughput oriented HTTP client library, based on
@@ -58,14 +61,14 @@
   </p>
 
   <hr />
-  <h2><a name="repository">Repository</a></h2>
+  <h2><a name="repository"></a>Repository</h2>
 
   <p>
     The project is currently hosted at <a href="http://github.com/brunodecarvalho/hotpotato">GitHub</a>.
   </p>
 
   <hr />
-  <h2><a name="releases">Releases</a></h2>
+  <h2><a name="releases"></a>Releases</h2>
 
   <h3>Version 0.7.0</h3>
   <ul>
@@ -76,7 +79,7 @@
   </ul>
 
   <hr />
-  <h2><a name="documentation">Documentation</a></h2>
+  <h2><a name="documentation"></a>Documentation</h2>
 
   <h3>Version 0.7.0</h3>
   <ul>
@@ -103,10 +106,10 @@
   <p>Coming soon...</p>
 
   <hr />
-  <h2><a name="roadmap">Roadmap</a></h2>
+  <h2><a name="roadmap"></a>Roadmap</h2>
   <ul>
     <li><span class="text">
-      <strong>(Pretty much done! Check the repository)</strong> 
+      <strong>(Pretty much done! Check the repository)</strong>
       Add a wrapper class that allows an easier, <em>client-side</em>'er interaction, such as handling full URL's (i.e.
       <code>execute("http://some.host.com/some/uri", ...)</code> rather than <code>execute("host", port, ...)</code>).
       Also, automated redirect handling would be a nice feature for this wrapper.
@@ -124,14 +127,14 @@
   </ul>
 
   <hr />
-  <h2><a name="license">License</a></h2>
+  <h2><a name="license"></a>License</h2>
   <p>
     <span class="hotpotato">hotpotato</span> is distributed under Apache License, Version 2.0.
     Please see the enclosed NOTICE.txt, COPYRIGHT.txt, and LICENSE.txt for more information.
   </p>
 
   <hr />
-  <h2><a name="links">Mailing list & other useful stuff</a></h2>
+  <h2><a name="links"></a>Mailing list & other useful stuff</h2>
   <h3>Mailing list</h3>
   <p>
     The project's mailing list is
@@ -156,7 +159,7 @@
   </ul>
 
   <hr />
-  <h2><a name="examples">Examples</a></h2>
+  <h2><a name="examples"></a>Examples</h2>
   <p>
     The following are quick & dirty examples whose sole purpose is to give you an idea of how
     <span class="hotpotato">hotpotato</span> is used. Please refer to <a href="#documentation">documentation</a>
@@ -235,7 +238,8 @@ HttpRequestFuture&lt;String&gt; future;
 
 request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
 request.addHeader(HttpHeaders.Names.HOST, "hotpotato.factor45.org");
-future = client.execute("hotpotato.factor45.org", 80, request, new BodyAsStringProcessor());
+future = client.execute("hotpotato.factor45.org", 80, request,
+                        new BodyAsStringProcessor());
 future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
     @Override
     public void operationComplete(HttpRequestFuture&lt;String&gt; future) throws Exception {

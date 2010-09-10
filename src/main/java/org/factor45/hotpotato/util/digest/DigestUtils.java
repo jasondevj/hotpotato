@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.factor45.hotpotato.utils.digest;
+package org.factor45.hotpotato.util.digest;
 
-import org.factor45.hotpotato.utils.TextUtils;
+import org.factor45.hotpotato.util.TextUtils;
 
 import java.text.ParseException;
 import java.util.HashMap;
