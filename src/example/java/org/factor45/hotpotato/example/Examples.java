@@ -2,6 +2,7 @@ package org.factor45.hotpotato.example;
 
 import org.factor45.hotpotato.client.DefaultHttpClient;
 import org.factor45.hotpotato.client.HttpClient;
+import org.factor45.hotpotato.client.connection.factory.PipeliningHttpConnectionFactory;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFutureListener;
 import org.factor45.hotpotato.response.BodyAsStringProcessor;
@@ -164,7 +165,38 @@ public class Examples {
         client.terminate();
     }
 
+    public static void example5() {
+        // Pipelining
+        DefaultHttpClient client = new DefaultHttpClient();
+        PipeliningHttpConnectionFactory connectionFactory = new PipeliningHttpConnectionFactory();
+        client.setConnectionFactory(connectionFactory);
+
+        client.setRequestTimeoutInMillis(5000);
+        client.init();
+
+        HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+        request.addHeader(HttpHeaders.Names.HOST, "hotpotato.factor45.org");
+        HttpRequestFuture<String> future = client
+                .execute("hotpotato.factor45.org", 80, request, new BodyAsStringProcessor());
+
+        future.awaitUninterruptibly();
+        if (future.isSuccess()) {
+            System.out.println(future.getResponse());
+        } else {
+            if (future.getResponse() != null) {
+                System.out.println(future.getResponse());
+            }
+            future.getCause().printStackTrace();
+        }
+
+        client.terminate();
+    }
+
+    public static void example6() {
+        // HttpSession API
+    }
+
     public static void main(String[] args) {
-        example4();
+        example5();
     }
 }

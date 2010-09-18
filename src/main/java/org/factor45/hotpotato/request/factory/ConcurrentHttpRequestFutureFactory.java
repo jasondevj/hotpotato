@@ -20,19 +20,19 @@ import org.factor45.hotpotato.request.ConcurrentHttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 
 /**
- * @author <a href="mailto:bruno.carvalho@wit-software.com">Bruno de Carvalho</a>
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class ConcurrentHttpRequestFutureFactory implements HttpRequestFutureFactory {
 
     // HttpRequestFuture ----------------------------------------------------------------------------------------------
 
     @Override
-    public HttpRequestFuture getFuture() {
-        return new ConcurrentHttpRequestFuture();
+    public <T> HttpRequestFuture<T> getFuture() {
+        return new ConcurrentHttpRequestFuture<T>();
     }
 
     @Override
-    public HttpRequestFuture getFuture(boolean cancellable) {
-        return new ConcurrentHttpRequestFuture(cancellable);
+    public <T> HttpRequestFuture<T> getFuture(boolean cancellable) {
+        return new ConcurrentHttpRequestFuture<T>(cancellable);
     }
 }

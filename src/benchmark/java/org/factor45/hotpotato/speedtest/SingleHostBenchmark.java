@@ -1,12 +1,14 @@
 package org.factor45.hotpotato.speedtest;
 
-import org.factor45.hotpotato.client.HttpClient;
 import org.factor45.hotpotato.client.EventProcessorStatsProvider;
-import org.factor45.hotpotato.client.connection.factory.DefaultHttpConnectionFactory;
+import org.factor45.hotpotato.client.HttpClient;
+import org.factor45.hotpotato.client.connection.factory.PipeliningHttpConnectionFactory;
 import org.factor45.hotpotato.client.event.EventType;
 import org.factor45.hotpotato.client.factory.DefaultHttpClientFactory;
 import org.factor45.hotpotato.client.factory.HttpClientFactory;
+import org.factor45.hotpotato.client.host.factory.EagerDrainHostContextFactory;
 import org.factor45.hotpotato.request.HttpRequestFuture;
+import org.factor45.hotpotato.request.factory.ConcurrentHttpRequestFutureFactory;
 import org.factor45.hotpotato.response.DiscardProcessor;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpMethod;
@@ -117,6 +119,12 @@ public class SingleHostBenchmark {
         client.terminate();
     }
 
+    public void clearStats() {
+        this.clientStats.clear();
+        this.existenceAndExecutionTimes.clear();
+        this.throughputs.clear();
+    }
+
     // getters & setters ----------------------------------------------------------------------------------------------
 
     public String getHost() {
@@ -162,35 +170,39 @@ public class SingleHostBenchmark {
     // main -----------------------------------------------------------------------------------------------------------
 
     public static void main(String[] args) throws Exception {
-        //String host = "localhost";
-        String host = "10.0.0.2";
+        String host = "localhost";
+        //String host = "10.0.0.2";
         HttpVersion version = HttpVersion.HTTP_1_1;
         int port = 8080;
         int repetitions = 10000;
         int dataGenInterval = 0;
-        int connectionsPerHost = 10;
+        int connectionsPerHost = 1;
         boolean useNio = true;
-        int iterations = 100;
+        int iterations = 1;
 
         HttpRequest request = new DefaultHttpRequest(version, HttpMethod.GET, "/");
 
         SingleHostBenchmark test = new SingleHostBenchmark(host, port, request, repetitions, dataGenInterval);
 
         DefaultHttpClientFactory factory = new DefaultHttpClientFactory();
-        // factory.setDebug(true);
+        //factory.setDebug(true);
         factory.setGatherEventHandlingStats(true);
         factory.setMaxConnectionsPerHost(connectionsPerHost);
         factory.setUseNio(useNio);
-        factory.setConnectionFactory(new DefaultHttpConnectionFactory());
+        factory.setConnectionFactory(new PipeliningHttpConnectionFactory());
+        factory.setHostContextFactory(new EagerDrainHostContextFactory());
+        factory.setFutureFactory(new ConcurrentHttpRequestFutureFactory());
+        factory.setConnectionTimeoutInMillis(20000);
         test.setFactory(factory);
 
         // warmup run...
         test.run();
+        test.clearStats();
 
         // real test
         for (int i = 0; i < iterations; i++) {
+            System.out.println("Iteration " + i + " started.");
             test.run();
-            System.out.println("Iteration " + i + " done.");
         }
 
         float averageExistence = 0;
@@ -211,8 +223,8 @@ public class SingleHostBenchmark {
         System.out.println("Test time\tSuccessful requests\tThroughput");
         for (float[] throughput : test.getThroughputs()) {
             averageTestTime += throughput[0];
-            averageThroughput += throughput[2] * 1000;
-            System.out.println(throughput[0] + "\t" + throughput[1] + "\t" + (throughput[2] * 1000));
+            averageThroughput += throughput[2] * 1000000000;
+            System.out.println(throughput[0] + "\t" + throughput[1] + "\t" + (throughput[2] * 1000000000));
         }
 
         System.out.println();

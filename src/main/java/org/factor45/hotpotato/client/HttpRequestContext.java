@@ -18,6 +18,7 @@ package org.factor45.hotpotato.client;
 
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
+import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -75,6 +76,22 @@ public class HttpRequestContext<T> {
     public HttpRequestContext(String host, int timeout, HttpRequest request, HttpResponseProcessor<T> processor,
                               HttpRequestFuture<T> future) {
         this(host, 80, timeout, request, processor, future);
+    }
+
+    // public methods -------------------------------------------------------------------------------------------------
+
+    /**
+     * Determines (based on request method) if a request is idempotent or not, based on recommendations of the RFC.
+     *
+     * Idempotent requests: GET, HEAD, PUT, DELETE, OPTIONS, TRACE
+     * Non-idempotent requests: POST, PATCH, CONNECT (not sure about this last one, couldn't find any info on it...)
+     *
+     * @return true if request is idempotent, false otherwise.
+     */
+    public boolean isIdempotent() {
+        return !(this.request.getMethod().equals(HttpMethod.POST) ||
+                 this.request.getMethod().equals(HttpMethod.PATCH) ||
+                 this.request.getMethod().equals(HttpMethod.CONNECT));
     }
 
     // getters & setters ----------------------------------------------------------------------------------------------

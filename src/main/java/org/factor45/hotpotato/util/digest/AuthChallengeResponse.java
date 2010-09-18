@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:bruno.carvalho@wit-software.com">Bruno de Carvalho</a>
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class AuthChallengeResponse {
 
@@ -176,6 +176,14 @@ public class AuthChallengeResponse {
 
     public void setCnonce(String cnonce) {
         this.properties.put(DigestUtils.CLIENT_NONCE, cnonce);
+    }
+
+    public String getOpaque() {
+        return this.properties.get(DigestUtils.OPAQUE);
+    }
+
+    public void setOpaque(String opaque) {
+        this.properties.put(DigestUtils.OPAQUE, opaque);
     }
 
     public Map<String, String> getProperties() {

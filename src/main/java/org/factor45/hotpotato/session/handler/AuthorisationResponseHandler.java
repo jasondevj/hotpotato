@@ -31,7 +31,7 @@ import org.jboss.netty.util.CharsetUtil;
 import java.text.ParseException;
 
 /**
- * @author <a:mailto="bruno.carvalho@wit-software.com" />Bruno de Carvalho</a>
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class AuthorisationResponseHandler implements ResponseCodeHandler {
 

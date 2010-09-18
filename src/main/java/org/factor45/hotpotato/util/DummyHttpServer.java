@@ -288,7 +288,6 @@ public class DummyHttpServer {
         public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
             //System.err.println("Exception caught on HTTP connection from " + e.getChannel().getRemoteAddress() +
             //                   "; closing channel.");
-            //e.getCause().printStackTrace();
             if (e.getChannel().isConnected()) {
                 e.getChannel().close();
             }
@@ -317,6 +316,7 @@ public class DummyHttpServer {
         final DummyHttpServer server = new DummyHttpServer(host, port);
         server.setFailureProbability(failureProbability);
         server.setUseOldIo(useOio);
+        //server.setResponseLatency(50L);
         if (!server.init()) {
             System.err.println("Failed to bind server to " + (host == null ? '*' : host) + ":" + port +
                                (useOio ? " (Oio)" : " (Nio)") + " (FP: " + failureProbability + ")");

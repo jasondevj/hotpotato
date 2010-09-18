@@ -19,6 +19,7 @@ package org.factor45.hotpotato.client.host;
 import org.factor45.hotpotato.client.ConnectionPool;
 import org.factor45.hotpotato.client.HttpRequestContext;
 
+import java.util.Collection;
 import java.util.Queue;
 
 /**
@@ -48,11 +49,45 @@ public interface HostContext {
 
     Queue<HttpRequestContext> getQueue();
 
+    /**
+     * Used to restore requests to the head of the queue.
+     *
+     * An example of the usage of this method is when a pipelining HTTP connection disconnects unexpectedly while some
+     * of the requests were still waiting for a response. Instead of simply failing those requests, they can be retried
+     * in a different connection, provided that their execution order is maintained (i.e. they go back to the head of
+     * the queue and not the tail).
+     *
+     * @param requests Collection of requests to add to the queue head.
+     */
+    void restoreRequestsToQueue(Collection<HttpRequestContext> requests);
+
+    /**
+     * Adds a request to the end of the queue.
+     *
+     * @param request Request to add.
+     */
     void addToQueue(HttpRequestContext request);
 
+    /**
+     * Drains one (or more) elements of the queue into one (or more) connections in the connection pool.
+     *
+     * This is the method used to move queue elements into connections and thus advance the request dispatching process.
+     *
+     * @return The result of the drain operation.
+     */
     DrainQueueResult drainQueue();
 
+    /**
+     * Retrieves the first element of the queue (head).
+     *
+     * @return The first element of the queue.
+     */
     HttpRequestContext pollQueue();
-    
+
+    /**
+     * Fails all queued requests with the given cause.
+     *
+     * @param cause Cause to fail all queued requests.
+     */
     void failAllRequests(Throwable cause);
 }

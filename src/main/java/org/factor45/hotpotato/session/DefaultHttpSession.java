@@ -76,7 +76,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">RFC2610's section 10</a>.
  * </div>
  *
- * @author <a href="mailto:bruno.carvalho@wit-software.com">Bruno de Carvalho</a>
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class DefaultHttpSession implements HttpSession {
 

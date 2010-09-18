@@ -71,6 +71,10 @@ a:hover {
   font-weight: bold;
 }
 
+.done {
+  text-decoration: line-through;
+}
+
 .text {
   color: #000;
 }

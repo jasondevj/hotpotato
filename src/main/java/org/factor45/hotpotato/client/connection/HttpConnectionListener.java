@@ -18,6 +18,9 @@ package org.factor45.hotpotato.client.connection;
 
 import org.factor45.hotpotato.client.HttpRequestContext;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * {@link HttpConnection} listener.
  *
@@ -34,6 +37,23 @@ public interface HttpConnectionListener {
 
     /**
      * Connection terminated event, called by the {@link HttpConnection} when an active connection disconnects.
+     *
+     * This is the event that {@link HttpConnection}s that support submission of multiple parallel requests call to
+     * signal disconnection, since some of the requests may still be executed in another connection (e.g. a pipelining
+     * connection that goes down after a couple of requests but still has some more idempotent requests queued).
+     *
+     * @param connection Connection that was disconnected.
+     * @param retryRequests List of pending submitted requests that should be retried in a new connection, if possible.
+     */
+    void connectionTerminated(HttpConnection connection, Collection<HttpRequestContext> retryRequests);
+
+    /**
+     * Connection terminated event, called by the {@link HttpConnection} when an active connection disconnects.
+     *
+     * This is the event that {@link HttpConnection}s that only support a single request at a time use to signal
+     * disconnection. It can also be used by {@link HttpConnection}s that support submission of multiple parallel
+     * requests (e.g. a pipelining connection) when they disconnect and have no requests that should be retried (i.e.
+     * all pipelined requests executed successfully).
      *
      * @param connection Connection that was disconnected.
      */

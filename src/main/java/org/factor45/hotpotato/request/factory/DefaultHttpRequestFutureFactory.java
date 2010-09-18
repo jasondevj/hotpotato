@@ -20,19 +20,19 @@ import org.factor45.hotpotato.request.DefaultHttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 
 /**
- * @author <a href="mailto:bruno.carvalho@wit-software.com">Bruno de Carvalho</a>
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class DefaultHttpRequestFutureFactory implements HttpRequestFutureFactory {
 
     // HttpRequestFuture ----------------------------------------------------------------------------------------------
 
     @Override
-    public HttpRequestFuture getFuture() {
-        return new DefaultHttpRequestFuture();
+    public <T> HttpRequestFuture<T> getFuture() {
+        return new DefaultHttpRequestFuture<T>();
     }
 
     @Override
-    public HttpRequestFuture getFuture(boolean cancellable) {
-        return new DefaultHttpRequestFuture(cancellable);
+    public <T> HttpRequestFuture<T> getFuture(boolean cancellable) {
+        return new DefaultHttpRequestFuture<T>(cancellable);
     }
 }

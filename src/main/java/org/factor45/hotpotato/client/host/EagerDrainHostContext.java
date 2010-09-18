@@ -53,8 +53,8 @@ public class EagerDrainHostContext extends AbstractHostContext {
         boolean drained = false;
         for (HttpConnection connection : this.connectionPool.getConnections()) {
             // Drain the first element in queue.
-            // There will always be an element in the queue, ensure by 1. or by the premature exit right below.
-            if (connection.isAvailable()) {
+            // There will always be an element in the queue, ensured by 1. or by the premature exit right below.
+            while (connection.isAvailable()) {
                 // Peek the next request and see if the connection is able to accept it.
                 HttpRequestContext context = this.queue.peek();
                 if (connection.execute(context)) {

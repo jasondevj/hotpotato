@@ -16,7 +16,11 @@
 
 package org.factor45.hotpotato.client.event;
 
+import org.factor45.hotpotato.client.HttpRequestContext;
 import org.factor45.hotpotato.client.connection.HttpConnection;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Event generated when an established connection is closed.
@@ -28,11 +32,13 @@ public class ConnectionClosedEvent implements HttpClientEvent {
     // internal vars --------------------------------------------------------------------------------------------------
 
     private final HttpConnection connection;
+    private final Collection<HttpRequestContext> retryRequests;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
-    public ConnectionClosedEvent(HttpConnection connection) {
+    public ConnectionClosedEvent(HttpConnection connection, Collection<HttpRequestContext> retryRequests) {
         this.connection = connection;
+        this.retryRequests = retryRequests;
     }
 
     // HttpClientEvent ------------------------------------------------------------------------------------------------
@@ -48,10 +54,18 @@ public class ConnectionClosedEvent implements HttpClientEvent {
         return this.connection;
     }
 
+    public Collection<HttpRequestContext> getRetryRequests() {
+        return retryRequests;
+    }
+
     // low level overrides --------------------------------------------------------------------------------------------
 
     @Override
     public String toString() {
-        return new StringBuilder().append("ConnectionClosedEvent{").append(this.connection).append('}').toString();
+        return new StringBuilder()
+                .append("ConnectionClosedEvent{")
+                .append("connection=").append(this.connection)
+                .append(", retryRequests=").append(this.retryRequests == null ? 0 : this.retryRequests.size())
+                .append('}').toString();
     }
 }

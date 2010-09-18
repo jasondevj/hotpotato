@@ -18,6 +18,7 @@ package org.factor45.hotpotato.client.connection.factory;
 
 import org.factor45.hotpotato.client.connection.HttpConnection;
 import org.factor45.hotpotato.client.connection.HttpConnectionListener;
+import org.factor45.hotpotato.client.connection.PipeliningHttpConnection;
 import org.factor45.hotpotato.client.timeout.TimeoutManager;
 
 import java.util.concurrent.Executor;
@@ -31,37 +32,38 @@ public class PipeliningHttpConnectionFactory implements HttpConnectionFactory {
 
     private static final boolean DISCONNECT_IF_NON_KEEP_ALIVE_REQUEST = false;
     private static final boolean ALLOW_POST_PIPELINING = false;
+    private static final int MAX_REQUESTS_IN_PIPELINE = 50;
 
     // configuration --------------------------------------------------------------------------------------------------
 
     private boolean disconnectIfNonKeepAliveRequest;
-    private boolean allowPostPipelining;
+    private boolean allowNonIdempotentPipelining;
+    private int maxRequestsInPipeline;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
     public PipeliningHttpConnectionFactory() {
         this.disconnectIfNonKeepAliveRequest = DISCONNECT_IF_NON_KEEP_ALIVE_REQUEST;
-        this.allowPostPipelining = ALLOW_POST_PIPELINING;
+        this.allowNonIdempotentPipelining = ALLOW_POST_PIPELINING;
+        this.maxRequestsInPipeline = MAX_REQUESTS_IN_PIPELINE;
     }
 
     // HttpConnectionFactory ------------------------------------------------------------------------------------------
 
-
     @Override
     public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
                                         TimeoutManager manager) {
-        throw new UnsupportedOperationException("not implemented");
+        return this.createConnection(id, host, port, listener, manager, null);
     }
 
     @Override
     public HttpConnection createConnection(String id, String host, int port, HttpConnectionListener listener,
                                         TimeoutManager manager, Executor executor) {
-        throw new UnsupportedOperationException("not implemented");
-//        PipeliningHttpConnection connection = new PipeliningHttpConnection(id, host, port, listener,
-//                                                                           delegateWritesToExecutor);
-//        connection.setAllowPostPipelining(this.allowPostPipelining);
-//        connection.setDisconnectIfNonKeepAliveRequest(this.disconnectIfNonKeepAliveRequest);
-//        return connection;
+        PipeliningHttpConnection connection = new PipeliningHttpConnection(id, host, port, listener, manager, executor);
+        connection.setDisconnectIfNonKeepAliveRequest(this.disconnectIfNonKeepAliveRequest);
+        connection.setAllowNonIdempotentPipelining(this.allowNonIdempotentPipelining);
+        connection.setMaxRequestsInPipeline(this.maxRequestsInPipeline);
+        return connection;
     }
 
     // getters & setters ----------------------------------------------------------------------------------------------
@@ -74,11 +76,19 @@ public class PipeliningHttpConnectionFactory implements HttpConnectionFactory {
         this.disconnectIfNonKeepAliveRequest = disconnectIfNonKeepAliveRequest;
     }
 
-    public boolean isAllowPostPipelining() {
-        return allowPostPipelining;
+    public boolean isAllowNonIdempotentPipelining() {
+        return allowNonIdempotentPipelining;
     }
 
-    public void setAllowPostPipelining(boolean allowPostPipelining) {
-        this.allowPostPipelining = allowPostPipelining;
+    public void setAllowNonIdempotentPipelining(boolean allowNonIdempotentPipelining) {
+        this.allowNonIdempotentPipelining = allowNonIdempotentPipelining;
+    }
+
+    public int getMaxRequestsInPipeline() {
+        return maxRequestsInPipeline;
+    }
+
+    public void setMaxRequestsInPipeline(int maxRequestsInPipeline) {
+        this.maxRequestsInPipeline = maxRequestsInPipeline;
     }
 }

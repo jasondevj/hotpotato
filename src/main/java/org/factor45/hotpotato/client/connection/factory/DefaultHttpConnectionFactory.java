@@ -31,15 +31,18 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
     // configuration defaults -----------------------------------------------------------------------------------------
 
     private static final boolean DISCONNECT_IF_NON_KEEP_ALIVE_REQUEST = false;
+    private static final boolean RESTORE_NON_IDEMPOTENT_OPERATIONS = false;
 
     // configuration --------------------------------------------------------------------------------------------------
 
     private boolean disconnectIfNonKeepAliveRequest;
+    private boolean restoreNonIdempotentOperations;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
     public DefaultHttpConnectionFactory() {
         this.disconnectIfNonKeepAliveRequest = DISCONNECT_IF_NON_KEEP_ALIVE_REQUEST;
+        this.restoreNonIdempotentOperations = RESTORE_NON_IDEMPOTENT_OPERATIONS;
     }
 
     // HttpConnectionFactory ------------------------------------------------------------------------------------------
@@ -72,10 +75,34 @@ public class DefaultHttpConnectionFactory implements HttpConnectionFactory {
      * doesn't close HTTP/1.1 connections with 'Connection: close' header.
      *
      * @param disconnectIfNonKeepAliveRequest
-     *         Whether the generated {@code HttpConnection}s should explicitly disconnect after executing a
+     *         Whether the generated {@link HttpConnection}s should explicitly disconnect after executing a
      *         non-keepalive request.
      */
     public void setDisconnectIfNonKeepAliveRequest(boolean disconnectIfNonKeepAliveRequest) {
         this.disconnectIfNonKeepAliveRequest = disconnectIfNonKeepAliveRequest;
+    }
+
+    public boolean isRestoreNonIdempotentOperations() {
+        return restoreNonIdempotentOperations;
+    }
+
+    /**
+     * Explicitly enables or disables recovery of non-idempotent operations when connections go down.
+     * <p/>
+     * When a connection goes down while executing a request it can restore that request by sending it back to the
+     * listener inside the {@link HttpConnectionListener#connectionTerminated(HttpConnection, java.util.Collection)}
+     * call.
+     * <p/>
+     * This can be dangerous for non-idempotent operations, because there is no guarantee that the request reached the
+     * server and executed.
+     * <p/>
+     * By default, this option is disabled (safer).
+     *
+     * @param restoreNonIdempotentOperations
+     *         Whether the generated {@link HttpConnection} should restore non-idempotent operations when the
+     *         connection goes down.
+     */
+    public void setRestoreNonIdempotentOperations(boolean restoreNonIdempotentOperations) {
+        this.restoreNonIdempotentOperations = restoreNonIdempotentOperations;
     }
 }

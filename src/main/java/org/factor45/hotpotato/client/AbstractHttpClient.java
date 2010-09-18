@@ -38,6 +38,7 @@ import org.factor45.hotpotato.request.factory.DefaultHttpRequestFutureFactory;
 import org.factor45.hotpotato.request.factory.HttpRequestFutureFactory;
 import org.factor45.hotpotato.response.DiscardProcessor;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
+import org.factor45.hotpotato.util.NamedThreadFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
@@ -238,7 +239,8 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         this.eventQueue = new LinkedBlockingQueue<HttpClientEvent>();
 
         // TODO instead of fixed size thread pool, use a cached thread pool with size limit (limited growth cached pool)
-        this.executor = Executors.newFixedThreadPool(this.maxEventProcessorHelperThreads);
+        this.executor = Executors.newFixedThreadPool(this.maxEventProcessorHelperThreads,
+                                                     new NamedThreadFactory("hpttHandyman"));
         Executor workerPool = Executors.newFixedThreadPool(this.maxIoWorkerThreads);
 
         if (this.useNio) {
@@ -329,6 +331,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             Thread.interrupted();
         }
 
+        // FIXME hangs here when using NIO!
         this.channelFactory.releaseExternalResources();
         if (this.executor != null) {
             ExecutorUtil.terminate(this.executor);
@@ -394,11 +397,19 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
     }
 
     @Override
+    public void connectionTerminated(HttpConnection connection, Collection<HttpRequestContext> retryRequests) {
+        if (this.terminate) {
+            return;
+        }
+        this.eventQueue.offer(new ConnectionClosedEvent(connection, retryRequests));
+    }
+
+    @Override
     public void connectionTerminated(HttpConnection connection) {
         if (this.terminate) {
             return;
         }
-        this.eventQueue.offer(new ConnectionClosedEvent(connection));
+        this.eventQueue.offer(new ConnectionClosedEvent(connection, null));
     }
 
     @Override
@@ -516,6 +527,10 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             // No requests in queue, no connections open or opening... Cleanup resources.
             this.contextMap.remove(id);
         }
+
+        if (event.getRetryRequests() != null) {
+            context.restoreRequestsToQueue(event.getRetryRequests());
+        }
         this.drainQueueAndProcessResult(context);
     }
 
@@ -608,7 +623,13 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
                             @Override
                             public void operationComplete(ChannelFuture future) throws Exception {
                                 if (future.isSuccess()) {
-                                    channelGroup.add(future.getChannel());
+                                    if (terminate) {
+                                        // If terminate was issued meanwhile, then we have to manually close the
+                                        // connection since it won't be added to the channel group.
+                                        future.getChannel().close();
+                                    } else {
+                                        channelGroup.add(future.getChannel());
+                                    }
                                 }
                             }
                         });
@@ -785,7 +806,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      * @param connectionTimeoutInMillis Connection to host timeout, in milliseconds.
      */
     public void setConnectionTimeoutInMillis(int connectionTimeoutInMillis) {
-        if (connectionTimeoutInMillis <= 0) {
+        if (connectionTimeoutInMillis < 0) {
             throw new IllegalArgumentException("ConnectionTimeoutInMillis must be >= 0 (0 means infinite)");
         }
         if (this.eventQueue != null) {

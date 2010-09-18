@@ -26,8 +26,8 @@ import org.jboss.netty.handler.codec.http.HttpHeaders;
 import java.util.List;
 
 /**
-* @author <a:mailto="bruno.carvalho@wit-software.com" />Bruno de Carvalho</a>
-*/
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ */
 public class HttpSessionFutureListener<T> implements HttpRequestFutureListener<T> {
 
     // internal vars ----------------------------------------------------------------------------------------------

@@ -19,7 +19,7 @@ package org.factor45.hotpotato.request.factory;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 
 /**
- * @author <a href="mailto:bruno.carvalho@wit-software.com">Bruno de Carvalho</a>
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public interface HttpRequestFutureFactory {
 

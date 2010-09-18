@@ -26,13 +26,13 @@
   <h1>hotpotato's project page</h1>
   <h2 class="subtitle">a high performance Java HTTP client</h2>
 
-  <div id="lastupdate">30/08/2010</div>
+  <div id="lastupdate">18/09/2010</div>
   <h2><a name="about"></a>What is hotpotato?</h2>
   <p>
     <span class="hotpotato">hotpotato</span> - or hptt (from the common misspelling of http) - is (supposed to be) a
     Java high performance and throughput oriented HTTP client library, based on
     <a href="http://www.jboss.org/netty">Netty</a>. It was developed mostly towards server-side usage, where speed and
-    low resource usage are the key factors.
+    low resource usage are the key factors, but can be used to build client applications as well.
   </p>
 
   <h3>Built for speed</h3>
@@ -45,12 +45,17 @@
   </p>
   <h3>Simple and familiar API</h3>
   <p>
-    The API is extremely simple and, for anyone already familiar with Netty, comprehension will be instant.
+    The API is extremely simple and, for anyone already familiar with Netty, comprehension will be simple.
   </p>
   <p>
     The semantics of <code>execute()</code> (<code>HttpClient</code> interface) may look somewhat awkward but remember
     this library was built with server-side usage in mind, where often you end up repeating the requests to the same
     4/5 hosts (if that many...).
+  </p>
+  <p>
+    For a more typical HTTP client API (to the likes of Apache HttpClient or similar libs), you should check the
+    package <code>org.factor45.hotpotato.session</code>, which hides the "server-side'ness" of
+    <span class="hotpotato">hotpotato</span> (automatically handles redirections, digest auth, cookies, etc).
   </p>
 
   <h4>Note:</h4>
@@ -109,13 +114,18 @@
   <h2><a name="roadmap"></a>Roadmap</h2>
   <ul>
     <li><span class="text">
-      <strong>(Pretty much done! Check the repository)</strong>
-      Add a wrapper class that allows an easier, <em>client-side</em>'er interaction, such as handling full URL's (i.e.
-      <code>execute("http://some.host.com/some/uri", ...)</code> rather than <code>execute("host", port, ...)</code>).
-      Also, automated redirect handling would be a nice feature for this wrapper.
+      <strong>Pretty much done! Check the repository</strong>
+      <span class="done">
+        Add a wrapper class that allows an easier, <em>client-side</em>'er interaction, such as handling full URL's (i.e.
+        <code>execute("http://some.host.com/some/uri", ...)</code> rather than <code>execute("host", port, ...)</code>).
+        Also, automated redirect handling would be a nice feature for this wrapper.
+      </span>
     </span></li>
     <li><span class="text">
-      Add support for HTTP 1.1 pipelining (as defined in <a href="http://tools.ietf.org/html/rfc2616">RFC 2616</a>).
+      <strong>Done, check the repository!</strong>
+      <span class="done">
+        Add support for HTTP 1.1 pipelining (as defined in <a href="http://tools.ietf.org/html/rfc2616">RFC 2616</a>).
+      </span>
     </span></li>
     <li><span class="text">
       Consider a version with <a href="http://twistedmatrix.com/documents/current/core/howto/defer.html">Deferred</a>
@@ -147,7 +157,7 @@
 
   <h3>Dependencies</h3>
   <p>
-    <span class="hotpotato">hotpotato</span> needs only <a href="http://www.jboss.org/netty">Netty</a> 3.2.1 (Final)
+    <span class="hotpotato">hotpotato</span> needs only <a href="http://www.jboss.org/netty">Netty</a> 3.2 (Final)
     and JDK 1.6.
   </p>
 

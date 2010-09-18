@@ -25,9 +25,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author <a:mailto="bruno.carvalho@wit-software.com" />Bruno de Carvalho</a>
+ * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class DigestUtils {
+
+    // constants ------------------------------------------------------------------------------------------------------
 
     // common authentication properties
     public static final String SCHEME = "scheme";
@@ -84,21 +86,36 @@ public class DigestUtils {
 
         String qop = challenge.getQop();
         boolean hasQop = (qop != null) && (qop.length() > 0);
-        // TODO fix this to stop being static
         String nc = toNonceCount(nonceCount);
 
-        String ha1 = TextUtils.hash(
-                new StringBuilder().append(username).append(":").append(realm).append(":").append(password).toString());
+        String ha1 = TextUtils.hash(new StringBuilder()
+                .append(username).append(":").append(realm).append(":").append(password).toString());
         String ha2;
-        if ("auth-int".equals(qop)) {
-            String entityBody = (content == null ? "" : content);
-            ha2 = TextUtils.hash(new StringBuilder()
-                    .append(method).append(":")
-                    .append(uri).append(":")
-                    .append(TextUtils.hash(entityBody)).toString());
-        } else {
-            ha2 = TextUtils.hash(new StringBuilder().append(method).append(":").append(uri).toString());
+
+        DigestQop usedQop = null;
+        if (hasQop) {
+            String[] qopTypes = qop.split(",");
+            for (String qopType : qopTypes) {
+                if (qopType.equals("auth")) {
+                    usedQop = DigestQop.AUTH;
+                    break;
+                } else if (qopType.equals("auth-int")) {
+                    usedQop = DigestQop.AUTH_INT;
+                }
+            }
+            if (usedQop == null) {
+                throw new IllegalArgumentException("Unrecognized qop values: " + qop);
+            }
         }
+
+        // prefer auth over auth-int, if possible
+        if ((usedQop == DigestQop.AUTH) || (usedQop == null)) {
+            ha2 = TextUtils.hash(method + ":" + uri);
+        } else { // DigestQop.AUTH_INT
+            String entityBody = (content == null ? "" : content);
+            ha2 = TextUtils.hash(method + ":" + uri + ":" + TextUtils.hash(entityBody));
+        }
+
         String hashedResponse;
         if (hasQop) {
             cnonce = TextUtils.hash(username);
@@ -131,17 +148,16 @@ public class DigestUtils {
         } else {
             authResponse.setAlgorithm("MD5");
         }
+        if (challenge.getOpaque() != null) {
+            authResponse.setOpaque(challenge.getOpaque());
+        }
         if (hasQop) {
-            authResponse.setQop(challenge.getQop());
+            authResponse.setQop(usedQop.getValue());
             authResponse.setCnonce(cnonce);
             authResponse.setNonceCount(nonceCount);
         }
 
         return authResponse;
-    }
-
-    public static boolean validResponse(AuthChallenge challenge, AuthChallengeResponse response) {
-        return false;
     }
 
     public static String toNonceCount(int nonceCount) {
@@ -152,5 +168,22 @@ public class DigestUtils {
         }
 
         return TextUtils.repeat("0", (8 - l)) + hexString;
+    }
+
+    // public classes -------------------------------------------------------------------------------------------------
+
+    public static enum DigestQop {
+        AUTH("auth"),
+        AUTH_INT("auth-int");
+
+        private String value;
+
+        DigestQop(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }

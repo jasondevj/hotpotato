@@ -70,79 +70,13 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
     // AbstractHttpClient ---------------------------------------------------------------------------------------------
 
     @Override
-    public boolean init() {
-        if (this.timeoutManager == null) {
-            // Consumes less resources, puts less emphasis on precision.
-            this.timeoutManager = new HashedWheelTimeoutManager();
-            //this.timeoutManager = new BasicTimeoutManager(10);
-            this.timeoutManager.init();
-            this.internalTimeoutManager = true;
-        }
-
-        this.eventQueue = new LinkedBlockingQueue<HttpClientEvent>();
-        if (this.hostContextFactory == null) {
-            this.hostContextFactory = new DefaultHostContextFactory();
-        }
-        if (this.connectionFactory == null) {
-            this.connectionFactory = new DefaultHttpConnectionFactory();
-        }
-        this.eventConsumerLatch = new CountDownLatch(1);
-
-        // TODO instead of fixed size thread pool, use a cached thread pool with size limit (limited growth cached pool)
-        this.executor = Executors.newFixedThreadPool(this.maxEventProcessorHelperThreads);
-        Executor workerPool = Executors.newFixedThreadPool(this.maxIoWorkerThreads);
-
-        if (this.useNio) {
-            // It's only going to create 1 thread, so no harm done here.
-            Executor bossPool = Executors.newCachedThreadPool();
-            this.channelFactory = new NioClientSocketChannelFactory(bossPool, workerPool);
-        } else {
-            this.channelFactory = new OioClientSocketChannelFactory(workerPool);
-        }
-
-        this.channelGroup = new DefaultChannelGroup(this.toString());
-        // Create a pipeline without the last handler (it will be added right before connecting).
-        this.pipelineFactory = new ChannelPipelineFactory() {
-            @Override
-            public ChannelPipeline getPipeline() throws Exception {
-                ChannelPipeline pipeline = Channels.pipeline();
-                if (useSsl) {
-                    SSLEngine engine = SecureChatSslContextFactory.getServerContext().createSSLEngine();
-                    engine.setUseClientMode(true);
-                    pipeline.addLast("ssl", new SslHandler(engine));
-                }
-
-                if (requestCompressionLevel > 0) {
-                    pipeline.addLast("deflater", new HttpContentCompressor(requestCompressionLevel));
-                }
-
-                pipeline.addLast("codec", new HttpClientCodec(4096, 8192, requestChunkSize));
-                if (autoInflate) {
-                    pipeline.addLast("inflater", new HttpContentDecompressor());
-                }
-                if (aggregateResponseChunks) {
-                    pipeline.addLast("aggregator", new HttpChunkAggregator(1048576));
-                }
-                return pipeline;
-            }
-        };
-
-        this.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                eventHandlingLoop();
-            }
-        });
-        return true;
-    }
-
-    @Override
     protected void eventHandlingLoop() {
         for (;;) {
             // Manual synchronisation here because before removing an element, we first need to check whether an
             // active available connection exists to satisfy the request.
             try {
                 LOG.trace("---------------------------------------------------------------");
+                LOG.trace("### NEW eventHandlingLoop ITERATION ###");
                 HttpClientEvent event = eventQueue.take();
                 if (event == POISON) {
                     this.eventConsumerLatch.countDown();
@@ -157,7 +91,7 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
                 for (HttpClientEvent e : this.eventQueue) {
                     LOG.trace("      {}. {}", (++i), e);
                 }
-                LOG.trace("[EHL] ---------------\n");
+                LOG.trace("[EHL] ---------------");
 
                 switch (event.getEventType()) {
                     case EXECUTE_REQUEST:

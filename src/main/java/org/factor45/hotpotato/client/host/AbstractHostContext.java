@@ -20,6 +20,7 @@ import org.factor45.hotpotato.client.ConnectionPool;
 import org.factor45.hotpotato.client.HttpRequestContext;
 import org.factor45.hotpotato.client.connection.HttpConnection;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -40,7 +41,7 @@ public abstract class AbstractHostContext implements HostContext {
     protected final int port;
     protected final int maxConnections;
     protected final ConnectionPool connectionPool;
-    protected final Queue<HttpRequestContext> queue;
+    protected final LinkedList<HttpRequestContext> queue;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
@@ -79,6 +80,11 @@ public abstract class AbstractHostContext implements HostContext {
     }
 
     @Override
+    public void restoreRequestsToQueue(Collection<HttpRequestContext> requests) {
+        this.queue.addAll(0, requests);
+    }
+
+    @Override
     public void addToQueue(HttpRequestContext request) {
         this.queue.add(request);
     }
@@ -102,7 +108,7 @@ public abstract class AbstractHostContext implements HostContext {
 
         // 3. There is content to drain and there are connections, iterate them to find an available one.
         for (HttpConnection connection : this.connectionPool.getConnections()) {
-            if (connection.isAvailable()) {
+            while (connection.isAvailable()) {
                 // Found an available connection; peek the first request and attempt to execute it.
                 HttpRequestContext context = this.queue.peek();
                 if (connection.execute(context)) {

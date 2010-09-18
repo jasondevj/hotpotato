@@ -30,6 +30,7 @@ import org.jboss.netty.handler.codec.http.HttpChunk;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 
 /**
@@ -54,6 +55,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
     // configuration defaults -----------------------------------------------------------------------------------------
 
     private static final boolean DISCONNECT_IF_NON_KEEP_ALIVE_REQUEST = false;
+    private static final boolean RESTORE_NON_IDEMPOTENT_OPERATIONS = false;
 
     // configuration --------------------------------------------------------------------------------------------------
 
@@ -64,11 +66,13 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
     private final TimeoutManager timeoutManager;
     private final Executor executor;
     private boolean disconnectIfNonKeepAliveRequest;
+    private boolean restoreNonIdempotentOperations;
 
     // internal vars --------------------------------------------------------------------------------------------------
 
+    // Not using ReentrantReadWriteLock here since all locks would be write (mutex) locks.
     private final Object mutex;
-    private Channel channel;
+    private volatile Channel channel;
     private volatile Throwable terminate;
     private boolean readingChunks;
     private volatile boolean available;
@@ -93,6 +97,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         this.executor = executor;
         this.mutex = new Object();
         this.disconnectIfNonKeepAliveRequest = DISCONNECT_IF_NON_KEEP_ALIVE_REQUEST;
+        this.restoreNonIdempotentOperations = RESTORE_NON_IDEMPOTENT_OPERATIONS;
     }
 
     // SimpleChannelUpstreamHandler -----------------------------------------------------------------------------------
@@ -150,40 +155,58 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        synchronized (this.mutex) {
-            if (this.currentRequest != null) {
-                this.currentRequestFailed(e.getCause());
-            }
+        if (this.channel == null) {
+            return;
+        }
+
+        HttpRequestContext current = this.currentRequest;
+        if (current != null) {
+            current.getFuture().setFailure(e.getCause());
+            this.listener.requestFinished(this, current);
+        }
+
+        if (this.channel.isConnected()) {
+            this.channel.close();
         }
     }
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        this.channel = e.getChannel();
         synchronized (this.mutex) {
-            // Just in case terminate was issued meanwhile... will hardly ever happen unless someone is intentionally
-            // trying to screw up...
-            if (this.terminate == null) {
-                this.channel = e.getChannel();
-                this.available = true;
-                this.listener.connectionOpened(this);
+            // Just in case terminate was issued meanwhile... will hardly ever happen.
+            if (this.terminate != null) {
+                return;
             }
+            this.available = true;
         }
+        this.listener.connectionOpened(this);
     }
 
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        HttpRequestContext request = null;
         synchronized (this.mutex) {
             if (this.terminate == null) {
                 this.terminate = HttpRequestFuture.CONNECTION_LOST;
                 this.available = false;
-                // Also, if there is a request currently executing mark it to be failed.
-                if (this.currentRequest != null) {
-                    this.currentRequest.getFuture().setFailure(this.terminate);
-                }
+//                // Also, if there is a request currently executing mark it to be failed.
+//                if (this.currentRequest != null) {
+//                    this.currentRequest.getFuture().setFailure(this.terminate);
+//                }
+                // Commented the above block since if a request fails due to connection lost, it should be retried
+                // in a different connection!
+                request = this.currentRequest; // If this.currentRequest = null request will be null which is ok
             }
         }
 
-        this.listener.connectionTerminated(this);
+        // TODO what about non-idempotent operations?!
+        if ((request != null) && !request.getFuture().isDone() &&
+            (request.isIdempotent() && this.restoreNonIdempotentOperations)) {
+            this.listener.connectionTerminated(this, Arrays.asList(request));
+        } else {
+            this.listener.connectionTerminated(this);
+        }
     }
 
     @Override
@@ -205,13 +228,16 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
                 return;
             }
 
-            // Disable availibility and mark all requests as SHUTTING_DOWN.
             this.terminate = HttpRequestFuture.SHUTTING_DOWN;
+            // Mark as unavailable
             this.available = false;
 
-            if (this.currentRequest != null) {
-                this.currentRequest.getFuture().setFailure(this.terminate);
-            }
+            // Experimental: instead of failing the request, leave it as is so that it can be retried in another
+            // connection. If everything is shutting down, this request will be cancelled by the HttpClient
+//
+//            if (this.currentRequest != null) {
+//                this.currentRequest.getFuture().setFailure(this.terminate);
+//            }
         }
 
         if ((this.channel != null) && this.channel.isConnected()) {
@@ -245,7 +271,8 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
             throw new IllegalArgumentException("HttpRequestContext cannot be null");
         }
 
-        if (context.getFuture().isCancelled()) {
+        // Test for cancellation or tampering.
+        if (context.getFuture().isDone()) {
             this.listener.requestFinished(this, context);
             return true;
         }
@@ -387,13 +414,6 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         }
     }
 
-    private void currentRequestFailed(Throwable cause) {
-        // Unlock the future with a failure.
-        this.currentRequest.getFuture().setFailure(cause);
-        // Notify listener and allow other requests to be executed.
-        this.currentRequestFinished();
-    }
-
     private void currentRequestFinished() {
         // Always called inside a synchronised block.
 
@@ -410,7 +430,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         this.listener.requestFinished(this, context);
 
         // Close non-keep alive connections if configured to do so...
-        if (this.disconnectIfNonKeepAliveRequest && !this.available && this.channel.isConnected()) {
+        if (this.disconnectIfNonKeepAliveRequest && !this.available) {
             this.channel.close();
         }
     }
@@ -433,6 +453,29 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
      */
     public void setDisconnectIfNonKeepAliveRequest(boolean disconnectIfNonKeepAliveRequest) {
         this.disconnectIfNonKeepAliveRequest = disconnectIfNonKeepAliveRequest;
+    }
+
+    public boolean isRestoreNonIdempotentOperations() {
+        return restoreNonIdempotentOperations;
+    }
+
+    /**
+     * Explicitly enables or disables recovery of non-idempotent operations when connections go down.
+     * <p/>
+     * When a connection goes down while executing a request it can restore that request by sending it back to the
+     * listener inside the {@link HttpConnectionListener#connectionTerminated(HttpConnection, java.util.Collection)}
+     * call.
+     * <p/>
+     * This can be dangerous for non-idempotent operations, because there is no guarantee that the request reached the
+     * server and executed.
+     * <p/>
+     * By default, this option is disabled (safer).
+     *
+     * @param restoreNonIdempotentOperations Whether this {@code HttpConnection} should restore non-idempotent
+     *                                       operations when the connection goes down.
+     */
+    public void setRestoreNonIdempotentOperations(boolean restoreNonIdempotentOperations) {
+        this.restoreNonIdempotentOperations = restoreNonIdempotentOperations;
     }
 
     // low level overrides --------------------------------------------------------------------------------------------
