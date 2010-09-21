@@ -78,7 +78,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
-public class DefaultHttpSession implements HttpSession {
+public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
 
     // constants ------------------------------------------------------------------------------------------------------
 

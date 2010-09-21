@@ -306,6 +306,21 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             Thread.currentThread().interrupt();
         }
 
+        // Fail all requests that were still in the event queue.
+        for (HttpClientEvent event : pendingEvents) {
+            switch (event.getEventType()) {
+                case EXECUTE_REQUEST:
+                    ((ExecuteRequestEvent) event).getContext().getFuture().setFailure(HttpRequestFuture.SHUTTING_DOWN);
+                case CONNECTION_CLOSED:
+                    ConnectionClosedEvent closedEvent = (ConnectionClosedEvent) event;
+                    if ((closedEvent.getRetryRequests() != null) && !closedEvent.getRetryRequests().isEmpty()) {
+                        for (HttpRequestContext context : closedEvent.getRetryRequests()) {
+                            context.getFuture().setFailure(HttpRequestFuture.SHUTTING_DOWN);
+                        }
+                    }
+            }
+        }
+
         // Kill all connections (will cause failure on requests executing in those connections) and fail context-queued
         // requests.
         for (HostContext hostContext : this.contextMap.values()) {
@@ -318,20 +333,12 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
         }
         this.contextMap.clear();
 
-        // Fail all requests that were still in the event queue.
-        for (HttpClientEvent event : pendingEvents) {
-            if (event.getEventType() == EventType.EXECUTE_REQUEST) {
-                ((ExecuteRequestEvent) event).getContext().getFuture().setFailure(HttpRequestFuture.SHUTTING_DOWN);
-            }
-        }
-
         try {
             this.channelGroup.close().await(1000);
         } catch (InterruptedException e) {
             Thread.interrupted();
         }
 
-        // FIXME hangs here when using NIO!
         this.channelFactory.releaseExternalResources();
         if (this.executor != null) {
             ExecutorUtil.terminate(this.executor);
@@ -399,6 +406,11 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
     @Override
     public void connectionTerminated(HttpConnection connection, Collection<HttpRequestContext> retryRequests) {
         if (this.terminate) {
+            if ((retryRequests != null) && !retryRequests.isEmpty()) {
+                for (HttpRequestContext request : retryRequests) {
+                    request.getFuture().setFailure(HttpRequestFuture.SHUTTING_DOWN);
+                }
+            }
             return;
         }
         this.eventQueue.offer(new ConnectionClosedEvent(connection, retryRequests));

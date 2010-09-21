@@ -32,7 +32,7 @@ public class HttpSessionFutureListener<T> implements HttpRequestFutureListener<T
 
     // internal vars ----------------------------------------------------------------------------------------------
 
-    private final HttpSession session;
+    private final HandlerSessionFacade session;
     private final HttpRequestFuture<T> initialFuture;
     private final HostPortAndUri target;
     private final RecursiveAwareHttpRequest request;
@@ -40,7 +40,7 @@ public class HttpSessionFutureListener<T> implements HttpRequestFutureListener<T
 
     // constructors -----------------------------------------------------------------------------------------------
 
-    public HttpSessionFutureListener(HttpSession session, HttpRequestFuture<T> initialFuture,
+    public HttpSessionFutureListener(HandlerSessionFacade session, HttpRequestFuture<T> initialFuture,
                                      HostPortAndUri target, RecursiveAwareHttpRequest request,
                                      HttpResponseProcessor<T> processor) {
         this.session = session;

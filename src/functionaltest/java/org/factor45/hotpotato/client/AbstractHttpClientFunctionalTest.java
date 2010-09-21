@@ -1,5 +1,6 @@
 package org.factor45.hotpotato.client;
 
+import org.factor45.hotpotato.client.connection.factory.PipeliningHttpConnectionFactory;
 import org.factor45.hotpotato.client.factory.DefaultHttpClientFactory;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.DiscardProcessor;
@@ -37,7 +38,7 @@ public class AbstractHttpClientFunctionalTest {
     }
 
     @Test
-    public void testCancellationOnAllPendingRequests() throws Exception {
+    public void testCancellationOfAllPendingRequests() throws Exception {
         // This test tests that *ALL* futures are unlocked when a premature shutdown is called on the client, no matter
         // where they are:
         //   1) the event queue (pre-processing)
@@ -81,6 +82,44 @@ public class AbstractHttpClientFunctionalTest {
     }
 
     @Test
+    public void testCancellationOfAllPendingRequestsWithPipelining() throws Exception {
+        this.server.setFailureProbability(0.0f);
+        this.server.setResponseLatency(50L);
+        assertTrue(this.server.init());
+
+        DefaultHttpClientFactory factory = new DefaultHttpClientFactory();
+        factory.setConnectionFactory(new PipeliningHttpConnectionFactory());
+        //factory.setDebug(true);
+        final HttpClient client = factory.getClient();
+        assertTrue(client.init());
+
+        List<HttpRequestFuture<Object>> futures = new ArrayList<HttpRequestFuture<Object>>();
+        HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+        for (int i = 0; i < 1000; i++) {
+            futures.add(client.execute("localhost", 8081, request, new DiscardProcessor()));
+        }
+
+        // server is configured to sleep for 50ms in each request so only the first 3 should complete.
+        Thread.sleep(150L);
+        client.terminate();
+
+        long complete = 0;
+        for (HttpRequestFuture<Object> future : futures) {
+            assertTrue(future.isDone());
+            if (future.isSuccess()) {
+                complete++;
+            } else {
+                assertEquals(HttpRequestFuture.SHUTTING_DOWN, future.getCause());
+            }
+        }
+
+        // Should print 3 or 6/1000... Really depends on the computer though...
+        System.out.println(complete + "/1000 requests were executed. All others failed with cause: " +
+                           HttpRequestFuture.SHUTTING_DOWN);
+    }
+
+
+    @Test
     public void testRequestTimeout() {
         this.server.setFailureProbability(0.0f);
         this.server.setResponseLatency(1000L); // because default hashedwheeltimer has 500ms variable precision
@@ -93,7 +132,7 @@ public class AbstractHttpClientFunctionalTest {
 
         HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
         HttpRequestFuture<Object> future = client.execute("localhost", 8081, 50, request, new DiscardProcessor());
-        assertTrue(future.awaitUninterruptibly(1000L));
+        assertTrue(future.awaitUninterruptibly(5000L));
         assertTrue(future.isDone());
         assertFalse(future.isSuccess());
         assertEquals(HttpRequestFuture.TIMED_OUT, future.getCause());

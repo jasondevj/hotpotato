@@ -19,7 +19,7 @@ package org.factor45.hotpotato.session.handler;
 import org.factor45.hotpotato.client.CannotExecuteRequestException;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
-import org.factor45.hotpotato.session.HttpSession;
+import org.factor45.hotpotato.session.HandlerSessionFacade;
 import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
 import org.factor45.hotpotato.util.HostPortAndUri;
 import org.factor45.hotpotato.util.UrlUtils;
@@ -37,7 +37,7 @@ public class RedirectResponseHandler implements ResponseCodeHandler {
     }
 
     @Override
-    public <T> void handleResponse(HttpSession session, HttpRequestFuture<T> initialFuture,
+    public <T> void handleResponse(HandlerSessionFacade session, HttpRequestFuture<T> initialFuture,
                                    HttpRequestFuture<T> future, HostPortAndUri target,
                                    RecursiveAwareHttpRequest request, HttpResponseProcessor<T> processor) {
 

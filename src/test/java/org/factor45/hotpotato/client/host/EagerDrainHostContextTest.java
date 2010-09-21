@@ -39,6 +39,6 @@ public class EagerDrainHostContextTest {
         assertEquals(4, this.hostContext.getQueue().size());
 
         assertEquals(HostContext.DrainQueueResult.DRAINED, this.hostContext.drainQueue());
-        assertEquals(2, this.hostContext.getQueue().size());
+        assertEquals(0, this.hostContext.getQueue().size());
     }
 }

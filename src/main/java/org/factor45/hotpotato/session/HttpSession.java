@@ -43,10 +43,6 @@ public interface HttpSession {
     <T> HttpRequestFuture<T> execute(String path, HttpRequest request, HttpResponseProcessor<T> responseProcessor)
             throws CannotExecuteRequestException;
 
-    <T> HttpRequestFuture<T> execute(HostPortAndUri target, HttpRequestFuture<T> initialFuture,
-                                     HttpRequest request, HttpResponseProcessor<T> processor)
-        throws CannotExecuteRequestException;
-
     void addHeader(String headerName, String headerValue);
 
     void setHeader(String headerName, String headerValue);

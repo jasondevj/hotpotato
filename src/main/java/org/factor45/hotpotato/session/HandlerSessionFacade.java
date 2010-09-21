@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package org.factor45.hotpotato.session.handler;
+package org.factor45.hotpotato.session;
 
+import org.factor45.hotpotato.client.CannotExecuteRequestException;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
-import org.factor45.hotpotato.session.HandlerSessionFacade;
-import org.factor45.hotpotato.session.HttpSession;
-import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
 import org.factor45.hotpotato.util.HostPortAndUri;
+import org.jboss.netty.handler.codec.http.HttpRequest;
 
 /**
- * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
+ * @author <a:mailto="bruno.carvalho@wit-software.com" />Bruno de Carvalho</a>
  */
-public interface ResponseCodeHandler {
-
-    int[] handlesResponseCodes();
-
-    <T> void handleResponse(HandlerSessionFacade session, HttpRequestFuture<T> originalFuture,
-                            HttpRequestFuture<T> future, HostPortAndUri target, RecursiveAwareHttpRequest request,
-                            HttpResponseProcessor<T> processor);
+public interface HandlerSessionFacade extends HttpSession {
+    
+    <T> HttpRequestFuture<T> execute(HostPortAndUri target, HttpRequestFuture<T> initialFuture,
+                                     HttpRequest request, HttpResponseProcessor<T> processor)
+        throws CannotExecuteRequestException;
 }

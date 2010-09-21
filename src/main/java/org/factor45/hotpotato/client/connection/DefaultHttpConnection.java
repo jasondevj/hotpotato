@@ -232,12 +232,9 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
             // Mark as unavailable
             this.available = false;
 
-            // Experimental: instead of failing the request, leave it as is so that it can be retried in another
-            // connection. If everything is shutting down, this request will be cancelled by the HttpClient
-//
-//            if (this.currentRequest != null) {
-//                this.currentRequest.getFuture().setFailure(this.terminate);
-//            }
+            if (this.currentRequest != null) {
+                this.currentRequest.getFuture().setFailure(this.terminate);
+            }
         }
 
         if ((this.channel != null) && this.channel.isConnected()) {
