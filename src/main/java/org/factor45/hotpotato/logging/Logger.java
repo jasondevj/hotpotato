@@ -22,7 +22,7 @@ import org.slf4j.helpers.MessageFormatter;
 /**
  * Facade for SLF4J's logger.
  * <p/>
- * Offers java 5 syntax support (varargs) and performs some optimisations.
+ * Offers java 5 syntax support (varargs) and performs some optimizations.
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */

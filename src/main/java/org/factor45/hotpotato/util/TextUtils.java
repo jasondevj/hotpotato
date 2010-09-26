@@ -20,6 +20,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
+ * Text utility methods.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class TextUtils {

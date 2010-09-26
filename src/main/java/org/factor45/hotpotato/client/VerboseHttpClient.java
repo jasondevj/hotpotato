@@ -72,7 +72,7 @@ public class VerboseHttpClient extends AbstractHttpClient implements EventProces
     @Override
     protected void eventHandlingLoop() {
         for (;;) {
-            // Manual synchronisation here because before removing an element, we first need to check whether an
+            // Manual synchronization here because before removing an element, we first need to check whether an
             // active available connection exists to satisfy the request.
             try {
                 LOG.trace("---------------------------------------------------------------");

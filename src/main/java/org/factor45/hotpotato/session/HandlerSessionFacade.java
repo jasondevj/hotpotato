@@ -23,11 +23,14 @@ import org.factor45.hotpotato.util.HostPortAndUri;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
 /**
+ * Facade whose single purpose is to keep this method (needed by
+ * {@link org.factor45.hotpotato.session.handler.ResponseCodeHandler} implementations) outside of {@link HttpSession}.
+ *
  * @author <a:mailto="bruno.carvalho@wit-software.com" />Bruno de Carvalho</a>
  */
 public interface HandlerSessionFacade extends HttpSession {
-    
+
     <T> HttpRequestFuture<T> execute(HostPortAndUri target, HttpRequestFuture<T> initialFuture,
                                      HttpRequest request, HttpResponseProcessor<T> processor)
-        throws CannotExecuteRequestException;
+            throws CannotExecuteRequestException;
 }

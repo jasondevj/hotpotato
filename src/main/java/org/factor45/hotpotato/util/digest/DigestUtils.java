@@ -25,6 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Digest authentication utilities.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class DigestUtils {

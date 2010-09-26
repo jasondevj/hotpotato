@@ -35,7 +35,7 @@ import org.jboss.netty.channel.ChannelHandler;
  *     connection.execute(request);
  * }</pre>
  * Implementations of this interface are thread-safe. However, it is ill-advised to used them from multiple threads in
- * order to avoid entropic behaviour. If you really want to use a single connection from multiple threads, you should
+ * order to avoid entropic behavior. If you really want to use a single connection from multiple threads, you should
  * manually synchronise externally. The reason for this is that if both threads call {@link #isAvailable()} at the same
  * time, both will be able to {@linkplain #execute(org.factor45.hotpotato.client.HttpRequestContext) submit requests}, even though the implementation
  * may not accept both (and consequently fail the last one with {@link

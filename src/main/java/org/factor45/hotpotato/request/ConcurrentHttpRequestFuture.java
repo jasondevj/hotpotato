@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Implementation of {@link HttpRequestFuture} that resorts to stuff in {@linkplain java.util.concurrent} package.
  * <p/>
- * Uses less synchronisation blocks which is potentially faster for high concurrency scenarios. 
+ * Uses less synchronization blocks which is potentially faster for high concurrency scenarios.
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */

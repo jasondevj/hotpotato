@@ -24,7 +24,7 @@ import java.util.LinkedList;
 /**
  * Helper class to hold both active connections and the number of connections opening to a given host.
  *
- * This class is not thread-safe and should only be updated by a thread at a time unless manual external synchronisation
+ * This class is not thread-safe and should only be updated by a thread at a time unless manual external synchronization
  * is used.
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>

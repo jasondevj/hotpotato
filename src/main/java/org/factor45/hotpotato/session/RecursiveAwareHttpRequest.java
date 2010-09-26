@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Special purpose {@link HttpRequest} implementation to be used by {@link HttpSession} implementations.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class RecursiveAwareHttpRequest extends DefaultHttpRequest {

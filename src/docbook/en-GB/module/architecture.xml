@@ -11,7 +11,7 @@
       <para>
         This section describes some concepts that will be valid for all implementations of &HttpClient; but will also
         focus on some details that, at this time, pertain only to the sole implementation of this interface,
-        &DefaultHttpClient; - meaning that this behaviour can change in a different special-purpose implementation.
+        &DefaultHttpClient; - meaning that this behavior can change in a different special-purpose implementation.
       </para>
     </note>
     <sect2>

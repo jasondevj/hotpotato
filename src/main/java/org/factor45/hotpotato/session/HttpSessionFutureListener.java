@@ -21,11 +21,10 @@ import org.factor45.hotpotato.request.HttpRequestFutureListener;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.session.handler.ResponseCodeHandler;
 import org.factor45.hotpotato.util.HostPortAndUri;
-import org.jboss.netty.handler.codec.http.HttpHeaders;
-
-import java.util.List;
 
 /**
+ * Special purpose {@link HttpRequestFutureListener} implementation to be used by {@link HttpSession}s.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class HttpSessionFutureListener<T> implements HttpRequestFutureListener<T> {
@@ -55,13 +54,6 @@ public class HttpSessionFutureListener<T> implements HttpRequestFutureListener<T
     @Override
     public void operationComplete(HttpRequestFuture<T> future) throws Exception {
         if (future.isSuccess()) {
-            List<String> cookies = future.getResponse().getHeaders(HttpHeaders.Names.SET_COOKIE);
-            if ((cookies != null) && !cookies.isEmpty()) {
-                for (String cookie : cookies) {
-                    this.session.addHeader(HttpHeaders.Names.COOKIE, cookie);
-                }
-            }
-
             ResponseCodeHandler handler = this.session.getHandler(future.getResponseStatusCode());
             if (handler == null) {
                 // Defaults to simply setting the response and processed result

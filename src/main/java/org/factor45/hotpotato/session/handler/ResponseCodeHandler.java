@@ -24,12 +24,30 @@ import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
 import org.factor45.hotpotato.util.HostPortAndUri;
 
 /**
+ * Handles responses for a particular request and either performs some computation before marking it as a success or
+ * executes another subrequest under the umbrella of the original request (e.g. authentication, redirection). 
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public interface ResponseCodeHandler {
 
+    /**
+     * List of response codes handler by this handler.
+     *
+     * @return List of HTTP response codes.
+     */
     int[] handlesResponseCodes();
 
+    /**
+     * Performs some computation on the response or executes another request.
+     *
+     * @param session A facade for {@link HttpSession}.
+     * @param originalFuture The original future created when the request was submitted to the {@link HttpSession}.
+     * @param future The future of the last request.
+     * @param target The target URL of the first request.
+     * @param request The first request
+     * @param processor The processor provided when the request was submitted to {@link HttpSession}.
+     */
     <T> void handleResponse(HandlerSessionFacade session, HttpRequestFuture<T> originalFuture,
                             HttpRequestFuture<T> future, HostPortAndUri target, RecursiveAwareHttpRequest request,
                             HttpResponseProcessor<T> processor);

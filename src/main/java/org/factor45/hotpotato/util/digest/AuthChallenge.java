@@ -20,6 +20,8 @@ import java.text.ParseException;
 import java.util.Map;
 
 /**
+ * Digest authentication challenge.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class AuthChallenge {

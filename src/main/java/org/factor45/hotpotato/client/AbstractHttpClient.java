@@ -79,7 +79,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link HttpClient} implementations would also need.
  * <p/>
  * This abstract implementation is in itself complete. If you extend this class, you needn't implement a single method
- * (just like {@link DefaultHttpClient} does). However you may want to override the specific behaviour of one or other
+ * (just like {@link DefaultHttpClient} does). However you may want to override the specific behavior of one or other
  * method, rather than reimplement the whole class all over again (just like {@link StatsGatheringHttpClient} does -
  * only overrides the {@code eventHandlingLoop()} method to gather execution statistics).
  * <p/>
@@ -209,7 +209,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
 
         this.queuedRequests = new AtomicInteger(0);
 
-        // No need for synchronised structures here, as they'll be accessed by a single thread
+        // No need for synchronized structures here, as they'll be accessed by a single thread
         this.contextMap = new HashMap<String, HostContext>();
     }
 
@@ -444,7 +444,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
 
     protected void eventHandlingLoop() {
         for (;;) {
-            // Manual synchronisation here because before removing an element, we first need to check whether an
+            // Manual synchronization here because before removing an element, we first need to check whether an
             // active available connection exists to satisfy the request.
             try {
                 HttpClientEvent event = this.eventQueue.take();
@@ -666,7 +666,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setUseSsl(boolean useSsl) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.useSsl = useSsl;
     }
@@ -687,7 +687,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("RequestCompressionLevel must be in range [0;9] (0 = none, 9 = max)");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.requestCompressionLevel = requestCompressionLevel;
     }
@@ -709,7 +709,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setAutoInflate(boolean autoInflate) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.autoInflate = autoInflate;
     }
@@ -732,7 +732,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("Minimum accepted chunk size is 128b");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.requestChunkSize = requestChunkSize;
     }
@@ -751,7 +751,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setAggregateResponseChunks(boolean aggregateResponseChunks) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.aggregateResponseChunks = aggregateResponseChunks;
     }
@@ -776,7 +776,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("MaxConnectionsPerHost must be > 1");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.maxConnectionsPerHost = maxConnectionsPerHost;
     }
@@ -801,7 +801,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("MaxQueuedRequests must be > 1");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.maxQueuedRequests = maxQueuedRequests;
     }
@@ -822,7 +822,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("ConnectionTimeoutInMillis must be >= 0 (0 means infinite)");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.connectionTimeoutInMillis = connectionTimeoutInMillis;
     }
@@ -850,7 +850,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("RequestTimeoutInMillis must be >= 0 (0 means infinite)");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.requestTimeoutInMillis = requestTimeoutInMillis;
     }
@@ -877,7 +877,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setUseNio(boolean useNio) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.useNio = useNio;
     }
@@ -898,7 +898,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("Minimum value for maxIoWorkerThreads is 1");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.maxIoWorkerThreads = maxIoWorkerThreads;
     }
@@ -923,7 +923,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             throw new IllegalArgumentException("Minimum value for maxEventProcessorHelperThreads is 3");
         }
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.maxEventProcessorHelperThreads = maxEventProcessorHelperThreads;
     }
@@ -944,7 +944,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setHostContextFactory(HostContextFactory hostContextFactory) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.hostContextFactory = hostContextFactory;
     }
@@ -965,7 +965,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setConnectionFactory(HttpConnectionFactory connectionFactory) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.connectionFactory = connectionFactory;
     }
@@ -986,7 +986,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setFutureFactory(HttpRequestFutureFactory futureFactory) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
         this.futureFactory = futureFactory;
     }
@@ -1013,7 +1013,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setTimeoutManager(TimeoutManager timeoutManager) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
 
         this.timeoutManager = timeoutManager;
@@ -1043,7 +1043,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
      */
     public void setCleanupInactiveHostContexts(boolean cleanupInactiveHostContexts) {
         if (this.eventQueue != null) {
-            throw new IllegalStateException("Cannot modify property after initialisation");
+            throw new IllegalStateException("Cannot modify property after initialization");
         }
 
         this.cleanupInactiveHostContexts = cleanupInactiveHostContexts;

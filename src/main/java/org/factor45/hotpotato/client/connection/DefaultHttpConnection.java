@@ -110,7 +110,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
         // be marked as complete *before* being cancelled. Since DefaultHttpRequestFuture only allows 1 completion
         // event, the request will effectively be marked as complete, even though setFailure() will be called as
         // soon as this lock is released.
-        // This synchronisation is performed because of edge cases where the request is completing but nearly at
+        // This synchronization is performed because of edge cases where the request is completing but nearly at
         // the same instant it times out, which causes another thread to issue a cancellation. With this locking in
         // place, the request will either cancel before this block executes or after - never during.
         synchronized (this.mutex) {
@@ -200,9 +200,8 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
             }
         }
 
-        // TODO what about non-idempotent operations?!
         if ((request != null) && !request.getFuture().isDone() &&
-            (request.isIdempotent() && this.restoreNonIdempotentOperations)) {
+            (request.isIdempotent() || this.restoreNonIdempotentOperations)) {
             this.listener.connectionTerminated(this, Arrays.asList(request));
         } else {
             this.listener.connectionTerminated(this);
@@ -338,7 +337,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
     // private helpers ------------------------------------------------------------------------------------------------
 
     private void receivedContentForCurrentRequest(ChannelBuffer content, boolean last) {
-        // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
+        // This method does not need any particular synchronization to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
         if (this.discarding) {
             return;
@@ -359,7 +358,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
 
     @SuppressWarnings({"unchecked"})
     private void responseForCurrentRequestComplete() {
-        // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
+        // This method does not need any particular synchronization to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
 
         // Only unlock the future if the contents weren't being discarded. If the contents were being discarded, it
@@ -380,7 +379,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
      */
     @SuppressWarnings({"unchecked"})
     private void receivedResponseForCurrentRequest(HttpResponse response) {
-        // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
+        // This method does not need any particular synchronization to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
 
         this.currentResponse = response;
@@ -412,7 +411,7 @@ public class DefaultHttpConnection extends SimpleChannelUpstreamHandler implemen
     }
 
     private void currentRequestFinished() {
-        // Always called inside a synchronised block.
+        // Always called inside a synchronized block.
 
         HttpRequestContext context = this.currentRequest;
         // Only signal as available if the connection will be kept alive and if terminate hasn't been issued AND

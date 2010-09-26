@@ -17,18 +17,15 @@
 package org.factor45.hotpotato.session;
 
 import org.factor45.hotpotato.client.CannotExecuteRequestException;
-import org.factor45.hotpotato.client.DefaultHttpClient;
 import org.factor45.hotpotato.client.HttpClient;
 import org.factor45.hotpotato.request.DefaultHttpRequestFuture;
 import org.factor45.hotpotato.request.HttpRequestFuture;
-import org.factor45.hotpotato.response.BodyAsStringProcessor;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.response.TypedDiscardProcessor;
-import org.factor45.hotpotato.session.handler.AuthorisationResponseHandler;
+import org.factor45.hotpotato.session.handler.AuthenticationResponseHandler;
 import org.factor45.hotpotato.session.handler.RedirectResponseHandler;
 import org.factor45.hotpotato.session.handler.ResponseCodeHandler;
 import org.factor45.hotpotato.util.HostPortAndUri;
-import org.factor45.hotpotato.util.UrlUtils;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
@@ -37,6 +34,8 @@ import org.jboss.netty.handler.codec.http.HttpVersion;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +58,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p/>
  * At this time, no cookie management (expiration checks, etc) exists.
  *
- * <h2>Authorisation</h2>
- * TODO Not supported yet.
+ * <h2>Authentication</h2>
+ * Support for digest authentication is automatically provided through {@link AuthenticationResponseHandler}.
+ * A username and password are configured via {@link #setAuthCredentials(String, String)} and all subsequent 401
+ * responses will automatically be dealt with using these credentials.
+ * <p/>
+ * If these credentials are not provided, 401 responses will result in immediate future release. If the authentication
+ * fails once, the second 401 will also yield the same result (future is released).
  *
  * <h2>Thread safety</h2>
  * This class is thread safe although it is <strong>not recommended</strong> to have a session execute several parallel
@@ -96,8 +100,8 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
 
     private final HttpClient client;
     private final HttpClient httpsClient;
-    private final Lock readLock;
-    private final Lock writeLock;
+    private final Lock headerReadLock;
+    private final Lock headerWriteLock;
     private final List<Map.Entry<String, String>> headers;
     private final Map<Integer, ResponseCodeHandler> handlers;
 
@@ -120,17 +124,17 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
         this.client = client;
         this.httpsClient = httpsClient;
         ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
-        this.readLock = rwLock.readLock();
-        this.writeLock = rwLock.writeLock();
+        this.headerReadLock = rwLock.readLock();
+        this.headerWriteLock = rwLock.writeLock();
         this.headers = new ArrayList<Map.Entry<String, String>>();
 
         this.handlers = new ConcurrentHashMap<Integer, ResponseCodeHandler>();
-        this.addHandler(new AuthorisationResponseHandler());
+        this.addHandler(new AuthenticationResponseHandler());
         this.addHandler(new RedirectResponseHandler());
     }
 
     @Override
-    public <T> HttpRequestFuture<T> execute(String path, HttpVersion version, HttpMethod method)
+    public HttpRequestFuture<Void> execute(String path, HttpVersion version, HttpMethod method)
             throws CannotExecuteRequestException {
         return this.internalExecute(path, new DefaultHttpRequest(version, method, path), null);
     }
@@ -173,27 +177,24 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
             internalRequest = new RecursiveAwareHttpRequest(request);
         }
 
-        this.readLock.lock();
+        this.headerReadLock.lock();
         try {
             for (Map.Entry<String, String> header : this.headers) {
                 internalRequest.addHeader(header.getKey(), header.getValue());
             }
         } finally {
-            this.readLock.unlock();
+            this.headerReadLock.unlock();
         }
 
         final HttpRequestFuture<T> internalFuture = new DefaultHttpRequestFuture<T>(true);
-        if (request.getProtocolVersion() == HttpVersion.HTTP_1_0) {
-            if (this.proxyHost != null) {
-                // Proxy is configured, send the full URL
-                request.setUri(target.asUrl());
-            } else {
-                // Non-proxied request, use only relative URI.
-                request.setUri(target.getUri());
-            }
-        } else { // HTTP 1.1
+        if (this.proxyHost != null) {
             request.setUri(target.asUrl());
-            request.setHeader(HttpHeaders.Names.HOST, target.getHost() + ':' + target.getPort());
+        } else {
+            request.setUri(target.getUri());
+        }
+
+        if (request.getProtocolVersion() == HttpVersion.HTTP_1_1) {
+            request.setHeader(HttpHeaders.Names.HOST, target.asHostAndPort());
         }
 
         HttpResponseProcessor<T> processor =
@@ -228,7 +229,7 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
 
     @Override
     public void addHeader(String headerName, String headerValue) {
-        this.writeLock.lock();
+        this.headerWriteLock.lock();
         try {
             // Avoid adding duplicate headers... for that we have to traverse all currently set headers...
             for (Map.Entry<String, String> header : this.headers) {
@@ -240,13 +241,13 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
 
             this.headers.add(new AbstractMap.SimpleEntry<String, String>(headerName, headerValue));
         } finally {
-            this.writeLock.unlock();
+            this.headerWriteLock.unlock();
         }
     }
 
     @Override
     public void setHeader(String headerName, String headerValue) {
-        this.writeLock.lock();
+        this.headerWriteLock.lock();
         try {
             Iterator<Map.Entry<String, String>> it = this.headers.iterator();
             boolean replaced = false;
@@ -263,13 +264,13 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
                 }
             }
         } finally {
-            this.writeLock.unlock();
+            this.headerWriteLock.unlock();
         }
     }
 
     @Override
     public void removeHeaders(String headerName) {
-        this.writeLock.lock();
+        this.headerWriteLock.lock();
         try {
             Iterator<Map.Entry<String, String>> it = this.headers.iterator();
             while (it.hasNext()) {
@@ -279,8 +280,13 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
                 }
             }
         } finally {
-            this.writeLock.unlock();
+            this.headerWriteLock.unlock();
         }
+    }
+
+    @Override
+    public Collection<Map.Entry<String, String>> getHeaders() {
+        return Collections.unmodifiableCollection(this.headers);
     }
 
     @Override
@@ -350,7 +356,7 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
                                                      HttpResponseProcessor<T> processor)
             throws CannotExecuteRequestException {
 
-        HostPortAndUri hostPortAndUri = UrlUtils.splitUrl(path);
+        HostPortAndUri hostPortAndUri = HostPortAndUri.splitUrl(path);
         if (hostPortAndUri == null) {
             throw new CannotExecuteRequestException("Invalid URL provided: " + path);
         }
@@ -360,34 +366,27 @@ public class DefaultHttpSession implements HttpSession, HandlerSessionFacade {
 
     // getters & setters ----------------------------------------------------------------------------------------------
 
+    /**
+     * Returns the number of maximum redirects allowed.
+     *
+     * @return Currently configured number of max redirects allowed.
+     */
     public int getMaxRedirects() {
         return maxRedirects;
     }
 
+    /**
+     * Sets the maximum number of redirects one single request is allowed to perform.
+     * <p/>
+     * If a request yields more than this number of redirects, the future will be released without the request ever
+     * hitting a 200 or 400+ response.
+     *
+     * @param maxRedirects Max number of redirects allowed.
+     */
     public void setMaxRedirects(int maxRedirects) {
+        if (maxRedirects < 0) {
+            throw new IllegalArgumentException("MaxRedirects min value is 0");
+        }
         this.maxRedirects = maxRedirects;
-    }
-
-    // private classes ------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        httpClient.setConnectionTimeoutInMillis(20000);
-        if (!httpClient.init()) {
-            return;
-        }
-
-        DefaultHttpSession session = new DefaultHttpSession(httpClient);
-        session.setProxy("41.190.16.17", 8080);
-
-        HttpRequestFuture f = session.execute("http://google.com", HttpVersion.HTTP_1_1, HttpMethod.GET,
-                                              new BodyAsStringProcessor(200));
-        f.awaitUninterruptibly();
-        System.out.println(f);
-        if (f.isSuccessfulResponse()) {
-            System.out.println(f.getProcessedResult());
-        }
-
-        httpClient.terminate();
     }
 }

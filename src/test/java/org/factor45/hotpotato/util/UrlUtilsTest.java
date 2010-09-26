@@ -27,7 +27,7 @@ public class UrlUtilsTest {
 
     @Test
     public void testSplitUrl() throws Exception {
-        HostPortAndUri hostPortAndUri = UrlUtils.splitUrl("http://hotpotato.factor45.org/doc");
+        HostPortAndUri hostPortAndUri = HostPortAndUri.splitUrl("http://hotpotato.factor45.org/doc");
         assertNotNull(hostPortAndUri);
         // Not exactly the same, as port 80 is introduced...
         assertEquals("http://hotpotato.factor45.org:80/doc", hostPortAndUri.asUrl());
@@ -41,7 +41,7 @@ public class UrlUtilsTest {
 
     @Test
     public void testSplitUrlNoUri() throws Exception {
-        HostPortAndUri hostPortAndUri = UrlUtils.splitUrl("https://hotpotato.factor45.org");
+        HostPortAndUri hostPortAndUri = HostPortAndUri.splitUrl("https://hotpotato.factor45.org");
         assertNotNull(hostPortAndUri);
         // Not exactly the same, as port 80 is introduced...
         assertEquals("https://hotpotato.factor45.org:80/", hostPortAndUri.asUrl());
@@ -55,7 +55,8 @@ public class UrlUtilsTest {
 
     @Test
     public void testSplitUrlDifferentPort() throws Exception {
-        HostPortAndUri hostPortAndUri = UrlUtils.splitUrl("https://hotpotato.factor45.org:8085/this/is/a/uri?a=1&b=2");
+        HostPortAndUri hostPortAndUri = HostPortAndUri
+                .splitUrl("https://hotpotato.factor45.org:8085/this/is/a/uri?a=1&b=2");
         assertNotNull(hostPortAndUri);
         // Not exactly the same, as port 80 is introduced...
         assertEquals("https://hotpotato.factor45.org:8085/this/is/a/uri?a=1&b=2", hostPortAndUri.asUrl());

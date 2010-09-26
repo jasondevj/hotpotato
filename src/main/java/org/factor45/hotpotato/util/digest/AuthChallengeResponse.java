@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Digest authentication challenge response.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class AuthChallengeResponse {

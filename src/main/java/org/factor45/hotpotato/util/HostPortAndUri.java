@@ -16,10 +16,19 @@
 
 package org.factor45.hotpotato.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
+ * Utility class that decomposes and stores URLs.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class HostPortAndUri {
+
+    // constants ------------------------------------------------------------------------------------------------------
+
+    private static final Pattern URL_PATTERN = Pattern.compile("(http(s)?)://([\\w\\d\\-\\.]+)(:([0-9]+))?(/.*)*");
 
     // internal vars --------------------------------------------------------------------------------------------------
 
@@ -44,10 +53,29 @@ public class HostPortAndUri {
         this.uri = that.uri;
     }
 
+    // public static methods ------------------------------------------------------------------------------------------
+
+    public static HostPortAndUri splitUrl(String url) {
+        Matcher m = URL_PATTERN.matcher(url);
+        if (m.find()) {
+            return new HostPortAndUri(m.group(1), m.group(3),
+                                      m.group(4) == null ? 80 : Integer.parseInt(m.group(5)),
+                                      m.group(6) == null ? "/" : m.group(6));
+        }
+        return null;
+    }
+
     // public methods -------------------------------------------------------------------------------------------------
 
+    public String asHostAndPort() {
+        return new StringBuilder().append(this.host).append(':').append(this.port).toString();
+    }
+
     public String asUrl() {
-        return this.scheme + "://" + this.host + ":" + this.port + this.uri;
+        return new StringBuilder()
+                .append(this.scheme).append("://")
+                .append(this.host).append(':').append(this.port)
+                .append(this.uri).toString();
     }
 
     public boolean isHttps() {

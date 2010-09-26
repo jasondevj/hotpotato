@@ -32,9 +32,14 @@ import org.jboss.netty.util.CharsetUtil;
 import java.text.ParseException;
 
 /**
+ * Handles 401 responses.
+ * <p/>
+ * If authentication fails more than once or no credentials are provided, it fails the original request; otherwise it
+ * creates another request bearing the AUTHORIZATION header and the provided credentials.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
-public class AuthorisationResponseHandler implements ResponseCodeHandler {
+public class AuthenticationResponseHandler implements ResponseCodeHandler {
 
     // ResponseCodeHandler --------------------------------------------------------------------------------------------
 

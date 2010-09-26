@@ -22,11 +22,13 @@ import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.session.HandlerSessionFacade;
 import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
 import org.factor45.hotpotato.util.HostPortAndUri;
-import org.factor45.hotpotato.util.UrlUtils;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 
 /**
+ * Automatically handles response codes 301, 302, 303 and 309, following the redirection links provided in the
+ * responses bearing those status codes.
+ *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
 public class RedirectResponseHandler implements ResponseCodeHandler {
@@ -51,7 +53,7 @@ public class RedirectResponseHandler implements ResponseCodeHandler {
             boolean isAbsolute = location.startsWith("http");
             HostPortAndUri path;
             if (isAbsolute) {
-                path = UrlUtils.splitUrl(location);
+                path = HostPortAndUri.splitUrl(location);
             } else {
                 path = new HostPortAndUri(target);
                 path.setUri(location);

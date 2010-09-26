@@ -228,10 +228,17 @@ HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request)
   </sect1>
 
   <sect1>
+    <title>The &HttpSession; interface</title>
+    <para>
+      Describe the http session interface...
+    </para>
+  </sect1>
+
+  <sect1>
     <title>Summary</title>
     <para>
       In this chapter we covered the basics behind the usage of &hotpotato;. You've learned the lifecycle of a
-      &HttpClient; instance: creation, initialisation, execution, termination. You also learned how to perform all sorts
+      &HttpClient; instance: creation, initialization, execution, termination. You also learned how to perform all sorts
       of requests and deal with responses.
     </para>
     <para>

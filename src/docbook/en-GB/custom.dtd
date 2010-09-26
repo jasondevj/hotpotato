@@ -2,12 +2,14 @@
 <!ENTITY Home       "http://hotpotato.factor45.org/">
 <!ENTITY Downloads  "&Home;downloads.html">
 <!ENTITY Community  "&Home;community.html">
-<!ENTITY DocHome    "http://hotpotato.factor45.org/docs/0.7.2/">
+<!ENTITY DocHome    "http://hotpotato.factor45.org/docs/0.7.5/">
 <!ENTITY API        "&DocHome;api/org/factor45/hotpotato/">
 <!ENTITY NettyAPI   "&DocHome;api/org/jboss/netty/">
 <!ENTITY XRef       "&DocHome;xref/org/factor45/hotpotato/">
 <!ENTITY Netty      "<ulink url='http://jboss.org/netty'>Netty</ulink>">
 <!ENTITY hotpotato  "<ulink url='&Home;'>hotpotato</ulink>">
+
+<!ENTITY HttpSession "<ulink url='&API;/session/HttpSession.html'><classname>HttpSession</classname></ulink>">
 
 <!ENTITY HttpClient "<ulink url='&API;/client/HttpClient.html'><classname>HttpClient</classname></ulink>">
 <!ENTITY DefaultHttpClient "<ulink url='&API;/client/DefaultHttpClient.html'><classname>DefaultHttpClient</classname></ulink>">

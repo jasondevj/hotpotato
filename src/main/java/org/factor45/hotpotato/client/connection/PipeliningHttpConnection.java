@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
  * requests of idempotent HTTP 1.1 operations, since it will batch requests and receive batch responses, potentially
  * taking advantage of being able to fit several HTTP requests in the same TCP frame.
  * <p/>
- * When the limit of pipelined requests is hit, this connection presents the same behaviour as {@link
+ * When the limit of pipelined requests is hit, this connection presents the same behavior as {@link
  * DefaultHttpConnection} - it starts returning {@code false} on {@code isAvailable()} and immediately failing any
  * requests that are submitted while {@code isAvailable()} would return {@code false}.
  * <p/>
@@ -120,7 +120,7 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
         // be marked as complete *before* being cancelled. Since DefaultHttpRequestFuture only allows 1 completion
         // event, the request will effectively be marked as complete, even though setFailure() will be called as
         // soon as this lock is released.
-        // This synchronisation is performed because of edge cases where the request is completing but nearly at
+        // This synchronization is performed because of edge cases where the request is completing but nearly at
         // the same instant it times out, which causes another thread to issue a cancellation. With this locking in
         // place, the request will either cancel before this block executes or after - never during.
         synchronized (this.mutex) {
@@ -319,7 +319,7 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
                         channel.write(context.getRequest());
                     } catch (Exception e) {
                         synchronized (mutex) {
-                            // Needs to be synchronised to avoid concurrent mod exception.
+                            // Needs to be synchronized to avoid concurrent mod exception.
                             requests.remove(context);
                         }
                         context.getFuture().setFailure(e);
@@ -334,7 +334,7 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
             } catch (Exception e) {
                 // Some error occurred underneath, maybe ChannelClosedException or something like that.
                 synchronized (mutex) {
-                    // Needs to be synchronised to avoid concurrent mod exception.
+                    // Needs to be synchronized to avoid concurrent mod exception.
                     requests.remove(context);
                 }
                 context.getFuture().setFailure(e);
@@ -353,7 +353,7 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
     // private helpers ------------------------------------------------------------------------------------------------
 
     private void receivedContentForRequest(ChannelBuffer content, boolean last) {
-        // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
+        // This method does not need any particular synchronization to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
         if (this.discarding) {
             return;
@@ -376,7 +376,7 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
 
     @SuppressWarnings({"unchecked"})
     private void responseForRequestComplete() {
-        // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
+        // This method does not need any particular synchronization to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
 
         // Only unlock the future if the contents weren't being discarded. If the contents were being discarded, it
@@ -397,7 +397,7 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
      */
     @SuppressWarnings({"unchecked"})
     private void receivedResponseForRequest(HttpResponse response) {
-        // This method does not need any particular synchronisation to ensure currentRequest doesn't change its state
+        // This method does not need any particular synchronization to ensure currentRequest doesn't change its state
         // to null during processing, since it's always called inside a synchronized() block.
 
         this.currentResponse = response;
@@ -428,7 +428,7 @@ public class PipeliningHttpConnection extends SimpleChannelUpstreamHandler imple
     }
 
     private void postResponseCleanup() {
-        // Always called inside a synchronised block.
+        // Always called inside a synchronized block.
 
         // Apart from this method, only exceptionCaught() removes items from the request queue.
         HttpRequestContext context = this.requests.poll();

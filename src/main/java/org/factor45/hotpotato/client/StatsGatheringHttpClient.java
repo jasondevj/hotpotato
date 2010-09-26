@@ -53,7 +53,7 @@ public class StatsGatheringHttpClient extends AbstractHttpClient implements Even
     @Override
     public void eventHandlingLoop() {
         for (;;) {
-            // Manual synchronisation here because before removing an element, we first need to check whether an
+            // Manual synchronization here because before removing an element, we first need to check whether an
             // active available connection exists to satisfy the request.
             try {
                 HttpClientEvent event = eventQueue.take();

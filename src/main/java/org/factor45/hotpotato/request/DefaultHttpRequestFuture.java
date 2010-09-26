@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Default implementation of {@link HttpRequestFuture}.
  * <p/>
- * <em>This class's synchronisation and wait logic is heavily based on Netty's
+ * <em>This class's synchronization and wait logic is heavily based on Netty's
  * <a href="http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/DefaultChannelFuture.html">
  *   {@code ChannelFuture}
  * </a>.</em>
