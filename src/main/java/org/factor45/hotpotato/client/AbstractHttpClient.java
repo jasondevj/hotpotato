@@ -38,6 +38,7 @@ import org.factor45.hotpotato.request.factory.DefaultHttpRequestFutureFactory;
 import org.factor45.hotpotato.request.factory.HttpRequestFutureFactory;
 import org.factor45.hotpotato.response.DiscardProcessor;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
+import org.factor45.hotpotato.util.CleanupChannelGroup;
 import org.factor45.hotpotato.util.NamedThreadFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelFactory;
@@ -47,7 +48,6 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioClientSocketChannelFactory;
 import org.jboss.netty.example.securechat.SecureChatSslContextFactory;
@@ -251,7 +251,7 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
             this.channelFactory = new OioClientSocketChannelFactory(workerPool);
         }
 
-        this.channelGroup = new DefaultChannelGroup(this.toString());
+        this.channelGroup = new CleanupChannelGroup(this.toString());
         // Create a pipeline without the last handler (it will be added right before connecting).
         this.pipelineFactory = new ChannelPipelineFactory() {
             @Override
@@ -635,13 +635,9 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
                             @Override
                             public void operationComplete(ChannelFuture future) throws Exception {
                                 if (future.isSuccess()) {
-                                    if (terminate) {
-                                        // If terminate was issued meanwhile, then we have to manually close the
-                                        // connection since it won't be added to the channel group.
-                                        future.getChannel().close();
-                                    } else {
-                                        channelGroup.add(future.getChannel());
-                                    }
+                                    // Don't even bother checking if client was already instructed to terminate since
+                                    // CleanupChannelGroup takes care of that.
+                                    channelGroup.add(future.getChannel());
                                 }
                             }
                         });

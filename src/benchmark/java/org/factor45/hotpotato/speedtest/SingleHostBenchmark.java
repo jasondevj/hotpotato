@@ -174,11 +174,11 @@ public class SingleHostBenchmark {
         //String host = "10.0.0.2";
         HttpVersion version = HttpVersion.HTTP_1_1;
         int port = 8080;
-        int repetitions = 10000;
+        int repetitions = 1000;
         int dataGenInterval = 0;
-        int connectionsPerHost = 1;
+        int connectionsPerHost = 10;
         boolean useNio = true;
-        int iterations = 1;
+        int iterations = 1000;
 
         HttpRequest request = new DefaultHttpRequest(version, HttpMethod.GET, "/");
 
