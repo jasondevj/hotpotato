@@ -21,14 +21,11 @@ import org.jboss.netty.channel.group.ChannelGroupFuture;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Extension of {@link DefaultChannelGroup} that's used mainly as a cleanup container, where {@link #close()} is only
  * supposed to be called once.
- * <p/>
- * This is NOT synchronized (as {@link DefaultChannelGroup} is not synchronized either), so if you want to ensure
- * absolute thread safety, make sure you wrap this class with
- * {@link java.util.Collections#synchronizedSet(java.util.Set)}.
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
@@ -37,38 +34,55 @@ public class CleanupChannelGroup extends DefaultChannelGroup {
     // internal vars --------------------------------------------------------------------------------------------------
 
     private final AtomicBoolean closed;
+    private final ReentrantReadWriteLock lock;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
     public CleanupChannelGroup() {
         this.closed = new AtomicBoolean(false);
+        this.lock = new ReentrantReadWriteLock();
     }
 
     public CleanupChannelGroup(String name) {
         super(name);
         this.closed = new AtomicBoolean(false);
+        this.lock = new ReentrantReadWriteLock();
     }
 
     // DefaultChannelGroup --------------------------------------------------------------------------------------------
 
     @Override
     public ChannelGroupFuture close() {
-        if (!this.closed.getAndSet(true)) {
-            return super.close();
-        } else {
-            throw new IllegalStateException("close() already called on " + this.getClass().getSimpleName() +
-                                            " with name " + this.getName());
+        this.lock.writeLock().lock();
+        try {
+            if (!this.closed.getAndSet(true)) {
+                // First time close() is called.
+                return super.close();
+            } else {
+                throw new IllegalStateException("close() already called on " + this.getClass().getSimpleName() +
+                                                " with name " + this.getName());
+            }
+        } finally {
+            this.lock.writeLock().unlock();
         }
     }
 
     @Override
     public boolean add(Channel channel) {
-        if (this.closed.get()) {
-            // immediately close
-            channel.close();
-            return false;
-        }
+        // Synchronization must occur to avoid add() and close() overlap (thus potentially leaving one channel open).
+        // This could also be done by synchronizing the method itself but using a read lock here (rather than a
+        // synchronized() block) allows multiple concurrent calls to add().
+        this.lock.readLock().lock();
+        try {
+            if (this.closed.get()) {
+                // Immediately close channel, as close() was already called.
+                channel.close();
+                return false;
+            }
 
-        return super.add(channel);
+            return super.add(channel);
+        } finally {
+            this.lock.readLock().unlock();
+        }
     }
 }
