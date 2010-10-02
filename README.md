@@ -72,12 +72,27 @@ Only the relevant parts are shown here.
 
 Note that you should **never** perform non-CPU bound operations in the listeners.
 
-You may need to use the full URL as URI when using HTTP 1.1.
+Using the HttpClient API directly you may need to add extra headers manually.
+You'll also need to handle redirect codes and authentication manually.
+This is the API to use when you want absolute control over each and every request.
 
     request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                                     "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
+                                     "/webhp?hl=pt-PT&tab=iw");
     request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
     future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
+
+Using the HttpSession API, everything is simpler and the library handles redirects automatically.
+Proxy support is also included, as well as Digest/Basic auth and optionally Cookie storage!
+This is the API to use when you just want to get things done and avoid repetitive task hassles.
+
+    DefaultHttpSession session = new DefaultHttpSession(httpClient);
+    // Setup a proxy
+    session.setProxy("41.190.16.17", 8080);
+    // And add cookie handling capabilities
+    session.addHandler(new CookieStoringResponseHandler());
+
+    session.execute("http://google.com", HttpVersion.HTTP_1_1, HttpMethod.GET,
+                    new BodyAsStringProcessor());
 
 The following is a comprehensive example of request to three distinct servers.
 

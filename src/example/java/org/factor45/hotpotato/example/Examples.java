@@ -203,7 +203,9 @@ public class Examples {
         }
 
         DefaultHttpSession session = new DefaultHttpSession(httpClient);
+        // Setup a proxy
         session.setProxy("41.190.16.17", 8080);
+        // And add cookie handling capabilities
         session.addHandler(new CookieStoringResponseHandler());
 
         HttpRequestFuture f = session.execute("http://google.com", HttpVersion.HTTP_1_1, HttpMethod.GET,

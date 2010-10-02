@@ -225,13 +225,34 @@ future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
 });
   </pre>
   <p>
-    You may need to use the full URL as URI when using HTTP 1.1.
+    Using the <strong>HttpClient API</strong> directly you may need to add extra headers manually.
+    You'll also need to handle redirect codes and authentication manually.
+  </p>
+  <p>
+    This is the API to use when you want absolute control over each and every request.
   </p>
   <pre>
 request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                                 "http://www.google.pt/webhp?hl=pt-PT&tab=iw");
+                                 "/webhp?hl=pt-PT&tab=iw");
 request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
 future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
+  </pre>
+  <p>
+    Using the <strong>HttpSession API</strong>, everything is simpler and the library handles redirects automatically.
+    Proxy support is also included, as well as Digest/Basic auth and optionally Cookie storage!
+  </p>
+  <p>
+    This is the API to use when you just want to get things done and avoid the hassles of repetitive tasks.
+  </p>
+  <pre>
+DefaultHttpSession session = new DefaultHttpSession(httpClient);
+// Setup a proxy
+session.setProxy("41.190.16.17", 8080);
+// And add cookie handling capabilities
+session.addHandler(new CookieStoringResponseHandler());
+
+session.execute("http://google.com", HttpVersion.HTTP_1_1, HttpMethod.GET,
+                new BodyAsStringProcessor());
   </pre>
   <p>
     The following is a comprehensive example of request to three distinct servers.
