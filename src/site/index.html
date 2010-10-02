@@ -26,22 +26,22 @@
   <h1>hotpotato's project page</h1>
   <h2 class="subtitle">a high performance Java HTTP client</h2>
 
-  <div id="lastupdate">18/09/2010</div>
+  <div id="lastupdate">01/10/2010</div>
   <h2><a name="about"></a>What is hotpotato?</h2>
   <p>
-    <span class="hotpotato">hotpotato</span> - or hptt (from the common misspelling of http) - is (supposed to be) a
-    Java high performance and throughput oriented HTTP client library, based on
-    <a href="http://www.jboss.org/netty">Netty</a>. It was developed mostly towards server-side usage, where speed and
-    low resource usage are the key factors, but can be used to build client applications as well.
+    <span class="hotpotato">hotpotato</span> - or hptt, from the common misspelling of http - is a Java high
+    performance and throughput oriented HTTP client library, <strong>with support for HTTP 1.1 pipelining</strong>.
+    It was developed mostly towards server-side usage, where speed and low resource usage are the key factors,
+    but can be used to build client applications as well.
   </p>
 
   <h3>Built for speed</h3>
   <p>
-    Designed for high concurrency scenarios where multiple threads can use the same instance of a client without
-    any worries for external or internal sinchronization, <span class="hotpotato">hotpotato</span> helps you
-    reduce initialization and/or preparation times and resource squandering. Among many small optimizations, connections are
-    reused <strong>whenever possible</strong>, which results in a severe reduction of total request execution times by
-    cutting connection establishment overhead.
+    Built on top of <a href="http://www.jboss.org/netty">Netty</a> and designed for high concurrency scenarios where
+    multiple threads can use the same instance of a client without any worries for external or internal sinchronization,
+    <span class="hotpotato">hotpotato</span> helps you reduce initialization and/or preparation times and resource
+    squandering. Among many small optimizations, connections are reused <strong>whenever possible</strong>, which
+    results in a severe reduction of total request execution times by cutting connection establishment overhead.
   </p>
   <h3>Simple and familiar API</h3>
   <p>
@@ -114,22 +114,7 @@
   <h2><a name="roadmap"></a>Roadmap</h2>
   <ul>
     <li><span class="text">
-      <strong>Pretty much done! Check the repository</strong>
-      <span class="done">
-        Add a wrapper class that allows an easier, <em>client-side</em>'er interaction, such as handling full URL's (i.e.
-        <code>execute("http://some.host.com/some/uri", ...)</code> rather than <code>execute("host", port, ...)</code>).
-        Also, automated redirect handling would be a nice feature for this wrapper.
-      </span>
-    </span></li>
-    <li><span class="text">
-      <strong>Done, check the repository!</strong>
-      <span class="done">
-        Add support for HTTP 1.1 pipelining (as defined in <a href="http://tools.ietf.org/html/rfc2616">RFC 2616</a>).
-      </span>
-    </span></li>
-    <li><span class="text">
-      Consider a version with <a href="http://twistedmatrix.com/documents/current/core/howto/defer.html">Deferred</a>
-      rather than futures.
+      Implement serious SSL support (currently relies on Netty's example classes)
     </span></li>
     <li><span class="text">
       Your idea here...
