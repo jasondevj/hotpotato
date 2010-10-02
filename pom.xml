@@ -246,7 +246,7 @@
         </dependencies>
         <configuration>
           <sourceDocumentName>master.xml</sourceDocumentName>
-          <masterTranslation>en-GB</masterTranslation>
+          <masterTranslation>en-US</masterTranslation>
           <sourceDirectory>${basedir}/src/docbook</sourceDirectory>
           <cssResource>
             <directory>${basedir}/src/docbook</directory>

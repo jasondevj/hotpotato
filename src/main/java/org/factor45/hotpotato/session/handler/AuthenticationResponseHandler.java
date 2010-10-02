@@ -19,13 +19,15 @@ package org.factor45.hotpotato.session.handler;
 import org.factor45.hotpotato.request.HttpRequestFuture;
 import org.factor45.hotpotato.response.HttpResponseProcessor;
 import org.factor45.hotpotato.session.HandlerSessionFacade;
-import org.factor45.hotpotato.session.HttpSession;
 import org.factor45.hotpotato.session.HttpSessionFutureListener;
 import org.factor45.hotpotato.session.RecursiveAwareHttpRequest;
 import org.factor45.hotpotato.util.HostPortAndUri;
-import org.factor45.hotpotato.util.digest.AuthChallenge;
-import org.factor45.hotpotato.util.digest.AuthChallengeResponse;
+import org.factor45.hotpotato.util.digest.DigestAuthChallenge;
+import org.factor45.hotpotato.util.digest.DigestAuthChallengeResponse;
 import org.factor45.hotpotato.util.digest.DigestUtils;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.handler.codec.base64.Base64;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.util.CharsetUtil;
 
@@ -68,9 +70,45 @@ public class AuthenticationResponseHandler implements ResponseCodeHandler {
         request.failedAuth();
 
         String header = future.getResponse().getHeader(HttpHeaders.Names.WWW_AUTHENTICATE);
-        AuthChallenge challenge;
+        switch (header.charAt(0)) {
+            case 'b':
+            case 'B':
+                // Basic
+                this.handleBasicAuthentication(session, initialFuture, target, request, processor);
+                break;
+            case 'd':
+            case 'D':
+                // Digest auth
+                this.handleDigestAuthentication(session, initialFuture, future, target, request, processor, header);
+                break;
+            default:
+                initialFuture.setFailure(future.getResponse(),
+                                         new Throwable("Unsupported authentication scheme in header: " + header));
+        }
+    }
+
+    // private helpers ------------------------------------------------------------------------------------------------
+
+    private <T> void handleBasicAuthentication(HandlerSessionFacade session, HttpRequestFuture<T> initialFuture,
+                                               HostPortAndUri target, RecursiveAwareHttpRequest request,
+                                               HttpResponseProcessor<T> processor) {
+
+        String userAndPass = session.getUsername() + ':' + session.getPassword();
+        ChannelBuffer buffer = ChannelBuffers.copiedBuffer(userAndPass, CharsetUtil.US_ASCII);
+        ChannelBuffer encoded = Base64.encode(buffer);
+        request.addHeader(HttpHeaders.Names.AUTHORIZATION, encoded.toString(CharsetUtil.US_ASCII));
+
+        HttpRequestFuture<T> nextWrapper = session.execute(target, initialFuture, request, processor);
+        nextWrapper.addListener(new HttpSessionFutureListener<T>(session, nextWrapper, target, request, processor));
+    }
+
+    private <T> void handleDigestAuthentication(HandlerSessionFacade session, HttpRequestFuture<T> initialFuture,
+                                                HttpRequestFuture<T> future, HostPortAndUri target,
+                                                RecursiveAwareHttpRequest request, HttpResponseProcessor<T> processor,
+                                                String header) {
+        DigestAuthChallenge challenge;
         try {
-            challenge = AuthChallenge.createFromHeader(header);
+            challenge = DigestAuthChallenge.createFromHeader(header);
         } catch (ParseException e) {
             initialFuture.setFailure(future.getResponse(), e);
             return;
@@ -81,7 +119,7 @@ public class AuthenticationResponseHandler implements ResponseCodeHandler {
             content = request.getContent().toString(CharsetUtil.UTF_8);
         }
 
-        AuthChallengeResponse response;
+        DigestAuthChallengeResponse response;
         try {
             response = DigestUtils.computeResponse(challenge, request.getMethod().toString(), content, request.getUri(),
                                                    session.getUsername(), session.getPassword(), 1);

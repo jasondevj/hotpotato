@@ -61,6 +61,12 @@ import java.util.Map;
  * store all cookies received by requests executed using a specific session, you have to manually add a
  * {@link org.factor45.hotpotato.session.handler.CookieStoringResponseHandler} using the method
  * {@link #addHandler(ResponseCodeHandler)}.
+ * <p/>
+ * Example:
+ * <pre>
+ * HttpSession session = ...;
+ * session.addHandler(new CookieStoringResponseHandler());
+ * </pre>
  *
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  *

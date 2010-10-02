@@ -78,7 +78,7 @@ public class DigestUtils {
         return response;
     }
 
-    public static AuthChallengeResponse computeResponse(AuthChallenge challenge, String method, String content,
+    public static DigestAuthChallengeResponse computeResponse(DigestAuthChallenge challenge, String method, String content,
                                                         String uri, String username, String password, int nonceCount)
             throws ParseException {
 
@@ -136,7 +136,7 @@ public class DigestUtils {
                     .append(ha2).toString());
         }
 
-        AuthChallengeResponse authResponse = new AuthChallengeResponse();
+        DigestAuthChallengeResponse authResponse = new DigestAuthChallengeResponse();
         authResponse.setScheme(challenge.getScheme());
         authResponse.setUsername(username);
         authResponse.setNonce(challenge.getNonce());
