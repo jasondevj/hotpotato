@@ -22,6 +22,7 @@ import org.factor45.hotpotato.request.HttpRequestFuture;
 /**
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
+@Deprecated
 public class ConcurrentHttpRequestFutureFactory implements HttpRequestFutureFactory {
 
     // HttpRequestFuture ----------------------------------------------------------------------------------------------

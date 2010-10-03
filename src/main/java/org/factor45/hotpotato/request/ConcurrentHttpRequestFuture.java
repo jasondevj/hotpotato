@@ -31,8 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p/>
  * Uses less synchronization blocks which is potentially faster for high concurrency scenarios.
  *
+ * @deprecated Use {@link org.factor45.hotpotato.request.DefaultHttpRequestFuture} instead; it's faster and safer.
+ * 
  * @author <a href="http://bruno.factor45.org/">Bruno de Carvalho</a>
  */
+@Deprecated
 public class ConcurrentHttpRequestFuture<T> implements HttpRequestFuture<T> {
 
     // constants ------------------------------------------------------------------------------------------------------

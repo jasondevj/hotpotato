@@ -191,7 +191,7 @@ public class SingleHostBenchmark {
         factory.setUseNio(useNio);
         factory.setConnectionFactory(new PipeliningHttpConnectionFactory());
         factory.setHostContextFactory(new EagerDrainHostContextFactory());
-        factory.setFutureFactory(new ConcurrentHttpRequestFutureFactory());
+        //factory.setFutureFactory(new ConcurrentHttpRequestFutureFactory());
         factory.setConnectionTimeoutInMillis(20000);
         test.setFactory(factory);
 

@@ -2,7 +2,7 @@
 <!ENTITY Home       "http://hotpotato.factor45.org/">
 <!ENTITY Downloads  "&Home;downloads.html">
 <!ENTITY Community  "&Home;community.html">
-<!ENTITY DocHome    "http://hotpotato.factor45.org/docs/0.7.5/">
+<!ENTITY DocHome    "http://hotpotato.factor45.org/docs/0.8/">
 <!ENTITY API        "&DocHome;api/org/factor45/hotpotato/">
 <!ENTITY NettyAPI   "&DocHome;api/org/jboss/netty/">
 <!ENTITY XRef       "&DocHome;xref/org/factor45/hotpotato/">
