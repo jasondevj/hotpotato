@@ -24,9 +24,9 @@
 <div id="container">
   <div id="projects">hotpotato | <a href="http://efflux.factor45.org/">efflux</a></div>
   <h1>hotpotato's project page</h1>
-  <h2 class="subtitle">a high performance Java HTTP client</h2>
+  <h2 class="subtitle">a high performance Java HTTP client for servers</h2>
 
-  <div id="lastupdate">01/10/2010</div>
+  <div id="lastupdate">12/10/2010</div>
   <h2><a name="about"></a>What is hotpotato?</h2>
   <p>
     <span class="hotpotato">hotpotato</span> - or hptt, from the common misspelling of http - is a Java high
@@ -55,7 +55,9 @@
   <p>
     For a more typical HTTP client API (to the likes of Apache HttpClient or similar libs), you should check the
     package <code>org.factor45.hotpotato.session</code>, which hides the "server-side'ness" of
-    <span class="hotpotato">hotpotato</span> (automatically handles redirections, digest auth, cookies, etc).
+    <span class="hotpotato">hotpotato</span>. Among other things, this API offers automatic handling of redirections,
+    digest/basic auth, cookies, while allowing you to feed unparsed URL's (e.g. 'http://hotpotato.factor45.org/uri') as
+    target for your requests.
   </p>
 
   <h4>Note:</h4>
@@ -75,12 +77,12 @@
   <hr />
   <h2><a name="releases"></a>Releases</h2>
 
-  <h3>Version 0.7.0</h3>
+  <h3>Version 0.8.0</h3>
   <ul>
-    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.7.0.jar">Binaries</a></li>
-    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.7.0-sources.jar">Sources (jar)</a></li>
-    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.7.0-dist.zip">Full package (zip)</a></li>
-    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.7.0-dist.tar.bz2">Full package (tar.bz2)</a></li>
+    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.8.0.jar">Binaries</a></li>
+    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.8.0-sources.jar">Sources (jar)</a></li>
+    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.8.0-dist.zip">Full package (zip)</a></li>
+    <li><a href="http://github.com/downloads/brunodecarvalho/hotpotato/hotpotato-0.8.0-dist.tar.bz2">Full package (tar.bz2)</a></li>
   </ul>
 
   <hr />
@@ -88,11 +90,11 @@
 
   <h3>Version 0.7.0</h3>
   <ul>
-    <li><a href="doc/0.7.0/userguide/html/">User guide (HTML)*</a></li>
-    <li><a href="doc/0.7.0/userguide/html_single/">User guide (HTML, single page)*</a></li>
-    <li><a href="doc/0.7.0/userguide/pdf/hotpotato-userguide.pdf">User guide (PDF)*</a></li>
-    <li><a href="doc/0.7.0/api/">API (Javadoc)</a></li>
-    <li><a href="doc/0.7.0/xref/">Source code (XREF)</a></li>
+    <li><a href="doc/0.8.0/userguide/html/">User guide (HTML)*</a></li>
+    <li><a href="doc/0.8.0/userguide/html_single/">User guide (HTML, single page)*</a></li>
+    <li><a href="doc/0.8.0/userguide/pdf/hotpotato-userguide.pdf">User guide (PDF)*</a></li>
+    <li><a href="doc/0.8.0/api/">API (Javadoc)</a></li>
+    <li><a href="doc/0.8.0/xref/">Source code (XREF)</a></li>
   </ul>
 
   <h4>Note:</h4>
@@ -108,7 +110,7 @@
 
   <hr />
   <h2>Performance</h2>
-  <p>Coming soon...</p>
+  <p>Coming really soon...</p>
 
   <hr />
   <h2><a name="roadmap"></a>Roadmap</h2>
@@ -149,6 +151,7 @@
   <h3>Useless links</h3>
   <ul>
     <li><a href="http://twitter.com/hotpotatolib">follow @hotpotatolib at twitter</a></li>
+    <li><a href="http://twitter.com/effluxlib">follow @effluxlib at twitter</a></li>
     <li><a href="http://twitter.com/brunodecarvalho">follow @brunodecarvalho at twitter</a></li>
     <li><a href="http://bruno.factor45.org/blag">the blag</a></li>
   </ul>

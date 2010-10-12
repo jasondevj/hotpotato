@@ -74,7 +74,7 @@ Only the relevant parts are shown here.
 
 Note that you should **never** perform non-CPU bound operations in the listeners.
 
-Using the HttpClient API directly you may need to add extra headers manually.
+Using the **HttpClient API** directly you may need to add extra headers manually.
 You'll also need to handle redirect codes and authentication manually.
 This is the API to use when you want absolute control over each and every request.
 
@@ -83,7 +83,7 @@ This is the API to use when you want absolute control over each and every reques
     request.addHeader(HttpHeaders.Names.HOST, "www.google.pt");
     future = client.execute("www.google.pt", 80, request, new BodyAsStringProcessor());
 
-Using the HttpSession API, everything is simpler and the library handles redirects automatically.
+Using the **HttpSession API**, everything is simpler and the library handles redirects automatically.
 Proxy support is also included, as well as Digest/Basic auth and optionally Cookie storage!
 This is the API to use when you just want to get things done and avoid repetitive task hassles.
 

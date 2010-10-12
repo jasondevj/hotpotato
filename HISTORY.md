@@ -1,7 +1,7 @@
 hotpotato History
 =================
 
-next release
+0.8.0
 ------------
 * Fixed bug in DefaultHttpConnection where HttpHeaders.isKeepAlive was being used on request, rather than response.
 * Added support for HTTP Sessions: way simpler API, perfect for client-side usage (package org.factor45.hotpotato.session)

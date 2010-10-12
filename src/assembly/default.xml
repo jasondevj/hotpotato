@@ -62,7 +62,7 @@
 
     <!-- docbook -->
     <fileSet>
-      <directory>target/docbook/publish/en-GB</directory>
+      <directory>target/docbook/publish/en-US</directory>
       <outputDirectory>doc/guide</outputDirectory>
       <includes>
         <include>**/**</include>
