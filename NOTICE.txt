@@ -3,7 +3,7 @@
 
 Please visit the project web site for more information:
 
-  * http://hotpotato.factor45.org
+  * http://hotpotato.biasedbit.com
 
 Copyright 2010 Bruno de Carvalho
 

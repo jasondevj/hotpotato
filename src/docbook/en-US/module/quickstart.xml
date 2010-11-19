@@ -27,9 +27,9 @@
     <para>
       So without further ado, here's how to perform a request, quick &amp; dirty.
     </para>
-    <programlisting>import org.factor45.hotpotato.client.DefaultHttpClient;
-import org.factor45.hotpotato.client.HttpClient;
-import org.factor45.hotpotato.request.HttpRequestFuture;
+    <programlisting>import com.biasedbit.hotpotato.client.DefaultHttpClient;
+import com.biasedbit.hotpotato.client.HttpClient;
+import com.biasedbit.hotpotato.request.HttpRequestFuture;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
@@ -47,7 +47,7 @@ HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_0,
                                              HttpMethod.GET, "/");
 
 // Execute the request <co id="example1.co3" />
-HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request);
+HttpRequestFuture future = client.execute("hotpotato.biasedbit.com", 80, request);
 future.awaitUninterruptibly();
 System.out.println(future);
 
@@ -115,11 +115,11 @@ client.terminate();</programlisting>
     <para>
       Go ahead and run the previous example, replacing the line:
     </para>
-    <programlisting>HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request);</programlisting>
+    <programlisting>HttpRequestFuture future = client.execute("hotpotato.biasedbit.com", 80, request);</programlisting>
     <para>
       With the line:
     </para>
-    <programlisting>HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request,
+    <programlisting>HttpRequestFuture future = client.execute("hotpotato.biasedbit.com", 80, request,
                                           new BodyAsStringResponseProcessor());</programlisting>
     <para>
       This will effectively make the response be processed. You might want to see it, though. Add this right after the
@@ -159,7 +159,7 @@ client.terminate();</programlisting>
         <methodname>await()</methodname>. Only when the &HttpRequestFuture; completes either through success, failure
         or cancellation will the calling thread be unlocked and normal execution continue, as shown below:
       </para>
-      <programlisting>HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request);
+      <programlisting>HttpRequestFuture future = client.execute("hotpotato.biasedbit.com", 80, request);
 future.awaitUninterruptibly();
 // keep doing something stuff after having waited...</programlisting>
     </sect2>
@@ -173,7 +173,7 @@ future.awaitUninterruptibly();
         the &HttpClient; implementation) rather than on the thread calling <methodname>execute()</methodname>.
       </para>
       <programlisting>HttpRequestFuture&lt;String&gt; future;
-future = client.execute("hotpotato.factor45.org", 80, request,
+future = client.execute("hotpotato.biasedbit.com", 80, request,
                         new BodyAsStringProcessor());
 
 future.addListener(new HttpRequestFutureListener&lt;String&gt;() {
@@ -210,7 +210,7 @@ request.setHeader(HttpHeaders.Names.CONTENT_LENGTH, fileBytes.length);
 request.setHeader(HttpHeaders.Names.CONTENT_TYPE, "application/x-zip-compressed");
 
 // execute the post and transfer the data
-HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request);
+HttpRequestFuture future = client.execute("hotpotato.biasedbit.com", 80, request);
 // register a listener, perform some variant of await() or just forget about it
     </programlisting>
   </sect1>

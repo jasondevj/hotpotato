@@ -7,7 +7,7 @@ It was developed mostly towards server-side usage, where speed and low resource 
 Built on top of Netty and designed for high concurrency scenarios where multiple threads can use the same instance of a client without any worries for external or internal synchronization, **hotpotato** helps you reduce initialization and/or preparation times and resource squandering.
 Among many small optimizations, connections are reused whenever possible, which results in a severe reduction of total request execution times by cutting connection establishment overhead.
 
-Project page: [http://hotpotato.factor45.org](http://hotpotato.factor45.org)
+Project page: [http://hotpotato.biasedbit.com](http://hotpotato.biasedbit.com)
 
 Dependencies
 ------------
@@ -38,7 +38,7 @@ This is the synchronous mode, which means that the calling thread will block unt
                                                  HttpMethod.GET, "/");
 
     // Execute the request, turning the result into a String
-    HttpRequestFuture future = client.execute("hotpotato.factor45.org", 80, request,
+    HttpRequestFuture future = client.execute("hotpotato.biasedbit.com", 80, request,
                                               new BodyAsStringProcessor());
     future.awaitUninterruptibly();
     // Print some details about the request
@@ -59,7 +59,7 @@ In asynchronous mode, an event listener is attached to the object returned by th
 Only the relevant parts are shown here.
 
     // Execute the request
-    HttpRequestFuture<String> future = client.execute("hotpotato.factor45.org", 80, request,
+    HttpRequestFuture<String> future = client.execute("hotpotato.biasedbit.com", 80, request,
                                                       new BodyAsStringProcessor());
     future.addListener(new HttpRequestFutureListener<String>() {
         @Override
@@ -108,8 +108,8 @@ The following is a comprehensive example of request to three distinct servers.
     HttpRequestFuture<String> future;
 
     request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
-    request.addHeader(HttpHeaders.Names.HOST, "hotpotato.factor45.org");
-    future = client.execute("hotpotato.factor45.org", 80, request, new BodyAsStringProcessor());
+    request.addHeader(HttpHeaders.Names.HOST, "hotpotato.biasedbit.com");
+    future = client.execute("hotpotato.biasedbit.com", 80, request, new BodyAsStringProcessor());
     future.addListener(new HttpRequestFutureListener<String>() {
       @Override
       public void operationComplete(HttpRequestFuture<String> future) throws Exception {
@@ -183,14 +183,14 @@ The following is a comprehensive example of request to three distinct servers.
 
 Here's a simple example of how to configure a client in [Spring](http://www.springsource.org/):
 
-    <bean id="httpClient" class="org.factor45.hotpotato.client.DefaultHttpClient"
+    <bean id="httpClient" class="com.biasedbit.hotpotato.client.DefaultHttpClient"
           init-method="init" destroy-method="terminate">
       <property ... />
     </bean>
 
 Or using a client factory, in case you want multiple clients:
 
-    <bean id="httpClientFactory" class="org.factor45.hotpotato.client.factory.DefaultHttpClientFactory">
+    <bean id="httpClientFactory" class="com.biasedbit.hotpotato.client.factory.DefaultHttpClientFactory">
       <property ... />
     </bean>
 
@@ -199,7 +199,7 @@ Instead of having some sort of Configuration object, you configure the factory a
 
 You can also create a client for a component, based on a predefined factory:
 
-    <bean id="someBean" class="org.factor45.SomeComponent">
+    <bean id="someBean" class="com.biasedbit.SomeComponent">
       <property name="httpClient">
         <bean factory-bean="httpClientFactory" factory-method="getClient" />
       </property>

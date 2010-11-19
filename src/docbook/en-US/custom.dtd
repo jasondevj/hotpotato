@@ -1,11 +1,11 @@
 <!-- Frequently used URLs -->
-<!ENTITY Home       "http://hotpotato.factor45.org/">
+<!ENTITY Home       "http://hotpotato.biasedbit.com/">
 <!ENTITY Downloads  "&Home;downloads.html">
 <!ENTITY Community  "&Home;community.html">
-<!ENTITY DocHome    "http://hotpotato.factor45.org/docs/0.8.0/">
-<!ENTITY API        "&DocHome;api/org/factor45/hotpotato/">
+<!ENTITY DocHome    "http://hotpotato.biasedbit.com/docs/0.8.0/">
+<!ENTITY API        "&DocHome;api/com/biasedbit/hotpotato/">
 <!ENTITY NettyAPI   "&DocHome;api/org/jboss/netty/">
-<!ENTITY XRef       "&DocHome;xref/org/factor45/hotpotato/">
+<!ENTITY XRef       "&DocHome;xref/com/biasedbit/hotpotato/">
 <!ENTITY Netty      "<ulink url='http://jboss.org/netty'>Netty</ulink>">
 <!ENTITY hotpotato  "<ulink url='&Home;'>hotpotato</ulink>">
 

@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>hotpotato</name>
-  <url>http://hotpotato.factor45.org</url>
+  <url>http://hotpotato.biasedbit.com</url>
   <description>
     Missing description
   </description>
@@ -16,8 +16,8 @@
   <developers>
     <developer>
       <name>Bruno de Carvalho</name>
-      <email>bruno@factor45.org</email>
-      <url>http://bruno.factor45.org</url>
+      <email>bruno@biasedbit.com</email>
+      <url>http://bruno.biasedbit.com</url>
     </developer>
   </developers>
 
