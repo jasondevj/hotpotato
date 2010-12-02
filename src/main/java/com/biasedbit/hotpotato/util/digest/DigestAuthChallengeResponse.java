@@ -89,6 +89,10 @@ public class DigestAuthChallengeResponse {
                     .append(", cnonce=\"").append(this.getCnonce())
                     .append("\", nc=").append(this.getNonceCount());
         }
+        tmp = this.getOpaque();
+        if (tmp != null) {
+            builder.append(", opaque=\"").append(tmp).append("\"");
+        }
 
         return builder.toString();
     }

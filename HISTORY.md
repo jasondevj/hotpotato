@@ -1,6 +1,10 @@
 hotpotato History
 =================
 
+0.8.1
+------------
+* Fixed Digest auth challenge bug where opaque was not being included in the challenge response (thanks to @nmcampos for the heads up).
+
 0.8.0
 ------------
 * Fixed bug in DefaultHttpConnection where HttpHeaders.isKeepAlive was being used on request, rather than response.
