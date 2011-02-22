@@ -1054,6 +1054,46 @@ public abstract class AbstractHttpClient implements HttpClient, HttpConnectionLi
 
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractHttpClient)) return false;
+
+        AbstractHttpClient that = (AbstractHttpClient) o;
+
+        if (aggregateResponseChunks != that.aggregateResponseChunks) return false;
+        if (autoInflate != that.autoInflate) return false;
+        if (connectionTimeoutInMillis != that.connectionTimeoutInMillis) return false;
+        if (maxConnectionsPerHost != that.maxConnectionsPerHost) return false;
+        if (maxEventProcessorHelperThreads != that.maxEventProcessorHelperThreads) return false;
+        if (maxIoWorkerThreads != that.maxIoWorkerThreads) return false;
+        if (maxQueuedRequests != that.maxQueuedRequests) return false;
+        if (requestChunkSize != that.requestChunkSize) return false;
+        if (requestCompressionLevel != that.requestCompressionLevel) return false;
+        if (requestTimeoutInMillis != that.requestTimeoutInMillis) return false;
+        if (useNio != that.useNio) return false;
+        if (useSsl != that.useSsl) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (useSsl ? 1 : 0);
+        result = 31 * result + requestCompressionLevel;
+        result = 31 * result + (autoInflate ? 1 : 0);
+        result = 31 * result + requestChunkSize;
+        result = 31 * result + (aggregateResponseChunks ? 1 : 0);
+        result = 31 * result + maxConnectionsPerHost;
+        result = 31 * result + maxQueuedRequests;
+        result = 31 * result + connectionTimeoutInMillis;
+        result = 31 * result + requestTimeoutInMillis;
+        result = 31 * result + (useNio ? 1 : 0);
+        result = 31 * result + maxIoWorkerThreads;
+        result = 31 * result + maxEventProcessorHelperThreads;
+        return result;
+    }
+
+    @Override
     public String toString() {
         return this.getClass().getSimpleName() + '@' + Integer.toHexString(this.hashCode());
     }
