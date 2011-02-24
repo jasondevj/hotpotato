@@ -31,6 +31,7 @@ public class DefaultHttpClientManager implements HttpClientManager {
     @Override
     public HttpRequestFuture execute(HttpRequest request) {
         if (httpResponseProcessor == null) {
+            validateHostUri();
             return defaultHttpClient.execute(hostUri.getHost(), hostUri.getPort(), request,
                     DiscardProcessor.getInstance());
         } else {
@@ -38,9 +39,20 @@ public class DefaultHttpClientManager implements HttpClientManager {
         }
     }
 
+    private void validateHostUri() {
+        if (hostUri == null) {
+            throw new RuntimeException("Default URI must be given to use this method or URI must be passed as a parameter");
+        }
+    }
+
     @Override
     public HttpRequestFuture execute(HttpRequest request, HttpResponseProcessor httpResponseProcessor) {
-        return defaultHttpClient.execute(hostUri.getHost(), hostUri.getPort(), request, httpResponseProcessor);
+        return execute(hostUri.getHost(), hostUri.getPort(), request, httpResponseProcessor);
+    }
+
+    @Override
+    public HttpRequestFuture execute(String host, int port, HttpRequest request, HttpResponseProcessor httpResponseProcessor) {
+        return defaultHttpClient.execute(host, port, request, httpResponseProcessor);
     }
 
     /**

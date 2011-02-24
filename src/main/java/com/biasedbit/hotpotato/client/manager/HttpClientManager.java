@@ -40,4 +40,6 @@ public interface HttpClientManager {
     HttpClient createNewClient();
 
     HttpClient getDefaultHttpClient();
+
+    HttpRequestFuture execute(String host, int port, HttpRequest request, HttpResponseProcessor httpResponseProcessor);
 }
