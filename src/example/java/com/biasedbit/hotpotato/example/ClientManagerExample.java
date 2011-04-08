@@ -28,7 +28,7 @@ import java.net.URISyntaxException;
  * $LastChangedBy$
  * $LastChangedRevision$
  */
-public class ClientManagerTest {
+public class ClientManagerExample {
 
     private static final String URL = "http://127.0.0.1:8080/test/";
 
