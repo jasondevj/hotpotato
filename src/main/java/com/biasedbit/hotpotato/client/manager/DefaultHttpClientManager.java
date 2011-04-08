@@ -149,6 +149,7 @@ public class DefaultHttpClientManager implements HttpClientManager {
         return hostUri.toString();
     }
 
+    @Override
     public void setNumberOfClients(int numberOfClients) {
         this.numberOfClients = numberOfClients;
     }

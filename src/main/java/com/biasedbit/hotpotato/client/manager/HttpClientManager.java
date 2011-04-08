@@ -42,4 +42,6 @@ public interface HttpClientManager {
     HttpClient getDefaultHttpClient();
 
     HttpRequestFuture execute(String host, int port, HttpRequest request, HttpResponseProcessor httpResponseProcessor);
+
+    void setNumberOfClients(int numberOfClients);
 }
