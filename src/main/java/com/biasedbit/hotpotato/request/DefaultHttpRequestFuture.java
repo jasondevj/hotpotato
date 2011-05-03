@@ -16,6 +16,7 @@
 
 package com.biasedbit.hotpotato.request;
 
+import com.biasedbit.hotpotato.client.HttpClient;
 import com.biasedbit.hotpotato.logging.Logger;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
@@ -104,6 +105,7 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
     private long executionStart;
     private long executionEnd;
     private final long creation;
+    private HttpClient httpClient;
 
     // constructors ---------------------------------------------------------------------------------------------------
 
@@ -383,6 +385,16 @@ public class DefaultHttpRequestFuture<T> implements HttpRequestFuture<T> {
         } catch (InterruptedException e) {
             throw new InternalError();
         }
+    }
+
+    @Override
+    public HttpClient getClient() {
+        return httpClient;
+    }
+
+    @Override
+    public void setClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     // private helpers ------------------------------------------------------------------------------------------------

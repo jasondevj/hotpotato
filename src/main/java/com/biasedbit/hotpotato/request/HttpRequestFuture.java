@@ -16,6 +16,7 @@
 
 package com.biasedbit.hotpotato.request;
 
+import com.biasedbit.hotpotato.client.HttpClient;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 
@@ -306,4 +307,8 @@ public interface HttpRequestFuture<T> {
      * @return {@code true} if and only if the future was completed within the specified time limit
      */
     boolean awaitUninterruptibly(long timeoutMillis);
+
+    HttpClient getClient();
+
+    void setClient(HttpClient client);
 }

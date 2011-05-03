@@ -33,14 +33,16 @@ public class DefaultHttpClientManager implements HttpClientManager {
      */
     private int numberOfClients = 5;
     private RoundRobinLogic roundRobinLogic;
+    private ArrayList<HttpClient> httpClients;
 
 
+    @Override
     public void init() {
         logger.info("Initiating Client Manager with client pool of [" + numberOfClients + "]");
         this.defaultHttpClient = httpClientFactory.getClient();
         defaultHttpClient.init();
         logger.info("Default client initiated");
-        final ArrayList<HttpClient> httpClients = new ArrayList<HttpClient>(numberOfClients);
+        httpClients = new ArrayList<HttpClient>(numberOfClients);
         HttpClient client;
         for (int i = 0; i < numberOfClients; i++) {
             client = httpClientFactory.getClient();
@@ -49,6 +51,14 @@ public class DefaultHttpClientManager implements HttpClientManager {
         }
         roundRobinLogic = new RoundRobinLogic(httpClients);
         logger.info("Client manager successfully initiated...");
+    }
+
+    @Override
+    public void terminate() {
+        for (HttpClient httpClient : httpClients) {
+            httpClient.terminate();
+        }
+        defaultHttpClient.terminate();
     }
 
     /**
@@ -90,10 +100,14 @@ public class DefaultHttpClientManager implements HttpClientManager {
             logger.error("Error finding the next client : ", e);
         }
         if (client != null) {
-            return client.execute(host, port, request, httpResponseProcessor);
+            final HttpRequestFuture execute = client.execute(host, port, request, httpResponseProcessor);
+            execute.setClient(client);
+            return execute;
         } else {
             logger.warn("Error getting the next client, using default client for execution");
-            return defaultHttpClient.execute(host, port, request, httpResponseProcessor);
+            final HttpRequestFuture execute = defaultHttpClient.execute(host, port, request, httpResponseProcessor);
+            execute.setClient(defaultHttpClient);
+            return execute;
         }
     }
 

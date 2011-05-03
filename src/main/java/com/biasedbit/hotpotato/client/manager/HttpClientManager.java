@@ -44,4 +44,8 @@ public interface HttpClientManager {
     HttpRequestFuture execute(String host, int port, HttpRequest request, HttpResponseProcessor httpResponseProcessor);
 
     void setNumberOfClients(int numberOfClients);
+
+    void init();
+
+    void terminate();
 }
